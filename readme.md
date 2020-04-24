@@ -10,8 +10,8 @@ Falls Qt nicht unter C:\Qt installiert ist müssen die .props files im props Ord
 
 ## Automatisch generierte Dateien
 
-Alle *_moc.cpp Dateien werden automatisch mit $(QtPath)\bin\moc.exe  aus den Vorhandenen Header-Files die UI Elemente beinhalten kompiliert.
-Alle ui_*.h Dateien werden automatisch mit $(QtPath)\bin\uic.exe aus den Vorhandenen *.ui Dateien kompiliert.
+Alle \*_moc.cpp Dateien werden automatisch mit $(QtPath)\bin\moc.exe  aus den Vorhandenen Header-Files die UI Elemente beinhalten kompiliert.
+Alle ui_\*.h Dateien werden automatisch mit $(QtPath)\bin\uic.exe aus den Vorhandenen \*.ui Dateien kompiliert.
 
 # Sonstiges
 
