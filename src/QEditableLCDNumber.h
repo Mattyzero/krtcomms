@@ -14,6 +14,9 @@ public:
 	explicit QEditableLCDNumber(QWidget *parent = 0);
 	void Deselect();
 
+	void QEditableLCDNumber::FormatDisplay(double value);
+	void QEditableLCDNumber::FormatDisplay(QString value);
+
 signals:
 
 public slots:

@@ -1,5 +1,5 @@
 /*
- * TeamSpeak 3 KRT Commander
+ * TeamSpeak 3 KRT Comms
  *
  * Copyright (c) Matthias Horn
  */

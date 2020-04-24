@@ -20,6 +20,24 @@ void QEditableLCDNumber::Deselect() {
 	update();
 }
 
+void QEditableLCDNumber::FormatDisplay(double value) {
+	QString lcdStr;
+	lcdStr.setNum(value, 'f', 2);
+
+	FormatDisplay(lcdStr);
+}
+
+void QEditableLCDNumber::FormatDisplay(QString value) {
+
+	/* Insert starting zeros in lcdStr representation */
+	int l = this->digitCount() - value.length();
+	for (int i = 0; i < l; i++) {
+		value.insert(0, "0");
+	}
+
+	this->display(value);
+}
+
 void QEditableLCDNumber::setDigitAreaPressed(QMouseEvent * e, const int areaId)
 {
 	int ndigits = this->digitCount();
@@ -159,3 +177,4 @@ void QEditableLCDNumber::positionValueIncrement(const int numSteps)
 
 	this->display(lcdStr);
 }
+

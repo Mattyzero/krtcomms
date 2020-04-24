@@ -4,17 +4,17 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 
-class KRTCommander {
+class KRTComms {
 public:
-	static KRTCommander& getInstance();
+	static KRTComms& getInstance();
 
 	struct ClientInfo {
 		anyID clientID;
 		bool isWhispering;
 	};
 
-	KRTCommander();
-	~KRTCommander() = default;
+	KRTComms();
+	~KRTComms() = default;
 
 	void Init(const struct TS3Functions funcs, char* pluginID);
 

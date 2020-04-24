@@ -17,9 +17,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="KRTCommander.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include=".vsgen\QEditableLCDNumber_moc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KRTComms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -67,16 +67,13 @@
     <ClInclude Include="..\include\plugin_definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KRTCommander.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include=".vsgen\ui_channels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QEditableLCDNumber.h">
+    <ClInclude Include="KRTComms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -85,6 +82,9 @@
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="channels.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QEditableLCDNumber.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

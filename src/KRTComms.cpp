@@ -1,4 +1,4 @@
-#include "KRTCommander.h"
+#include "KRTComms.h"
 #include "teamspeak/public_rare_definitions.h"
 #include "teamspeak/public_errors.h"
 #include "ts3_functions.h"
@@ -18,29 +18,29 @@
 #define MAX_CHANNELS 8
 #define RADIO_COUNT 4
 
-KRTCommander::KRTCommander() {
+KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		_pans[i] = 0.0f;
 		_gains[i] = 1.0f;
 	}
 }
 
-KRTCommander& KRTCommander::getInstance() {
-	static KRTCommander instance;
+KRTComms& KRTComms::getInstance() {
+	static KRTComms instance;
 	return instance;
 }
 
-void KRTCommander::Init(const struct TS3Functions funcs, char* pluginID) {
+void KRTComms::Init(const struct TS3Functions funcs, char* pluginID) {
 	_ts3 = funcs;
 	_pluginID = pluginID;
 	//_ts3.getClientID(_serverConnectionHandlerID, &_me);
 }
 
-void KRTCommander::SetDebug(bool debug) {
+void KRTComms::SetDebug(bool debug) {
 	_debug = debug;
 }
 
-void KRTCommander::SendPluginCommand(uint64 serverConnectionHandlerID, const char* pluginID, QString command, int targetMode, const anyID* targetIDs, const char* returnCode) {
+void KRTComms::SendPluginCommand(uint64 serverConnectionHandlerID, const char* pluginID, QString command, int targetMode, const anyID* targetIDs, const char* returnCode) {
 	anyID me;
 	_ts3.getClientID(serverConnectionHandlerID, &me);
 
@@ -48,7 +48,7 @@ void KRTCommander::SendPluginCommand(uint64 serverConnectionHandlerID, const cha
 	_ts3.sendPluginCommand(serverConnectionHandlerID, _pluginID, command.toStdString().c_str(), PluginCommandTarget_SERVER, NULL, NULL);
 }
 
-void KRTCommander::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char* pluginCommand, anyID invokerClientID, const char* invokerName) {
+void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char* pluginCommand, anyID invokerClientID, const char* invokerName) {
 
 	QString command = QString(pluginCommand);	
 	QStringList tokens = command.split('\t');
@@ -102,16 +102,16 @@ void KRTCommander::ProcessPluginCommand(uint64 serverConnectionHandlerID, const 
 }
 
 /*
-void KRTCommander::WhisperDirect(std::vector<uint64> targetChannelIDArray, std::vector<anyID> targetClientIDArray) {
-	KRTCommander::getInstance().WhisperTo(targetChannelIDArray, targetClientIDArray);
+void KRTComms::WhisperDirect(std::vector<uint64> targetChannelIDArray, std::vector<anyID> targetClientIDArray) {
+	KRTComms::getInstance().WhisperTo(targetChannelIDArray, targetClientIDArray);
 }*/
 
 /*
-char* KRTCommander::GetWhisperList() {
-	return KRTCommander::getInstance().WhisperList();
+char* KRTComms::GetWhisperList() {
+	return KRTComms::getInstance().WhisperList();
 }*/
 
-void KRTCommander::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bool state, int frequence) {
+void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bool state, int frequence) {
 	
 	try {
 		
@@ -164,7 +164,7 @@ void KRTCommander::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id
 	}
 }
 
-bool KRTCommander::ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id) {
+bool KRTComms::ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	bool active = _activeRadios[serverConnectionHandlerID].contains(radio_id);
 	/*
 	if (_debug) {
@@ -174,11 +174,11 @@ bool KRTCommander::ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id)
 	return active;
 }
 
-bool KRTCommander::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence) {
+bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence) {
 	return _activeRadios[serverConnectionHandlerID].values().contains(frequence);
 }
 
-bool KRTCommander::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname) {
+bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname) {
 	if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
 		if (_debug) {
 			_ts3.printMessageToCurrentTab("Already In");
@@ -198,23 +198,23 @@ bool KRTCommander::AddToFrequence(uint64 serverConnectionHandlerID, int frequenc
 	return true;
 }
 
-bool KRTCommander::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
+bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
 	//_ts3.printMessageToCurrentTab("REMOVED");
 	return _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
 }
 
-void KRTCommander::RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence) {
+void KRTComms::RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence) {
 	//_ts3.printMessageToCurrentTab("REMOVED ALL");
 	_targetClientIDs[serverConnectionHandlerID][frequence].clear();
 }
 
-bool KRTCommander::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
+bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
 	QString command = "METOO\t" + QString::number(frequence);
 	SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, &clientID, NULL);
 	return true;
 }
 
-void KRTCommander::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
+void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	std::vector<anyID> empty;
 	int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 	if (_debug) {
@@ -225,7 +225,7 @@ void KRTCommander::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id
 	WhisperTo(serverConnectionHandlerID, _targetChannelIDs[serverConnectionHandlerID][frequence], _targetClientIDs[serverConnectionHandlerID][frequence]);
 }
 
-void KRTCommander::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray) {
+void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray) {
 	const char* returnCode = new char[256];
 
 	//int* result = NULL;
@@ -252,7 +252,7 @@ void KRTCommander::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> tar
 	//	free(result);
 }
 
-void KRTCommander::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) {
+void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) {
 	unsigned int error;
 
 	if (!_pttActive) {
@@ -293,47 +293,47 @@ void KRTCommander::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTa
 	_pttActive = shouldTalk;
 }
 
-void KRTCommander::Reset(uint64 serverConnectionHandlerID) {
+void KRTComms::Reset(uint64 serverConnectionHandlerID) {
 	//_ts3.printMessageToCurrentTab("RESET");
 	_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, NULL);
 	SetPushToTalk(serverConnectionHandlerID, false);
 	_isWhispering = false;
 }
 
-void KRTCommander::SetPan(int radio_id, float pan) {
+void KRTComms::SetPan(int radio_id, float pan) {
 	_pans[radio_id] = pan;
 
 	//QString logmessage = "Radio: " + QString::number(radio_id) + " Pan: " + QString::number(_pans[radio_id]);
 	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 }
 
-void KRTCommander::SetVolumeGain(int radio_id, float gain) {
+void KRTComms::SetVolumeGain(int radio_id, float gain) {
 	_gains[radio_id] = gain;
 }
 
-int KRTCommander::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
+int KRTComms::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
 	return _activeRadios[serverConnectionHandlerID].value(radio_id, -1);
 }
 
-void KRTCommander::Disconnect(uint64 serverConnectionHandlerID) {
+void KRTComms::Disconnect(uint64 serverConnectionHandlerID) {
 	foreach(int radio_id, _activeRadios[serverConnectionHandlerID]) {
 		SetActiveRadio(serverConnectionHandlerID, radio_id, 0, -1);
 	}
 }
 
-void KRTCommander::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
+void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 	foreach(int frequence, _activeRadios[serverConnectionHandlerID].values()) {
 		RemoveFromFrequence(serverConnectionHandlerID, frequence, clientID);
 	}
 }
 
-void KRTCommander::RequestHotkeyInputDialog(int radio_id, QWidget *parent) {
+void KRTComms::RequestHotkeyInputDialog(int radio_id, QWidget *parent) {
 	_keyword = "send_ch_" + QString::number(radio_id);
 	_parent = parent;
 	_ts3.requestHotkeyInputDialog(_pluginID, _keyword.toStdString().c_str(), 1, _parent);
 }
 
-void KRTCommander::OnHotkeyRecordedEvent(QString keyword, QString key) {
+void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 	if (!_keyword.isEmpty()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		_ts3.requestHotkeyInputDialog(_pluginID, (_keyword + "_").toStdString().c_str(), 0, _parent);
@@ -342,7 +342,7 @@ void KRTCommander::OnHotkeyRecordedEvent(QString keyword, QString key) {
 	}
 }
 
-void KRTCommander::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
+void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	//TODO Handle multiple STATUS_TALKING
 	try {
 		foreach(int frequence, _targetClientIDs[serverConnectionHandlerID].keys()) {
@@ -359,12 +359,12 @@ void KRTCommander::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int
 	}
 }
 
-void KRTCommander::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
+void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
 
 	
 }
 
-void KRTCommander::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	
 	if (channels == 1)
 		return;

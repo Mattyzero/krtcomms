@@ -1,5 +1,5 @@
 /*
- * TeamSpeak 3 KRT Commander
+ * TeamSpeak 3 KRT Comms
  *
  * Copyright (c) Matthias Horn
  */
@@ -23,7 +23,7 @@
 #include "ts3_functions.h"
 #include "plugin.h"
 
-#include "KRTCommander.h"
+#include "KRTComms.h"
 #include "channels.h"
 
 
@@ -73,14 +73,14 @@ const char* ts3plugin_name() {
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
 	static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
-		const wchar_t* name = L"KRT Commander";
+		const wchar_t* name = L"KRT Comms";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "KRT Commander";  /* Conversion failed, fallback here */
+			result = "KRT Comms";  /* Conversion failed, fallback here */
 		}
 	}
 	return result;
 #else
-	return "KRT Commander";
+	return "KRT Comms";
 #endif
 }
 
@@ -127,23 +127,24 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
  * If the function returns 1 on failure, the plugin will be unloaded again.
  */
 int ts3plugin_init() {
+	/*
     char appPath[PATH_BUFSIZE];
     char resourcesPath[PATH_BUFSIZE];
     char configPath[PATH_BUFSIZE];
 	char pluginPath[PATH_BUFSIZE];
 
-    /* Your plugin init code here */
+    // Your plugin init code here
     printf("PLUGIN: init\n");
 
-    /* Example on how to query application, resources and configuration paths from client */
-    /* Note: Console client returns empty string for app and resources path */
+    // Example on how to query application, resources and configuration paths from client 
+    // Note: Console client returns empty string for app and resources path 
     ts3Functions.getAppPath(appPath, PATH_BUFSIZE);
     ts3Functions.getResourcesPath(resourcesPath, PATH_BUFSIZE);
     ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, pluginID);
 
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
-
+	*/
 	channelsui_init();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
@@ -209,7 +210,7 @@ void ts3plugin_registerPluginID(const char* id) {
 	_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 
-	KRTCommander::getInstance().Init(ts3Functions, pluginID);
+	KRTComms::getInstance().Init(ts3Functions, pluginID);
 }
 
 /* Plugin command keyword. Return NULL or "" if not used. */
@@ -235,7 +236,7 @@ void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) 
 
 /* Static title shown in the left column in the info frame */
 const char* ts3plugin_infoTitle() {
-	return "KRT Commander";
+	return "KRT Comms";
 }
 
 /*
@@ -274,7 +275,7 @@ void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum Plugin
 			return;
 	}*/
 
-	//char* whisperList = KRTCommander::GetWhisperList();
+	//char* whisperList = KRTComms::GetWhisperList();
 
 
 	//*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
@@ -348,7 +349,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 */
 
 	BEGIN_CREATE_MENUS(5);  /* IMPORTANT: Number of menu items must be correct! And same as _menuItems*/
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Settings", "1.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Radios", "1.png");
 
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_CID,  "Citizen ID",  "1.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
@@ -466,7 +467,7 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	if (newChannelID == 0) {
-		KRTCommander::getInstance().Disconnected(serverConnectionHandlerID, clientID);
+		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
 	}
 }
 
@@ -537,7 +538,7 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		}
 	}*/
 
-	KRTCommander::getInstance().OnTalkStatusChangeEvent(serverConnectionHandlerID, status, isReceivedWhisper, clientID);
+	KRTComms::getInstance().OnTalkStatusChangeEvent(serverConnectionHandlerID, status, isReceivedWhisper, clientID);
 }
 
 void ts3plugin_onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID) {
@@ -572,12 +573,12 @@ void ts3plugin_onSoundDeviceListChangedEvent(const char* modeID, int playOrCap) 
 
 //packet receive -> decode -> onEditPlaybackVoiceDataEvent -> 3D positioning -> onEditPostProcessVoiceDataEvent -> mixing -> onEditMixedPlaybackVoiceDataEvent -> speaker output
 void ts3plugin_onEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
-	KRTCommander::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels);
+	KRTComms::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels);
 }
 
 //packet receive -> decode -> onEditPlaybackVoiceDataEvent -> 3D positioning -> onEditPostProcessVoiceDataEvent -> mixing -> onEditMixedPlaybackVoiceDataEvent -> speaker output
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
-	KRTCommander::getInstance().OnEditPostProcessVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
+	KRTComms::getInstance().OnEditPostProcessVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
 }
 
 //packet receive -> decode -> onEditPlaybackVoiceDataEvent -> 3D positioning -> onEditPostProcessVoiceDataEvent -> mixing -> onEditMixedPlaybackVoiceDataEvent -> speaker output
@@ -758,7 +759,7 @@ void ts3plugin_onPluginCommandEvent(uint64 serverConnectionHandlerID, const char
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	
 	if (strncmp(pluginName, "krt_commander", 13) == 0) {
-		KRTCommander::getInstance().ProcessPluginCommand(serverConnectionHandlerID, pluginCommand, invokerClientID, invokerName);
+		KRTComms::getInstance().ProcessPluginCommand(serverConnectionHandlerID, pluginCommand, invokerClientID, invokerName);
 	}
 }
 
@@ -862,14 +863,14 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 		bool ok;
 		int radio_id = keyword_.replace("send_ch_", "").replace("_", "").toInt(&ok);
 		if (ok) {
-			KRTCommander::getInstance().WhisperToRadio(serverConnectionHandlerID, radio_id);
+			KRTComms::getInstance().WhisperToRadio(serverConnectionHandlerID, radio_id);
 		}
 	}
 }
 
 /* Called when recording a hotkey has finished after calling ts3Functions.requestHotkeyInputDialog */
 void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key) {
-	KRTCommander::getInstance().OnHotkeyRecordedEvent(QString(keyword), QString(key));
+	KRTComms::getInstance().OnHotkeyRecordedEvent(QString(keyword), QString(key));
 }
 
 // This function receives your key Identifier you send to notifyKeyEvent and should return
@@ -895,10 +896,10 @@ void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyI
 
 void channelsui_init() {
 	if (channels_ == nullptr) {
-		char path[256];
-		ts3Functions.getConfigPath(path, 256);
-		strcat_s(path, 256, "\\krt_commander_channels.cnf");
-		channels_ = new channels(QString::fromUtf8(path), pluginID, ts3Functions);
+		char pluginPath[PATH_BUFSIZE];
+		ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, pluginID);
+		strcat_s(pluginPath, PATH_BUFSIZE, "\\krt_comms.cnf");
+		channels_ = new channels(QString::fromUtf8(pluginPath), pluginID, ts3Functions);
 	}
 }
 

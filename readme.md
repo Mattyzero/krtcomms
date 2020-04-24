@@ -1,4 +1,4 @@
-# KRTCommander
+# KRTComms
 
 Dieses Projekt benutzt nicht qmake
 
