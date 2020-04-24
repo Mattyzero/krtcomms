@@ -1,0 +1,80 @@
+#pragma once
+#include "ts3_functions.h"
+#include <QtWidgets/QDialog>
+#include <QtCore/QMap>
+#include <QtCore/QList>
+
+class KRTCommander {
+public:
+	static KRTCommander& getInstance();
+
+	struct ClientInfo {
+		anyID clientID;
+		bool isWhispering;
+	};
+
+	KRTCommander();
+	~KRTCommander() = default;
+
+	void Init(const struct TS3Functions funcs, char* pluginID);
+
+	void SetDebug(bool debug);
+
+	void SendPluginCommand(uint64 serverConnectionHandlerID, const char* pluginID, QString command, int targetMode, const anyID* targetIDs, const char* returnCode);
+
+	void ProcessPluginCommand(uint64 serverConnectionHandlerID, const char* pluginCommand, anyID invokerClientID, const char* invokerName);
+
+	void SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bool state, int frequence);
+	bool ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id);
+	bool ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence);
+	bool AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname);
+	bool RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
+	void RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence);
+
+	bool AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
+
+	void WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id);
+	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray);
+
+	void SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk);
+	void Reset(uint64 serverConnectionHandlerID);
+
+	void SetPan(int radio_id, float pan);
+	void SetVolumeGain(int radio_id, float gain);
+
+	int GetFrequence(uint64 serverConnectionHandlerID, int radio_id);
+
+	void Disconnect(uint64 serverConnectionHandlerID);
+	void Disconnected(uint64 serverConnectionHandlerID, anyID clientID);
+
+	void RequestHotkeyInputDialog(int radio_id, QWidget *parent = nullptr);
+	void OnHotkeyRecordedEvent(QString keyword, QString key);
+	void OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID);
+	void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
+	void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
+
+private:
+	
+	QMap<uint64, QMap<int, int>> _activeRadios;
+	
+	QString _keyword;
+	QWidget* _parent;
+
+	bool _debug = false;
+	bool _isWhispering = false;
+	bool _pttActive = false;
+	bool _vadActive = false;
+	bool _inputActive = false;
+
+	QMap<uint64, QMap<int, QList<uint64>>> _targetChannelIDs;
+	QMap<uint64, QMap<int, QList<anyID>>>  _targetClientIDs;
+	QMap<uint64, QMap<anyID, QString>> _nicknames;
+	QMap<uint64, QMap<anyID, bool>> _isClientWhispering;
+
+	float _pans[4];
+	float _gains[4];
+
+	char* _pluginID;
+	struct TS3Functions _ts3;
+};
+
