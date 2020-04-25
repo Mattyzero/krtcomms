@@ -758,7 +758,7 @@ void ts3plugin_onPluginCommandEvent(uint64 serverConnectionHandlerID, const char
 
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	
-	if (strncmp(pluginName, "krt_commander", 13) == 0) {
+	if (strncmp(pluginName, "krt_comms", 13) == 0) {
 		KRTComms::getInstance().ProcessPluginCommand(serverConnectionHandlerID, pluginCommand, invokerClientID, invokerName);
 	}
 }

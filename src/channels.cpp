@@ -20,6 +20,8 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	setWindowTitle("KRT Comms Radios");
 
+	this->adjustSize();
+
 	connect(_ui->buttonBox, &QDialogButtonBox::accepted, this, &channels::save);
 	connect(_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
