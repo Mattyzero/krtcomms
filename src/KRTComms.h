@@ -8,11 +8,6 @@ class KRTComms {
 public:
 	static KRTComms& getInstance();
 
-	struct ClientInfo {
-		anyID clientID;
-		bool isWhispering;
-	};
-
 	KRTComms();
 	~KRTComms() = default;
 
@@ -69,7 +64,6 @@ private:
 	QMap<uint64, QMap<int, QList<uint64>>> _targetChannelIDs;
 	QMap<uint64, QMap<int, QList<anyID>>>  _targetClientIDs;
 	QMap<uint64, QMap<anyID, QString>> _nicknames;
-	QMap<uint64, QMap<anyID, bool>> _isClientWhispering;
 
 	float _pans[4];
 	float _gains[4];

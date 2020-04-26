@@ -5,6 +5,7 @@
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
 #include "KRTComms.h"
+#include "Ducker.h"
 
 #include <QtGui/QCursor>
 
@@ -47,6 +48,7 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	connect(_ui->reset, &QPushButton::clicked, this, &channels::onReset);
 	connect(_ui->debug, &QCheckBox::stateChanged, this, &channels::onDebug);
+	connect(_ui->duck_channel, &QCheckBox::stateChanged, this, &channels::onDuckChannel);
 
 	connect(_ui->set_frequence_1, &QPushButton::clicked, this, &channels::onSetFrequence1);
 	connect(_ui->set_frequence_2, &QPushButton::clicked, this, &channels::onSetFrequence2);
@@ -101,6 +103,8 @@ void channels::load() {
 	_ui->volume_gain_ch_2->setValue(get("gain_2").toInt());
 	_ui->volume_gain_ch_3->setValue(get("gain_3").toInt());
 	_ui->volume_gain_ch_4->setValue(get("gain_4").toInt());
+
+	_ui->duck_channel->setChecked(get("duck_channel").toBool());
 }
 
 void channels::onChange1(int state) {
@@ -205,6 +209,11 @@ void channels::onReset(bool checked) {
 
 void channels::onDebug(int state) {
 	KRTComms::getInstance().SetDebug(state == 2);
+}
+
+void channels::onDuckChannel(int state) {
+	Ducker::getInstance().SetEnabled(state == 2);
+	set("duck_channel", state == 2);
 }
 
 

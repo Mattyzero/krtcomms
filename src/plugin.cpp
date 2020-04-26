@@ -24,6 +24,7 @@
 #include "plugin.h"
 
 #include "KRTComms.h"
+#include "Ducker.h"
 #include "channels.h"
 
 
@@ -86,7 +87,7 @@ const char* ts3plugin_name() {
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return "1.0";
+    return "0.0.4";
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -211,6 +212,7 @@ void ts3plugin_registerPluginID(const char* id) {
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 
 	KRTComms::getInstance().Init(ts3Functions, pluginID);
+	Ducker::getInstance().Init(ts3Functions, pluginID);
 }
 
 /* Plugin command keyword. Return NULL or "" if not used. */
@@ -469,6 +471,8 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 	if (newChannelID == 0) {
 		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
 	}
+
+	Ducker::getInstance().OnClientMoveEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage);
 }
 
 void ts3plugin_onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
@@ -758,7 +762,7 @@ void ts3plugin_onPluginCommandEvent(uint64 serverConnectionHandlerID, const char
 
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	
-	if (strncmp(pluginName, "krt_comms", 13) == 0) {
+	if (strncmp(pluginName, "krt_comms", 9) == 0) {
 		KRTComms::getInstance().ProcessPluginCommand(serverConnectionHandlerID, pluginCommand, invokerClientID, invokerName);
 	}
 }

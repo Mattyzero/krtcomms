@@ -159,10 +159,12 @@
     <ClCompile Include=".vsgen\channels_moc.cpp" />
     <ClCompile Include=".vsgen\QEditableLCDNumber_moc.cpp" />
     <ClCompile Include="channels.cpp" />
+    <ClCompile Include="Ducker.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="KRTComms.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="QEditableLCDNumber.cpp" />
+    <ClCompile Include="Talkers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\plugin_definitions.h" />
@@ -174,6 +176,7 @@
     <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include=".vsgen\ui_channels.h" />
+    <ClInclude Include="Talkers.h" />
     <CustomBuild Include="QEditableLCDNumber.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
@@ -194,6 +197,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
+    <ClInclude Include="Ducker.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="KRTComms.h" />
     <ClInclude Include="plugin.h">

@@ -38,6 +38,12 @@
     <ClCompile Include="KRTComms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ducker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Talkers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -74,6 +80,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KRTComms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ducker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Talkers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

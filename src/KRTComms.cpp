@@ -3,6 +3,8 @@
 #include "teamspeak/public_errors.h"
 #include "ts3_functions.h"
 #include "Helpers.h"
+#include "Talkers.h"
+#include "Ducker.h"
 
 #include <chrono>
 #include <thread>
@@ -345,10 +347,23 @@ void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	//TODO Handle multiple STATUS_TALKING
 	try {
+		int clientFrequence = -1;
 		foreach(int frequence, _targetClientIDs[serverConnectionHandlerID].keys()) {
 			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
-				_isClientWhispering[serverConnectionHandlerID][clientID] = isReceivedWhisper;
+				//_isClientWhispering[serverConnectionHandlerID][clientID] = isReceivedWhisper;
+				clientFrequence = frequence;
+				//TODO Support für multiple frequences
+				break;
 			}
+		}
+
+		//TODO Was wenn es einen Disconnect gibt wärenddessen sie STATUS_TALKING sind
+
+		if (status == STATUS_TALKING) {
+			Talkers::getInstance().Add(serverConnectionHandlerID, clientID, isReceivedWhisper, clientFrequence);
+		} else
+		if(status == STATUS_NOT_TALKING) {
+			Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, isReceivedWhisper);
 		}
 	} 
 	catch (const std::exception& e) {
@@ -360,8 +375,25 @@ void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 }
 
 void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
-
 	
+	//Hier alles was den Ducker nicht braucht coden
+
+	if (!Ducker::getInstance().IsEnabled()) return;
+	bool shouldDuck = false;
+
+	//Wenn jemand whispert aber diese clientID es nicht tut dann ducken
+	if (Talkers::getInstance().IsAnyWhispering(serverConnectionHandlerID)) {
+		if (!Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
+			shouldDuck = true; //TODO? Vllt wenn ducking unterschiedliche lautstärken haben soll float statt bool
+		}
+		else {
+			shouldDuck = Talkers::getInstance().PrioritizedFrequence(serverConnectionHandlerID, clientID);
+		}
+	}
+
+	if (shouldDuck) {
+		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels);
+	}
 }
 
 void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
@@ -377,7 +409,7 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 		foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 			
 			int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
-			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) && _isClientWhispering[serverConnectionHandlerID][clientID]) {
+			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) && Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
 				
 				static thread_local size_t allocatedFloatsSample = 0;
 				static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;
@@ -448,5 +480,4 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC OnEditPostProcessVoiceDataEvent", serverConnectionHandlerID);
 	}
 }
-
 

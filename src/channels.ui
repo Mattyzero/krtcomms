@@ -563,6 +563,13 @@
       </property>
      </widget>
     </item>
+    <item row="6" column="3">
+     <widget class="QCheckBox" name="duck_channel">
+      <property name="text">
+       <string>Ducking</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

@@ -68,5 +68,6 @@ private:
 
 	void onReset(bool checked);
 	void onDebug(int state);
+	void onDuckChannel(int state);
 };
 
