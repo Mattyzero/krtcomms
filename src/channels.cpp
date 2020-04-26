@@ -19,7 +19,7 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	_ui->setupUi(this);
 
-	setWindowTitle("KRT Comms Radios");
+	setWindowTitle((QString("KRT Comms Radios v") + KRTComms::version));
 
 	this->adjustSize();
 

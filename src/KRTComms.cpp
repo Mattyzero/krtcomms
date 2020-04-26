@@ -20,10 +20,13 @@
 #define MAX_CHANNELS 8
 #define RADIO_COUNT 4
 
+char* KRTComms::version = "0.0.5";
+
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		_pans[i] = 0.0f;
 		_gains[i] = 1.0f;
+		_isWhispering[i] = false;
 	}
 }
 
@@ -218,13 +221,28 @@ bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, an
 
 void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	std::vector<anyID> empty;
+	_isWhispering[radio_id] = !_isWhispering[radio_id];
+
 	int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 	if (_debug) {
 		QString logmessage = "WhisperToRadio: " + QString::number(radio_id) + " | " + QString::number(frequence);
 		_ts3.logMessage(logmessage.toStdString().c_str(), LogLevel_DEBUG, "KRTC WhisperToRadio", serverConnectionHandlerID);
 		//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	}
-	WhisperTo(serverConnectionHandlerID, _targetChannelIDs[serverConnectionHandlerID][frequence], _targetClientIDs[serverConnectionHandlerID][frequence]);
+
+	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
+	QList<anyID> targetClientIDs;
+
+	for (int i = 0; i < _isWhispering.size(); i++) {
+		if (_isWhispering[i]) {
+			int freq = GetFrequence(serverConnectionHandlerID, i);
+			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
+		}
+	}
+
+	WhisperTo(serverConnectionHandlerID, targetChannelIDs, targetClientIDs);
+
+	
 }
 
 void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray) {
@@ -234,7 +252,7 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 
 	//_ts3.isWhispering(serverConnectionHandlerID, NULL, result);
 
-	if (_isWhispering || (targetChannelIDArray.size() == 0 && targetClientIDArray.size() == 0)) {
+	if (targetChannelIDArray.size() == 0 && targetClientIDArray.size() == 0) {
 		_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, returnCode);
 		SetPushToTalk(serverConnectionHandlerID, false);
 	}
@@ -242,11 +260,10 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 		SetPushToTalk(serverConnectionHandlerID, true);
 		_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, targetChannelIDArray.toVector().data(), targetClientIDArray.toVector().data(), returnCode);
 	}
-	_isWhispering = !_isWhispering;
 
 	if (_debug) {
 		char message[256];
-		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size(), _isWhispering ? "true" : "false");
+		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size(), _isWhispering.values().contains(true) ? "true" : "false");
 		_ts3.printMessageToCurrentTab(message);
 	}
 
@@ -299,7 +316,9 @@ void KRTComms::Reset(uint64 serverConnectionHandlerID) {
 	//_ts3.printMessageToCurrentTab("RESET");
 	_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, NULL);
 	SetPushToTalk(serverConnectionHandlerID, false);
-	_isWhispering = false;
+	for (int radio_id = 0; radio_id < _isWhispering.size(); radio_id++) {
+		_isWhispering[radio_id] = false;
+	}
 }
 
 void KRTComms::SetPan(int radio_id, float pan) {
@@ -317,9 +336,15 @@ int KRTComms::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
 	return _activeRadios[serverConnectionHandlerID].value(radio_id, -1);
 }
 
+void KRTComms::Disconnect() {
+	foreach(uint64 serverConnectionHandlerID, _activeRadios.keys()) {
+		Disconnect(serverConnectionHandlerID);
+	}
+}
+
 void KRTComms::Disconnect(uint64 serverConnectionHandlerID) {
-	foreach(int radio_id, _activeRadios[serverConnectionHandlerID]) {
-		SetActiveRadio(serverConnectionHandlerID, radio_id, 0, -1);
+	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
+		SetActiveRadio(serverConnectionHandlerID, radio_id, false, -1);
 	}
 }
 

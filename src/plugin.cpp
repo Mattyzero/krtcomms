@@ -87,7 +87,7 @@ const char* ts3plugin_name() {
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return "0.0.4";
+    return KRTComms::version;
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -158,6 +158,8 @@ int ts3plugin_init() {
 void ts3plugin_shutdown() {
     /* Your plugin cleanup code here */
     //printf("PLUGIN: shutdown\n");
+
+	KRTComms::getInstance().Disconnect();
 
 	if (channels_) {
 		channels_->close();

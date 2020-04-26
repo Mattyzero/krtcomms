@@ -7,6 +7,7 @@
 class KRTComms {
 public:
 	static KRTComms& getInstance();
+	static char* version;
 
 	KRTComms();
 	~KRTComms() = default;
@@ -39,6 +40,7 @@ public:
 
 	int GetFrequence(uint64 serverConnectionHandlerID, int radio_id);
 
+	void Disconnect();
 	void Disconnect(uint64 serverConnectionHandlerID);
 	void Disconnected(uint64 serverConnectionHandlerID, anyID clientID);
 
@@ -56,7 +58,7 @@ private:
 	QWidget* _parent;
 
 	bool _debug = false;
-	bool _isWhispering = false;
+	QMap<int, bool> _isWhispering;
 	bool _pttActive = false;
 	bool _vadActive = false;
 	bool _inputActive = false;
