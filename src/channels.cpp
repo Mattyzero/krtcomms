@@ -6,6 +6,7 @@
 #include "ts3_functions.h"
 #include "KRTComms.h"
 #include "Ducker.h"
+#include "Encrypter.h"
 
 #include <QtGui/QCursor>
 
@@ -41,19 +42,39 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->pan_ch_3, &QDial::valueChanged, this, &channels::onPanChanged3);
 	connect(_ui->pan_ch_4, &QDial::valueChanged, this, &channels::onPanChanged4);
 
-	connect(_ui->volume_gain_ch_1, &QDial::valueChanged, this, &channels::onVolumeGainChanged1);
-	connect(_ui->volume_gain_ch_2, &QDial::valueChanged, this, &channels::onVolumeGainChanged2);
-	connect(_ui->volume_gain_ch_3, &QDial::valueChanged, this, &channels::onVolumeGainChanged3);
-	connect(_ui->volume_gain_ch_4, &QDial::valueChanged, this, &channels::onVolumeGainChanged4);
+	connect(_ui->volume_gain_ch_1, &QSlider::valueChanged, this, &channels::onVolumeGainChanged1);
+	connect(_ui->volume_gain_ch_2, &QSlider::valueChanged, this, &channels::onVolumeGainChanged2);
+	connect(_ui->volume_gain_ch_3, &QSlider::valueChanged, this, &channels::onVolumeGainChanged3);
+	connect(_ui->volume_gain_ch_4, &QSlider::valueChanged, this, &channels::onVolumeGainChanged4);
 
 	connect(_ui->reset, &QPushButton::clicked, this, &channels::onReset);
 	connect(_ui->debug, &QCheckBox::stateChanged, this, &channels::onDebug);
-	connect(_ui->duck_channel, &QCheckBox::stateChanged, this, &channels::onDuckChannel);
 
 	connect(_ui->set_frequence_1, &QPushButton::clicked, this, &channels::onSetFrequence1);
 	connect(_ui->set_frequence_2, &QPushButton::clicked, this, &channels::onSetFrequence2);
 	connect(_ui->set_frequence_3, &QPushButton::clicked, this, &channels::onSetFrequence3);
 	connect(_ui->set_frequence_4, &QPushButton::clicked, this, &channels::onSetFrequence4);
+
+
+	connect(_ui->channel_ducking, &QCheckBox::stateChanged, this, &channels::onChannelDuckingChanged);
+	connect(_ui->freq_ducking_1xx, &QCheckBox::stateChanged, this, &channels::onFreq1xxDuckingChanged);
+	connect(_ui->freq_ducking_x1x, &QCheckBox::stateChanged, this, &channels::onFreqx1xDuckingChanged);
+
+	connect(_ui->channel_ducking_slider, &QSlider::valueChanged, this, &channels::onChannelDuckingSliderChanged);
+	connect(_ui->freq_ducking_slider_1xx, &QSlider::valueChanged, this, &channels::onFreq1xxDuckingSliderChanged);
+	connect(_ui->freq_ducking_slider_x1x, &QSlider::valueChanged, this, &channels::onFreqx1xDuckingSliderChanged);
+
+	connect(_ui->radio_1_password, &QLineEdit::textChanged, this, &channels::onRadio1PasswordChanged);
+	connect(_ui->set_radio_1_password, &QPushButton::clicked, this, &channels::onSetRadio1Password);
+
+	connect(_ui->radio_2_password, &QLineEdit::textChanged, this, &channels::onRadio2PasswordChanged);
+	connect(_ui->set_radio_2_password, &QPushButton::clicked, this, &channels::onSetRadio2Password);
+
+	connect(_ui->radio_3_password, &QLineEdit::textChanged, this, &channels::onRadio3PasswordChanged);
+	connect(_ui->set_radio_3_password, &QPushButton::clicked, this, &channels::onSetRadio3Password);
+
+	connect(_ui->radio_4_password, &QLineEdit::textChanged, this, &channels::onRadio4PasswordChanged);
+	connect(_ui->set_radio_4_password, &QPushButton::clicked, this, &channels::onSetRadio4Password);
 }
 
 channels::~channels() {
@@ -103,8 +124,26 @@ void channels::load() {
 	_ui->volume_gain_ch_2->setValue(get("gain_2").toInt());
 	_ui->volume_gain_ch_3->setValue(get("gain_3").toInt());
 	_ui->volume_gain_ch_4->setValue(get("gain_4").toInt());
+	
+	_ui->channel_ducking->setChecked(get("duck_channel").toBool());
+	_ui->freq_ducking_1xx->setChecked(get("duck_freq1xx").toBool());
+	_ui->freq_ducking_x1x->setChecked(get("duck_freqx1x").toBool());
 
-	_ui->duck_channel->setChecked(get("duck_channel").toBool());
+	_ui->channel_ducking_slider->setValue(get("channel_ducking").toInt());
+	_ui->freq_ducking_slider_1xx->setValue(get("freq1xx_ducking").toInt());
+	_ui->freq_ducking_slider_x1x->setValue(get("freqx1x_ducking").toInt());
+
+	_ui->radio_1_password->setText(get("radio_1_password").toString());
+	Encrypter::SetPassword(0, get("radio_1_password").toString());
+
+	_ui->radio_2_password->setText(get("radio_2_password").toString());
+	Encrypter::SetPassword(1, get("radio_2_password").toString());
+
+	_ui->radio_3_password->setText(get("radio_3_password").toString());
+	Encrypter::SetPassword(2, get("radio_3_password").toString());
+
+	_ui->radio_4_password->setText(get("radio_4_password").toString());
+	Encrypter::SetPassword(3, get("radio_4_password").toString());
 }
 
 void channels::onChange1(int state) {
@@ -211,9 +250,78 @@ void channels::onDebug(int state) {
 	KRTComms::getInstance().SetDebug(state == 2);
 }
 
-void channels::onDuckChannel(int state) {
-	Ducker::getInstance().SetEnabled(state == 2);
+void channels::onChannelDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::CHANNEL, state == 2);
 	set("duck_channel", state == 2);
+}
+
+void channels::onFreq1xxDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::FREQ1XX, state == 2);
+	set("duck_freq1xx", state == 2);
+}
+
+void channels::onFreqx1xDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::FREQX1X, state == 2);
+	set("duck_freqx1x", state == 2);
+}
+
+void channels::onChannelDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::CHANNEL, value / 10.0f);
+	set("channel_ducking", value);
+}
+
+void channels::onFreq1xxDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ1XX, value / 10.0f);
+	set("freq1xx_ducking", value);
+}
+
+void channels::onFreqx1xDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::FREQX1X, value / 10.0f);
+	set("freqx1x_ducking", value);
+}
+
+void channels::onRadio1PasswordChanged(QString value) {
+	
+	set("radio_1_password", value);
+}
+
+void channels::onSetRadio1Password(bool checked) {
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, false, -1);
+	Encrypter::SetPassword(0, get("radio_1_password").toString());
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, true, (int)(_ui->frequence_1->value() * 100));
+}
+
+void channels::onRadio2PasswordChanged(QString value) {
+
+	set("radio_2_password", value);
+}
+
+void channels::onSetRadio2Password(bool checked) {
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, false, -1);
+	Encrypter::SetPassword(1, get("radio_2_password").toString());
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, true, (int)(_ui->frequence_2->value() * 100));
+}
+
+void channels::onRadio3PasswordChanged(QString value) {
+
+	set("radio_3_password", value);
+}
+
+void channels::onSetRadio3Password(bool checked) {
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, false, -1);
+	Encrypter::SetPassword(2, get("radio_3_password").toString());
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, true, (int)(_ui->frequence_3->value() * 100));
+}
+
+void channels::onRadio4PasswordChanged(QString value) {
+
+	set("radio_4_password", value);
+}
+
+void channels::onSetRadio4Password(bool checked) {
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, false, -1);
+	Encrypter::SetPassword(3, get("radio_2_password").toString());
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, true, (int)(_ui->frequence_4->value() * 100));
 }
 
 

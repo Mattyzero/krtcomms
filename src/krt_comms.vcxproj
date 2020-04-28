@@ -160,10 +160,12 @@
     <ClCompile Include=".vsgen\QEditableLCDNumber_moc.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="Ducker.cpp" />
+    <ClCompile Include="Encrypter.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="KRTComms.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="QEditableLCDNumber.cpp" />
+    <ClCompile Include="SimpleCrypt.cpp" />
     <ClCompile Include="Talkers.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +178,8 @@
     <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include=".vsgen\ui_channels.h" />
+    <ClInclude Include="Encrypter.h" />
+    <ClInclude Include="SimpleCrypt.h" />
     <ClInclude Include="Talkers.h" />
     <CustomBuild Include="QEditableLCDNumber.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>

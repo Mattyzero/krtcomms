@@ -1,4 +1,5 @@
 #include "Talkers.h"
+#include "Ducker.h"
 
 #include <math.h>
 
@@ -61,23 +62,23 @@ bool Talkers::IsAnyWhispering(uint64 serverConnectionHandlerID) {
 	return false;
 }
 
-bool Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID) {
+Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID) {
 	ClientInfo* current = _talkers[serverConnectionHandlerID][clientID];
 		
 	foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {		
 		if (info->isWhispering) {
 			if (info->frequence % 10000 == 0 && current->frequence % 10000 != 0) {
-				return true;
+				return Ducker::Type::FREQ1XX;
 			}
 			if (info->frequence % 1000 == 0 && current->frequence % 1000 != 0) {
-				return true;
+				return Ducker::Type::FREQX1X;
 			}
 			if (info->frequence % 100 == 0 && current->frequence % 100 != 0) {
-				return true;
+				return Ducker::Type::FREQXX1;
 			}
 		}
 	}
 
-	return false;
+	return Ducker::Type::NONE;
 }
 

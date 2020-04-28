@@ -7,6 +7,7 @@
 class KRTComms {
 public:
 	static KRTComms& getInstance();
+	static void Log(QString message);
 	static char* version;
 
 	KRTComms();
@@ -39,6 +40,7 @@ public:
 	void SetVolumeGain(int radio_id, float gain);
 
 	int GetFrequence(uint64 serverConnectionHandlerID, int radio_id);
+	int GetRadioId(uint64 serverConnectionHandlerID, int frequence);
 
 	void Disconnect();
 	void Disconnect(uint64 serverConnectionHandlerID);
@@ -49,9 +51,12 @@ public:
 	void OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID);
 	void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
 	void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
-
+	void OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited);
 private:
 	
+	bool _firstX = true;
+	bool _firstY = true;
+
 	QMap<uint64, QMap<int, int>> _activeRadios;
 	
 	QString _keyword;

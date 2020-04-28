@@ -9,7 +9,10 @@
 #define MAX_CHANNELS 8
 
 Ducker::Ducker() {
-	
+	for (int i = 0; i < TYPE_COUNT; i++) {
+		_enabled[i] = false;
+		_ducking[i] = 1.0f;
+	}
 }
 
 Ducker& Ducker::getInstance() {
@@ -23,12 +26,23 @@ void Ducker::Init(const struct TS3Functions funcs, char* pluginID) {
 	//_ts3.getClientID(_serverConnectionHandlerID, &_me);
 }
 
-void Ducker::SetEnabled(bool enabled) {
-	_enabled = enabled;
+void Ducker::SetEnabled(int type, bool enabled) {
+	_enabled[type] = enabled;
 }
 
 bool Ducker::IsEnabled() {
-	return _enabled;
+	for (int type = 0; type < TYPE_COUNT; type++) {
+		if (_enabled[type]) return true;
+	}
+	return false;
+}
+
+bool Ducker::IsEnabled(int type) {
+	return _enabled[type];
+}
+
+void Ducker::SetGain(int type, float value) {
+	_ducking[type] = value;
 }
 
 void Ducker::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID, int clientFrequence) {
@@ -42,7 +56,7 @@ void Ducker::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int statu
 	
 }
 
-void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
+void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, int type) {
 
 	static thread_local size_t allocatedFloatsSample = 0;
 	static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;
@@ -67,7 +81,7 @@ void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyI
 
 	for (int i = 0; i < sampleCount * channels; i += channels) {
 		for (auto j = 0; j < channels; j++) {
-			auto sample = floatsSample[j][i / channels] * _ducking;			
+			auto sample = floatsSample[j][i / channels] * _ducking[type];			
 			short newValue;
 			if (sample > 1.0) newValue = SHRT_MAX;
 			else if (sample < -1.0) newValue = SHRT_MIN;

@@ -44,6 +44,12 @@
     <ClCompile Include="Talkers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Encrypter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleCrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -86,6 +92,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Talkers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encrypter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

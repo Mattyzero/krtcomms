@@ -595,6 +595,7 @@ void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerI
 }
 
 void ts3plugin_onEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) {
+	KRTComms::getInstance().OnEditCapturedVoiceDataEvent(serverConnectionHandlerID, samples, sampleCount, channels, edited);
 }
 
 void ts3plugin_onCustom3dRolloffCalculationClientEvent(uint64 serverConnectionHandlerID, anyID clientID, float distance, float* volume) {

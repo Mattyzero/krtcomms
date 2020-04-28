@@ -68,6 +68,25 @@ private:
 
 	void onReset(bool checked);
 	void onDebug(int state);
-	void onDuckChannel(int state);
+
+	void onChannelDuckingChanged(int state);
+	void onFreq1xxDuckingChanged(int state);
+	void onFreqx1xDuckingChanged(int state);
+
+	void onChannelDuckingSliderChanged(int value);
+	void onFreq1xxDuckingSliderChanged(int value);
+	void onFreqx1xDuckingSliderChanged(int value);
+
+	void onRadio1PasswordChanged(QString value);
+	void onSetRadio1Password(bool checked);
+
+	void onRadio2PasswordChanged(QString value);
+	void onSetRadio2Password(bool checked);
+
+	void onRadio3PasswordChanged(QString value);
+	void onSetRadio3Password(bool checked);
+
+	void onRadio4PasswordChanged(QString value);
+	void onSetRadio4Password(bool checked);
 };
 

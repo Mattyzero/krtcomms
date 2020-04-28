@@ -3,6 +3,7 @@
 #include "teamspeak/public_errors.h"
 #include <QtCore/QMap>
 #include <QtCore/QList>
+#include "Ducker.h"
 
 class Talkers
 {
@@ -24,7 +25,7 @@ public:
 
 	bool IsWhispering(uint64 serverConnectionHandlerID, anyID clientID);
 	bool IsAnyWhispering(uint64 serverConnectionHandlerID);
-	bool PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID);
+	Ducker::Type PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID);
 
 private:
 	QMap<uint64, QMap<anyID, ClientInfo*>> _talkers;

@@ -5,6 +5,7 @@
 #include "Helpers.h"
 #include "Talkers.h"
 #include "Ducker.h"
+#include "Encrypter.h"
 
 #include <chrono>
 #include <thread>
@@ -20,7 +21,7 @@
 #define MAX_CHANNELS 8
 #define RADIO_COUNT 4
 
-char* KRTComms::version = "0.0.5";
+char* KRTComms::version = "0.0.6";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -33,6 +34,11 @@ KRTComms::KRTComms() {
 KRTComms& KRTComms::getInstance() {
 	static KRTComms instance;
 	return instance;
+}
+
+void KRTComms::Log(QString message) {
+	if(KRTComms::getInstance()._debug)
+		KRTComms::getInstance()._ts3.printMessageToCurrentTab(message.toStdString().c_str());
 }
 
 void KRTComms::Init(const struct TS3Functions funcs, char* pluginID) {
@@ -76,7 +82,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 
 	if (tokens[1] == "JOINED") {
 		bool ok;
-		int frequence = tokens[2].toInt(&ok, 10);
+		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
 			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName)) { //false wenn selbst
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
@@ -86,7 +92,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 
 	if (tokens[1] == "LEFT") {
 		bool ok;
-		int frequence = tokens[2].toInt(&ok, 10);
+		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok) {			
 			RemoveFromFrequence(serverConnectionHandlerID, frequence, invokerClientID);			
 		}		
@@ -94,11 +100,8 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 
 	if (tokens[1] == "METOO") {
 		bool ok;
-		int frequence = tokens[2].toInt(&ok, 10);
+		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
-
-			//QString logmessage = "METOO : " + QString(invokerName) + " : Channel ID: " + tokens[1];
-			//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 			AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName);
 		}
 	}
@@ -127,7 +130,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 
 		if (state) {
 			if (isActive && old_frequence != frequence && _activeRadios[serverConnectionHandlerID].values().count(old_frequence) <= 1) {
-				QString command = "LEFT\t" + QString::number(old_frequence);
+				QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));
 				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
 				logmessage += " LEFT";
 
@@ -136,8 +139,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 
 			if (!isActive || old_frequence != frequence) {
 				_activeRadios[serverConnectionHandlerID][radio_id] = frequence;
-
-				QString command = "JOINED\t" + QString::number(frequence);
+				QString command = "JOINED\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
 				logmessage += " JOINED";
 			}
@@ -145,7 +147,8 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 		else {
 			if (_activeRadios[serverConnectionHandlerID].contains(radio_id)) {
 				if (_activeRadios[serverConnectionHandlerID].values().count(old_frequence) <= 1) {
-					QString command = "LEFT\t" + QString::number(old_frequence);
+					
+					QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));
 					SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
 					logmessage += " LEFT";
 
@@ -214,7 +217,7 @@ void KRTComms::RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int freq
 }
 
 bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
-	QString command = "METOO\t" + QString::number(frequence);
+	QString command = "METOO\t" + Encrypter::Encrypt(GetRadioId(serverConnectionHandlerID, frequence), QString::number(frequence));
 	SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, &clientID, NULL);
 	return true;
 }
@@ -336,6 +339,15 @@ int KRTComms::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
 	return _activeRadios[serverConnectionHandlerID].value(radio_id, -1);
 }
 
+int KRTComms::GetRadioId(uint64 serverConnectionHandlerID, int frequence) {
+	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
+		if (_activeRadios[serverConnectionHandlerID][radio_id] == frequence) {
+			return radio_id;
+		}
+	}
+	return -1;
+}
+
 void KRTComms::Disconnect() {
 	foreach(uint64 serverConnectionHandlerID, _activeRadios.keys()) {
 		Disconnect(serverConnectionHandlerID);
@@ -400,24 +412,23 @@ void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 }
 
 void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
-	
+		
 	//Hier alles was den Ducker nicht braucht coden
 
 	if (!Ducker::getInstance().IsEnabled()) return;
-	bool shouldDuck = false;
+	Ducker::Type shouldDuck = Ducker::Type::NONE;
 
-	//Wenn jemand whispert aber diese clientID es nicht tut dann ducken
 	if (Talkers::getInstance().IsAnyWhispering(serverConnectionHandlerID)) {
 		if (!Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
-			shouldDuck = true; //TODO? Vllt wenn ducking unterschiedliche lautstärken haben soll float statt bool
+			shouldDuck = Ducker::Type::CHANNEL;
 		}
 		else {
 			shouldDuck = Talkers::getInstance().PrioritizedFrequence(serverConnectionHandlerID, clientID);
 		}
 	}
 
-	if (shouldDuck) {
-		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels);
+	if (shouldDuck != Ducker::Type::NONE) {
+		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, shouldDuck);
 	}
 }
 
@@ -504,5 +515,9 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	catch (...) {
 		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC OnEditPostProcessVoiceDataEvent", serverConnectionHandlerID);
 	}
+}
+
+void KRTComms::OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) {
+	
 }
 
