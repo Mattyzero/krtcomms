@@ -6,6 +6,7 @@
 #include "Talkers.h"
 #include "Ducker.h"
 #include "Encrypter.h"
+#include "channels.h"
 
 #include <chrono>
 #include <thread>
@@ -41,9 +42,10 @@ void KRTComms::Log(QString message) {
 		KRTComms::getInstance()._ts3.printMessageToCurrentTab(message.toStdString().c_str());
 }
 
-void KRTComms::Init(const struct TS3Functions funcs, char* pluginID) {
+void KRTComms::Init(const struct TS3Functions funcs, char* pluginID, channels* channels) {
 	_ts3 = funcs;
 	_pluginID = pluginID;
+	_channels = channels;
 	//_ts3.getClientID(_serverConnectionHandlerID, &_me);
 }
 
@@ -239,7 +241,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	for (int i = 0; i < _isWhispering.size(); i++) {
 		if (_isWhispering[i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
-			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
+			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);			
 		}
 	}
 
@@ -395,11 +397,37 @@ void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		}
 
 		//TODO Was wenn es einen Disconnect gibt wärenddessen sie STATUS_TALKING sind
+		anyID me;
+		_ts3.getClientID(serverConnectionHandlerID, &me);
 
 		if (status == STATUS_TALKING) {
+			if (me == clientID) {
+				foreach(int radio_id, _isWhispering.keys()) {
+					if (_isWhispering[radio_id]) {
+						//_ts3.printMessageToCurrentTab((QString::number(radio_id) + " ENABLE").toStdString().c_str());
+						_channels->EnableSendLamp(radio_id);
+					}
+				}
+			}
+			else if(isReceivedWhisper) {
+				_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
+			}
+
 			Talkers::getInstance().Add(serverConnectionHandlerID, clientID, isReceivedWhisper, clientFrequence);
 		} else
-		if(status == STATUS_NOT_TALKING) {
+		if(status == STATUS_NOT_TALKING) {			
+			if (me == clientID) {
+				foreach(int radio_id, _isWhispering.keys()) {
+					if (!_isWhispering[radio_id]) {
+						//_ts3.printMessageToCurrentTab((QString::number(radio_id) + " DISABLE").toStdString().c_str());
+						_channels->DisableSendLamp(radio_id);
+					}
+				}
+			}
+			else {
+				_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
+			}
+
 			Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, isReceivedWhisper);
 		}
 	} 

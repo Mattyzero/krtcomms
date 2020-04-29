@@ -147,6 +147,8 @@ int ts3plugin_init() {
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
 	*/
 	channelsui_init();
+	KRTComms::getInstance().Init(ts3Functions, pluginID, channels_);
+	Ducker::getInstance().Init(ts3Functions, pluginID);
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -212,9 +214,6 @@ void ts3plugin_registerPluginID(const char* id) {
 	pluginID = (char*)malloc(sz * sizeof(char));
 	_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
-
-	KRTComms::getInstance().Init(ts3Functions, pluginID);
-	Ducker::getInstance().Init(ts3Functions, pluginID);
 }
 
 /* Plugin command keyword. Return NULL or "" if not used. */

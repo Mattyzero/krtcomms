@@ -50,6 +50,12 @@
     <ClCompile Include="SimpleCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".vsgen\QTriangle_moc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -98,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimpleCrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QTriangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

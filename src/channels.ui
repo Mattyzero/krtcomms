@@ -46,228 +46,45 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>678</width>
+       <width>681</width>
        <height>345</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout" rowminimumheight="0,0,0,0,0,30,0" columnminimumwidth="100,0,0,140,60,0">
+     <layout class="QGridLayout" name="gridLayout" rowminimumheight="0,0,0,0,0,30,0" columnminimumwidth="100,0,0,80,70,50,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetFixedSize</enum>
       </property>
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="1" column="4">
-       <widget class="QDial" name="pan_ch_1">
+      <item row="3" column="2">
+       <widget class="QEditableLCDNumber" name="frequence_3">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>64</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>-10</number>
-        </property>
-        <property name="maximum">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="5">
-       <widget class="QSlider" name="volume_gain_ch_2">
-        <property name="minimum">
-         <number>10</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="ch_1_hotkey">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
-          <width>75</width>
-          <height>23</height>
+          <width>91</width>
+          <height>41</height>
          </size>
         </property>
-        <property name="text">
-         <string>HotKey</string>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="5">
-       <widget class="QSlider" name="volume_gain_ch_3">
-        <property name="minimum">
-         <number>10</number>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
         </property>
-        <property name="maximum">
-         <number>50</number>
+        <property name="digitCount">
+         <number>6</number>
         </property>
-        <property name="value">
-         <number>10</number>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Flat</enum>
         </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>   Stereo</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="set_frequence_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>31</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>51</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Set</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QDial" name="pan_ch_4">
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>64</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>-10</number>
-        </property>
-        <property name="maximum">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QDial" name="pan_ch_3">
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>64</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>-10</number>
-        </property>
-        <property name="maximum">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="channel_3">
-        <property name="text">
-         <string>Radio 3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="ch_2_hotkey">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>HotKey</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="channel_2">
-        <property name="text">
-         <string>Radio 2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="set_frequence_4">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>31</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>51</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Set</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QPushButton" name="reset">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>12</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Reset</string>
+        <property name="value" stdset="0">
+         <double>999.990000000000009</double>
         </property>
        </widget>
       </item>
@@ -296,20 +113,41 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="5">
-       <widget class="QDialogButtonBox" name="buttonBox">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="standardButtons">
-         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <item row="0" column="5">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>   Stereo</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="channel_4">
-        <property name="text">
-         <string>Radio 4</string>
+      <item row="2" column="2">
+       <widget class="QEditableLCDNumber" name="frequence_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>91</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="digitCount">
+         <number>6</number>
+        </property>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Flat</enum>
+        </property>
+        <property name="value" stdset="0">
+         <double>999.990000000000009</double>
         </property>
        </widget>
       </item>
@@ -345,34 +183,14 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="ch_3_hotkey">
+      <item row="1" column="5">
+       <widget class="QDial" name="pan_ch_1">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>HotKey</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="channel_1">
-        <property name="text">
-         <string>Radio 1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QDial" name="pan_ch_2">
         <property name="maximumSize">
          <size>
           <width>50</width>
@@ -387,8 +205,66 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="ch_4_hotkey">
+      <item row="6" column="6">
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="channel_4">
+        <property name="text">
+         <string>Radio 4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QPushButton" name="set_frequence_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>31</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>51</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Set</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
+       <widget class="QDial" name="pan_ch_4">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>-10</number>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="ch_1_hotkey">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -403,131 +279,6 @@
         </property>
         <property name="text">
          <string>HotKey</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QEditableLCDNumber" name="frequence_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>91</width>
-          <height>41</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="digitCount">
-         <number>6</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="value" stdset="0">
-         <double>999.990000000000009</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QEditableLCDNumber" name="frequence_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>91</width>
-          <height>41</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="digitCount">
-         <number>6</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="value" stdset="0">
-         <double>999.990000000000009</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5">
-       <widget class="QSlider" name="volume_gain_ch_4">
-        <property name="minimum">
-         <number>10</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="5">
-       <widget class="QSlider" name="volume_gain_ch_1">
-        <property name="minimum">
-         <number>10</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QEditableLCDNumber" name="frequence_1">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>91</width>
-          <height>41</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="digitCount">
-         <number>6</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="value" stdset="0">
-         <double>999.990000000000009</double>
         </property>
        </widget>
       </item>
@@ -562,14 +313,222 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>1.0f                   +dB                    5.0f</string>
+      <item row="4" column="6">
+       <widget class="QSlider" name="volume_gain_ch_4">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="6">
+      <item row="6" column="0">
+       <widget class="QPushButton" name="reset">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>12</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QDial" name="pan_ch_3">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>-10</number>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="channel_1">
+        <property name="text">
+         <string>Radio 1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
+       <widget class="QSlider" name="volume_gain_ch_3">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="channel_2">
+        <property name="text">
+         <string>Radio 2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>1.0f                +dB                5.0f</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="channel_3">
+        <property name="text">
+         <string>Radio 3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QEditableLCDNumber" name="frequence_1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>91</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="digitCount">
+         <number>6</number>
+        </property>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Flat</enum>
+        </property>
+        <property name="value" stdset="0">
+         <double>999.990000000000009</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="ch_3_hotkey">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>HotKey</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="ch_2_hotkey">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>HotKey</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="ch_4_hotkey">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>HotKey</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QSlider" name="volume_gain_ch_2">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QSlider" name="volume_gain_ch_1">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="7">
        <widget class="Line" name="line">
         <property name="lineWidth">
          <number>0</number>
@@ -577,6 +536,227 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QPushButton" name="set_frequence_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>31</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>51</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Set</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QDial" name="pan_ch_2">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>-10</number>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Status</string>
+        </property>
+        <widget class="QTriangle" name="send_lamp_1">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>20</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QTriangle" name="receive_lamp_1">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>40</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Status</string>
+        </property>
+        <widget class="QTriangle" name="send_lamp_2">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>20</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QTriangle" name="receive_lamp_2">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>40</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Status</string>
+        </property>
+        <widget class="QTriangle" name="send_lamp_3">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>20</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QTriangle" name="receive_lamp_3">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>40</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QGroupBox" name="groupBox_8">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Status</string>
+        </property>
+        <widget class="QTriangle" name="send_lamp_4">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>20</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QTriangle" name="receive_lamp_4">
+         <property name="geometry">
+          <rect>
+           <x>17</x>
+           <y>40</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -877,6 +1057,11 @@
    <class>QEditableLCDNumber</class>
    <extends>QLCDNumber</extends>
    <header>QEditableLCDNumber.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QTriangle</class>
+   <extends>QLabel</extends>
+   <header>QTriangle.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

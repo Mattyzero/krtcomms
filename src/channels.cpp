@@ -9,6 +9,7 @@
 #include "Encrypter.h"
 
 #include <QtGui/QCursor>
+#include <QtGui/QPainter>
 
 channels::channels(const QString& configLocation, char* pluginID, TS3Functions ts3Functions, QWidget* parent /* = nullptr */) : QDialog(parent),
 	_ui(std::make_unique<Ui::channelsui>()),
@@ -75,6 +76,12 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	connect(_ui->radio_4_password, &QLineEdit::textChanged, this, &channels::onRadio4PasswordChanged);
 	connect(_ui->set_radio_4_password, &QPushButton::clicked, this, &channels::onSetRadio4Password);
+
+
+	_ui->receive_lamp_1->SetDirection(QTriangle::Direction::BOTTOM);
+	_ui->receive_lamp_2->SetDirection(QTriangle::Direction::BOTTOM);
+	_ui->receive_lamp_3->SetDirection(QTriangle::Direction::BOTTOM);
+	_ui->receive_lamp_4->SetDirection(QTriangle::Direction::BOTTOM);
 }
 
 channels::~channels() {
@@ -87,6 +94,74 @@ void channels::set(const QString& option, const QVariant& value) {
 
 QVariant channels::get(const QString& option) const {
 	return _settings->value(option);
+}
+
+void channels::EnableSendLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		_ui->send_lamp_1->SetColor(QColor("green"));
+		break;
+	case 1:
+		_ui->send_lamp_2->SetColor(QColor("green"));
+		break;
+	case 2:
+		_ui->send_lamp_3->SetColor(QColor("green"));
+		break;	
+	case 3:
+		_ui->send_lamp_4->SetColor(QColor("green"));
+		break;
+	}
+}
+
+void channels::DisableSendLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		_ui->send_lamp_1->SetColor(QColor("white"));
+		break;
+	case 1:
+		_ui->send_lamp_2->SetColor(QColor("white"));
+		break;
+	case 2:
+		_ui->send_lamp_3->SetColor(QColor("white"));
+		break;
+	case 3:
+		_ui->send_lamp_4->SetColor(QColor("white"));
+		break;
+	}
+}
+
+void channels::EnableReceiveLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		_ui->receive_lamp_1->SetColor(QColor("red"));
+		break;
+	case 1:
+		_ui->receive_lamp_2->SetColor(QColor("red"));
+		break;
+	case 2:
+		_ui->receive_lamp_3->SetColor(QColor("red"));
+		break;
+	case 3:
+		_ui->receive_lamp_4->SetColor(QColor("red"));
+		break;
+	}
+}
+
+void channels::DisableReceiveLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		_ui->receive_lamp_1->SetColor(QColor("white"));
+		break;
+	case 1:
+		_ui->receive_lamp_2->SetColor(QColor("white"));
+		break;
+	case 2:
+		_ui->receive_lamp_3->SetColor(QColor("white"));
+		break;
+	case 3:
+		_ui->receive_lamp_4->SetColor(QColor("white"));
+		break;
+	}
 }
 
 void channels::showEvent(QShowEvent* /* e */) {

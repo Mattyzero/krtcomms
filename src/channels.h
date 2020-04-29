@@ -27,6 +27,12 @@ public:
 	void set(const QString& option, const QVariant& value);
 	QVariant get(const QString& option) const;
 
+
+	void EnableSendLamp(int radio_id);
+	void DisableSendLamp(int radio_id);
+	void EnableReceiveLamp(int radio_id);
+	void DisableReceiveLamp(int radio_id);
+
 protected:
 	void showEvent(QShowEvent* e) override;
 

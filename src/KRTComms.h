@@ -3,6 +3,7 @@
 #include <QtWidgets/QDialog>
 #include <QtCore/QMap>
 #include <QtCore/QList>
+#include "channels.h"
 
 class KRTComms {
 public:
@@ -13,7 +14,7 @@ public:
 	KRTComms();
 	~KRTComms() = default;
 
-	void Init(const struct TS3Functions funcs, char* pluginID);
+	void Init(const struct TS3Functions funcs, char* pluginID, channels* channels);
 
 	void SetDebug(bool debug);
 
@@ -77,5 +78,6 @@ private:
 
 	char* _pluginID;
 	struct TS3Functions _ts3;
+	channels* _channels;
 };
 
