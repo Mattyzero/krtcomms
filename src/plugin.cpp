@@ -278,12 +278,7 @@ void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum Plugin
 			return;
 	}*/
 
-	//char* whisperList = KRTComms::GetWhisperList();
-
-
-	//*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
-	//snprintf(*data, INFODATA_BUFSIZE, "%s", whisperList);  /* bbCode is supported. HTML is not supported */
-	//ts3Functions.freeMemory(whisperList);
+	KRTComms::getInstance().InfoData(serverConnectionHandlerID, id, type, data);	
 }
 
 /* Required to release the memory for parameter "data" allocated in ts3plugin_infoData and ts3plugin_initMenus */

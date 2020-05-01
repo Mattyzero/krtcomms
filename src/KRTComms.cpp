@@ -53,6 +53,22 @@ void KRTComms::SetDebug(bool debug) {
 	_debug = debug;
 }
 
+void KRTComms::InfoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data) {
+	if (!_debug) return;
+
+	QString message;
+
+	switch (type) {	
+	case PLUGIN_CLIENT:
+		message = "ClientID: " + QString::number(id);
+		*data = (char*)malloc(128 * sizeof(char));  /* Must be allocated in the plugin! */
+		snprintf(*data, 128, "%s", message.toStdString().c_str());  /* bbCode is supported. HTML is not supported */
+		break;
+	default:
+		data = NULL;
+	}
+}
+
 void KRTComms::SendPluginCommand(uint64 serverConnectionHandlerID, const char* pluginID, QString command, int targetMode, const anyID* targetIDs, const char* returnCode) {
 	anyID me;
 	_ts3.getClientID(serverConnectionHandlerID, &me);
@@ -70,7 +86,13 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		invokerClientID = tokens[0].toUInt();
 
 	if (_debug) {
-		QString logmessage = "ProcessPluginCommand: " + QString(pluginCommand) + " | " + QString::number(invokerClientID);
+		char displayName[256];
+		int error;
+		if ((error = _ts3.getClientDisplayName(serverConnectionHandlerID, invokerClientID, displayName, 256)) != ERROR_ok) {
+			
+		}
+
+		QString logmessage = "ProcessPluginCommand: " + QString(pluginCommand) + " | " + QString::number(invokerClientID) + " : " + QString(displayName);
 		_ts3.logMessage(logmessage.toStdString().c_str(), LogLevel_DEBUG, "KRTC ProcessPluginCommand", serverConnectionHandlerID);
 		_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	}
@@ -251,7 +273,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 }
 
 void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray) {
-	const char* returnCode = new char[256];
+	char* returnCode = new char[256];
 
 	//int* result = NULL;
 
@@ -263,17 +285,32 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 	}
 	else {
 		SetPushToTalk(serverConnectionHandlerID, true);
-		_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, targetChannelIDArray.toVector().data(), targetClientIDArray.toVector().data(), returnCode);
+		_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, targetClientIDArray.toVector().data(), returnCode);
 	}
 
 	if (_debug) {
 		char message[256];
 		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size(), _isWhispering.values().contains(true) ? "true" : "false");
 		_ts3.printMessageToCurrentTab(message);
+
+
+		for (int i = 0; i < targetClientIDArray.size(); i++) {
+			char displayName[256];
+			int error;
+			if ((error = _ts3.getClientDisplayName(serverConnectionHandlerID, targetClientIDArray[i], displayName, 256)) != ERROR_ok) {
+				
+			}
+
+			QString logmessage = "DisplayNames: " + QString::number(targetClientIDArray[i]) + " : " + QString(displayName);
+			_ts3.logMessage(logmessage.toStdString().c_str(), LogLevel_DEBUG, "KRTC WhisperTo", serverConnectionHandlerID);
+			_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+		}
 	}
 
 	//if (result)
 	//	free(result);
+
+	free(returnCode);
 }
 
 void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) {

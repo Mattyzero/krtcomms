@@ -223,18 +223,26 @@ void channels::load() {
 
 void channels::onChange1(int state) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, state == 2, (int)(_ui->frequence_1->value() * 100));
+	DisableSendLamp(0);
+	DisableReceiveLamp(0);
 }
 
 void channels::onChange2(int state) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, state == 2, (int)(_ui->frequence_2->value() * 100));
+	DisableSendLamp(1);
+	DisableReceiveLamp(1);
 }
 
 void channels::onChange3(int state) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, state == 2, (int)(_ui->frequence_3->value() * 100));
+	DisableSendLamp(2);
+	DisableReceiveLamp(2);
 }
 
 void channels::onChange4(int state) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, state == 2, (int)(_ui->frequence_4->value() * 100));
+	DisableSendLamp(3);
+	DisableReceiveLamp(3);
 }
 
 void channels::onClick1(bool checked) {

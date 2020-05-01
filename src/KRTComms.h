@@ -18,6 +18,8 @@ public:
 
 	void SetDebug(bool debug);
 
+	void InfoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data);
+
 	void SendPluginCommand(uint64 serverConnectionHandlerID, const char* pluginID, QString command, int targetMode, const anyID* targetIDs, const char* returnCode);
 
 	void ProcessPluginCommand(uint64 serverConnectionHandlerID, const char* pluginCommand, anyID invokerClientID, const char* invokerName);
