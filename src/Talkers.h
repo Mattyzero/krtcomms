@@ -25,6 +25,7 @@ public:
 
 	bool IsWhispering(uint64 serverConnectionHandlerID, anyID clientID);
 	bool IsAnyWhispering(uint64 serverConnectionHandlerID);
+	bool IsAnyWhisperingInFrequence(uint64 serverConnectionHandlerID, int frequence);
 	Ducker::Type PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID);
 
 private:

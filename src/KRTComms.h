@@ -34,7 +34,7 @@ public:
 	bool AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
 
 	void WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id);
-	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray);
+	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, int targetChannelIDArrayLength, QList<anyID> targetClientIDArray, int targetClientIDArrayLength);
 
 	void SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk);
 	void Reset(uint64 serverConnectionHandlerID);

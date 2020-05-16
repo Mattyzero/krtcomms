@@ -62,6 +62,15 @@ bool Talkers::IsAnyWhispering(uint64 serverConnectionHandlerID) {
 	return false;
 }
 
+bool Talkers::IsAnyWhisperingInFrequence(uint64 serverConnectionHandlerID, int frequence) {
+	foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
+		if (info->isWhispering && info->frequence == frequence) {
+			return true;
+		}
+	}
+	return false;
+}
+
 Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID) {
 	ClientInfo* current = _talkers[serverConnectionHandlerID][clientID];
 		
