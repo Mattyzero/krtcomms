@@ -9,9 +9,9 @@ Talkers::Talkers() {
 
 Talkers::~Talkers() {
 	foreach(uint64 serverConnectionHandlerID, _talkers.keys()) {
-		foreach(anyID clientID, _talkers[serverConnectionHandlerID].keys()) {
-			delete _talkers[serverConnectionHandlerID][clientID];
-			_talkers[serverConnectionHandlerID][clientID] = NULL;
+		foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
+			delete _talkers[serverConnectionHandlerID][key];
+			_talkers[serverConnectionHandlerID][key] = NULL;
 		}
 	}
 }
@@ -23,35 +23,60 @@ Talkers& Talkers::getInstance() {
 
 void Talkers::Add(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence) {
 	struct ClientInfo* clientInfo = NULL;
-	if (!_talkers[serverConnectionHandlerID].contains(clientID)) {
+	QString key = QString::number(frequence) + "_" + QString::number(clientID);
+	if (!_talkers[serverConnectionHandlerID].contains(key)) {
 		clientInfo = new ClientInfo;
 		clientInfo->clientID = clientID;
 		clientInfo->isWhispering = isReceivedWhisper;
 		clientInfo->frequence = frequence;
 
-		_talkers[serverConnectionHandlerID][clientID] = clientInfo;
+		_talkers[serverConnectionHandlerID][key] = clientInfo;
 	}
 	else {
-		clientInfo = _talkers[serverConnectionHandlerID][clientID];
+		clientInfo = _talkers[serverConnectionHandlerID][key];
 		clientInfo->isWhispering = isReceivedWhisper;
 		clientInfo->frequence = frequence;
 	}
 }
 
-void Talkers::Remove(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper) {
-	if (_talkers[serverConnectionHandlerID].contains(clientID)) {
-		delete _talkers[serverConnectionHandlerID][clientID];
-		_talkers[serverConnectionHandlerID][clientID] = NULL;
-		_talkers[serverConnectionHandlerID].remove(clientID);
+void Talkers::Remove(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence) {
+	QString key = QString::number(frequence) + "_" + QString::number(clientID);
+	if (_talkers[serverConnectionHandlerID].contains(key)) {
+		delete _talkers[serverConnectionHandlerID][key];
+		_talkers[serverConnectionHandlerID][key] = NULL;
+		_talkers[serverConnectionHandlerID].remove(key);
+	}
+}
+
+void Talkers::SetFrequenceIfNotSet(uint64 serverConnectionHandlerID, anyID clientID, int frequence) {
+	QString key = QString::number(frequence) + "_" + QString::number(clientID);
+	if (_talkers[serverConnectionHandlerID].contains(key)) {
+		struct ClientInfo* clientInfo = _talkers[serverConnectionHandlerID][key];
+		if (clientInfo->frequence == -1) {
+			clientInfo->frequence = frequence;
+		}
 	}
 }
 
 bool Talkers::IsWhispering(uint64 serverConnectionHandlerID, anyID clientID) {
-	if (_talkers[serverConnectionHandlerID].contains(clientID)) {
-		return _talkers[serverConnectionHandlerID][clientID]->isWhispering;
+	QString clientIDString = QString::number(clientID);
+	foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
+		if (key.endsWith(clientIDString)) {
+			return _talkers[serverConnectionHandlerID][key]->isWhispering;
+		}
 	}
 	return false;
 }
+
+bool Talkers::IsWhispering(uint64 serverConnectionHandlerID, anyID clientID, int frequence) {
+	QString key = QString::number(frequence) + "_" + QString::number(clientID);
+	if (_talkers[serverConnectionHandlerID].contains(key)) {
+		return _talkers[serverConnectionHandlerID][key]->isWhispering;
+	}
+	return false;
+}
+
+
 
 bool Talkers::IsAnyWhispering(uint64 serverConnectionHandlerID) {
 	foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
@@ -72,22 +97,30 @@ bool Talkers::IsAnyWhisperingInFrequence(uint64 serverConnectionHandlerID, int f
 }
 
 Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID) {
-	ClientInfo* current = _talkers[serverConnectionHandlerID][clientID];
-		
-	foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {		
-		if (info->isWhispering) {
-			if (info->frequence % 10000 == 0 && current->frequence % 10000 != 0) {
-				return Ducker::Type::FREQ1XX;
-			}
-			if (info->frequence % 1000 == 0 && current->frequence % 1000 != 0) {
-				return Ducker::Type::FREQX1X;
-			}
-			if (info->frequence % 100 == 0 && current->frequence % 100 != 0) {
-				return Ducker::Type::FREQXX1;
+	QString clientIDString = QString::number(clientID);
+	Ducker::Type duckerType = Ducker::Type::NONE;
+	foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
+		if (key.endsWith(clientIDString)) {
+			ClientInfo* current = _talkers[serverConnectionHandlerID][key];
+
+			foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
+				if (info->isWhispering) {
+					if (info->frequence % 10000 == 0 && current->frequence % 10000 != 0) {
+						return Ducker::Type::FREQ1XX;
+					}
+					if (info->frequence % 1000 == 0 && current->frequence % 1000 != 0) {
+						if(duckerType > Ducker::Type::FREQX1X)
+							duckerType = Ducker::Type::FREQX1X;
+					}
+					if (info->frequence % 100 == 0 && current->frequence % 100 != 0) {
+						if (duckerType > Ducker::Type::FREQXX1)
+							duckerType = Ducker::Type::FREQXX1;
+					}
+				}
 			}
 		}
 	}
 
-	return Ducker::Type::NONE;
+	return duckerType;
 }
 

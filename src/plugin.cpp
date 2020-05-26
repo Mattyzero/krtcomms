@@ -23,6 +23,8 @@
 #include "ts3_functions.h"
 #include "plugin.h"
 
+#include "QtGui/QGuiApplication"
+
 #include "KRTComms.h"
 #include "Ducker.h"
 #include "channels.h"
@@ -146,6 +148,7 @@ int ts3plugin_init() {
 
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
 	*/
+	//QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	channelsui_init();
 	KRTComms::getInstance().Init(ts3Functions, pluginID, channels_);
 	Ducker::getInstance().Init(ts3Functions, pluginID);
@@ -346,7 +349,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 * e.g. for "test_plugin.dll", icon "1.png" is loaded from <TeamSpeak 3 Client install dir>\plugins\test_plugin\1.png
 	 */
 
-	BEGIN_CREATE_MENUS(5);  /* IMPORTANT: Number of menu items must be correct! And same as _menuItems*/
+	BEGIN_CREATE_MENUS(2);  /* IMPORTANT: Number of menu items must be correct!*/
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Radios", "1.png");
 
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_CID,  "Citizen ID",  "1.png");
@@ -394,7 +397,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(8);  /* Create 8 hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(16);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -403,6 +406,15 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("send_ch_2_", "Radio 3 END");
 	CREATE_HOTKEY("send_ch_3", "Radio 4");
 	CREATE_HOTKEY("send_ch_3_", "Radio 4 END");
+
+	CREATE_HOTKEY("send_ch_4", "Radio 5");
+	CREATE_HOTKEY("send_ch_4_", "Radio 5 END");
+	CREATE_HOTKEY("send_ch_5", "Radio 6");
+	CREATE_HOTKEY("send_ch_5_", "Radio 6 END");
+	CREATE_HOTKEY("send_ch_6", "Radio 7");
+	CREATE_HOTKEY("send_ch_6_", "Radio 7 END");
+	CREATE_HOTKEY("send_ch_7", "Radio 8");
+	CREATE_HOTKEY("send_ch_7_", "Radio 8 END");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */

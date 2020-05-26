@@ -20,9 +20,9 @@
 #endif
 
 #define MAX_CHANNELS 8
-#define RADIO_COUNT 4
 
-char* KRTComms::version = "0.0.7";
+
+char* KRTComms::version = "0.0.8";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -104,6 +104,28 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		return;
 	}
 
+	if (tokens[1] == "SENDON") {
+		bool ok;
+		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
+		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
+			_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, frequence));
+			Talkers::getInstance().Add(serverConnectionHandlerID, invokerClientID, true, frequence);
+		}
+		return;
+	}
+
+	if (tokens[1] == "SENDOFF") {
+		bool ok;
+		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
+		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {			
+			Talkers::getInstance().Remove(serverConnectionHandlerID, invokerClientID, false, frequence);
+			if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {				
+				_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, frequence));
+			}
+		}
+		return;
+	}
+
 	if (tokens[1] == "JOINED") {
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
@@ -112,6 +134,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
 			}
 		}
+		return;
 	}
 
 	if (tokens[1] == "LEFT") {
@@ -119,7 +142,8 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok) {			
 			RemoveFromFrequence(serverConnectionHandlerID, frequence, invokerClientID);			
-		}		
+		}	
+		return;
 	}
 
 	if (tokens[1] == "METOO") {
@@ -128,9 +152,8 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
 			AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName);
 		}
+		return;
 	}
-
-
 }
 
 /*
@@ -251,17 +274,26 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	bool isActive = _activeRadios[serverConnectionHandlerID].contains(radio_id);
 	if (!isActive) return;
 
+	int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
+
+	QList<anyID> tmp = QList(_targetClientIDs[serverConnectionHandlerID][frequence]);
+	tmp.append(0);
+
 	if (_isWhispering[radio_id]) {
 		_channels->DisableSendLamp(radio_id);
+		QString command = "SENDOFF\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
+		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 	}
 	else {
 		_channels->EnableSendLamp(radio_id);
+		QString command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
+		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 	}
 
 	std::vector<anyID> empty;
 	_isWhispering[radio_id] = !_isWhispering[radio_id];
 
-	int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
+	
 	if (_debug) {
 		QString logmessage = "WhisperToRadio: " + QString::number(radio_id) + " | " + QString::number(frequence);
 		_ts3.logMessage(logmessage.toStdString().c_str(), LogLevel_DEBUG, "KRTC WhisperToRadio", serverConnectionHandlerID);
@@ -278,12 +310,12 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		}
 	}
 
-	WhisperTo(serverConnectionHandlerID, targetChannelIDs, targetChannelIDs.size(), targetClientIDs, targetClientIDs.size());
+	WhisperTo(serverConnectionHandlerID, targetChannelIDs, targetClientIDs);
 
 	
 }
 
-void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, int targetChannelIDArrayLength, QList<anyID> targetClientIDArray, const int targetClientIDArrayLength) {
+void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray) {
 	char* returnCode = new char[256];
 
 	//int* result = NULL;
@@ -435,35 +467,38 @@ void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 }
 
 void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
+	/* Versuch über PluginCommands 
 	//TODO Handle multiple STATUS_TALKING
 	try {
 		int clientFrequence = -1;
-		foreach(int frequence, _targetClientIDs[serverConnectionHandlerID].keys()) {
-			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
-				//_isClientWhispering[serverConnectionHandlerID][clientID] = isReceivedWhisper;
-				clientFrequence = frequence;
-				//TODO Support für multiple frequences
-				break;
-			}
-		}
+		
+		//foreach(int frequence, _targetClientIDs[serverConnectionHandlerID].keys()) {
+		//	if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
+		//		//_isClientWhispering[serverConnectionHandlerID][clientID] = isReceivedWhisper;
+		//		clientFrequence = frequence;
+		//		//TODO Support für multiple frequences
+		//		break;
+		//	}
+		//}
 
 		//TODO Was wenn es einen Disconnect gibt wärenddessen sie STATUS_TALKING sind
 		anyID me;
 		_ts3.getClientID(serverConnectionHandlerID, &me);
 
 		if (status == STATUS_TALKING) {
-			if(isReceivedWhisper) {
-				_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
-			}
-
+			//if(isReceivedWhisper) {
+			//	_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
+			//}
+			//_ts3.printMessageToCurrentTab("STATUS_TALKING");
 			Talkers::getInstance().Add(serverConnectionHandlerID, clientID, isReceivedWhisper, clientFrequence);
 		} else
 		if(status == STATUS_NOT_TALKING) {		
 			Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, isReceivedWhisper);
-
-			if(!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, clientFrequence)) {
-				_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
-			}
+			
+			//if(!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, clientFrequence)) {
+			//	_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
+			//}
+			//_ts3.printMessageToCurrentTab("STATUS_NOT_TALKING");
 		}
 	} 
 	catch (const std::exception& e) {
@@ -472,6 +507,7 @@ void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	catch (...) {
 		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC OnTalkStatusChangeEvent", serverConnectionHandlerID);
 	}
+	*/
 }
 
 void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
@@ -508,7 +544,7 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 		foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 			
 			int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
-			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) && Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
+			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) && Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID, frequence)) {
 				
 				static thread_local size_t allocatedFloatsSample = 0;
 				static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;

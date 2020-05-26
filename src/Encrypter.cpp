@@ -4,7 +4,7 @@
 #include "KRTComms.h"
 
 Encrypter::Encrypter() {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < RADIO_COUNT; i++) {
 		_password[i] = "";
 	}
 }
@@ -20,16 +20,14 @@ void Encrypter::SetPassword(int radio_id, QString value) {
 		return;
 	}
 	qulonglong ulonglong = 255;
-	if (!value.isEmpty()) {
-		for (int i = 0; i < value.length(); i++) {
-			ulonglong += value.at(i).toLatin1() * i;
-		}
-	}
+	for (int i = 0; i < value.length(); i++) {
+		ulonglong += value.at(i).toLatin1() * i;
+	}	
 	Encrypter::getInstance()._password[radio_id] = QString::number(ulonglong);	
 }
 
 QString Encrypter::GetPassword(int radio_id) {
-	if (radio_id < 0 || radio_id >= 4) return "";
+	if (radio_id < 0 || radio_id >= RADIO_COUNT) return "";
 	return Encrypter::getInstance()._password[radio_id];
 }
 
@@ -42,7 +40,7 @@ QString Encrypter::Encrypt(int radio_id, QString value) {
 
 QString Encrypter::Decrypt(uint64 serverConnectionHandlerID, QString value) {
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < RADIO_COUNT; i++) {
 		//KRTComms::Log(QString::number(Encrypter::getInstance().GetPassword(i).toULongLong()));
 
 		quint64 password = Encrypter::getInstance().GetPassword(i).toULongLong();

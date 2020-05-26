@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/QString>
 #include "teamspeak/public_definitions.h"
+#include "KRTComms.h"
 
 class Encrypter
 {
@@ -17,6 +18,6 @@ public:
 	
 private:
 
-	QString _password[4];
+	QString _password[RADIO_COUNT];
 };
 

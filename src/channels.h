@@ -52,28 +52,54 @@ private:
 	void onChange3(int state);
 	void onChange4(int state);
 
+	void onChange5(int state);
+	void onChange6(int state);
+	void onChange7(int state);
+	void onChange8(int state);
+
 	void onClick1(bool checked);
 	void onClick2(bool checked);
 	void onClick3(bool checked);
 	void onClick4(bool checked);
+
+	void onClick5(bool checked);
+	void onClick6(bool checked);
+	void onClick7(bool checked);
+	void onClick8(bool checked);
 
 	void onSetFrequence1(bool checked);
 	void onSetFrequence2(bool checked);
 	void onSetFrequence3(bool checked);
 	void onSetFrequence4(bool checked);
 
+	void onSetFrequence5(bool checked);
+	void onSetFrequence6(bool checked);
+	void onSetFrequence7(bool checked);
+	void onSetFrequence8(bool checked);
+
 	void onPanChanged1(int value);
 	void onPanChanged2(int value);
 	void onPanChanged3(int value);
 	void onPanChanged4(int value);
+
+	void onPanChanged5(int value);
+	void onPanChanged6(int value);
+	void onPanChanged7(int value);
+	void onPanChanged8(int value);
 
 	void onVolumeGainChanged1(int value);
 	void onVolumeGainChanged2(int value);
 	void onVolumeGainChanged3(int value);
 	void onVolumeGainChanged4(int value);
 
+	void onVolumeGainChanged5(int value);
+	void onVolumeGainChanged6(int value);
+	void onVolumeGainChanged7(int value);
+	void onVolumeGainChanged8(int value);
+
 	void onReset(bool checked);
 	void onDebug(int state);
+	void onAdvanced(int state);
 
 	void onChannelDuckingChanged(int state);
 	void onFreq1xxDuckingChanged(int state);

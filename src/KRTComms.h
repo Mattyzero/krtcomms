@@ -5,6 +5,8 @@
 #include <QtCore/QList>
 #include "channels.h"
 
+#define RADIO_COUNT 8
+
 class KRTComms {
 public:
 	static KRTComms& getInstance();
@@ -34,7 +36,7 @@ public:
 	bool AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
 
 	void WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id);
-	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, int targetChannelIDArrayLength, QList<anyID> targetClientIDArray, int targetClientIDArrayLength);
+	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray);
 
 	void SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk);
 	void Reset(uint64 serverConnectionHandlerID);
@@ -75,8 +77,8 @@ private:
 	QMap<uint64, QMap<int, QList<anyID>>>  _targetClientIDs;
 	QMap<uint64, QMap<anyID, QString>> _nicknames;
 
-	float _pans[4];
-	float _gains[4];
+	float _pans[RADIO_COUNT];
+	float _gains[RADIO_COUNT];
 
 	char* _pluginID;
 	struct TS3Functions _ts3;
