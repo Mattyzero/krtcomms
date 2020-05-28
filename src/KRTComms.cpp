@@ -22,7 +22,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.0.8";
+char* KRTComms::version = "0.0.9";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -192,7 +192,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 			}
 		}
 		else {
-			if (_activeRadios[serverConnectionHandlerID].contains(radio_id)) {
+			if (isActive) {
 				if (_activeRadios[serverConnectionHandlerID].values().count(old_frequence) <= 1) {
 					
 					QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));

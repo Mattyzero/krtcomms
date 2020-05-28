@@ -414,49 +414,89 @@ void channels::onClick8(bool checked) {
 }
 
 void channels::onSetFrequence1(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, _ui->channel_1->isChecked(), (int)(_ui->frequence_1->value() * 100));
+	if (_ui->channel_1->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, true, (int)(_ui->frequence_1->value() * 100));
+	}
+	else {
+		_ui->channel_1->setChecked(true);
+	}
 	_ui->frequence_1->Deselect();
 	set("freq_1", _ui->frequence_1->value());
 }
 
 void channels::onSetFrequence2(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, _ui->channel_2->isChecked(), (int)(_ui->frequence_2->value() * 100));
+	if (_ui->channel_2->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, true, (int)(_ui->frequence_2->value() * 100));
+	}
+	else {
+		_ui->channel_2->setChecked(true);
+	}
 	_ui->frequence_2->Deselect();
 	set("freq_2", _ui->frequence_2->value());
 }
 
-void channels::onSetFrequence3(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, _ui->channel_3->isChecked(), (int)(_ui->frequence_3->value() * 100));
+void channels::onSetFrequence3(bool checked) {	
+	if (_ui->channel_3->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, true, (int)(_ui->frequence_3->value() * 100));
+	}
+	else {
+		_ui->channel_3->setChecked(true);
+	}
 	_ui->frequence_3->Deselect();
 	set("freq_3", _ui->frequence_3->value());
 }
 
-void channels::onSetFrequence4(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, _ui->channel_4->isChecked(), (int)(_ui->frequence_4->value() * 100));
+void channels::onSetFrequence4(bool checked) {	
+	if (_ui->channel_4->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, true, (int)(_ui->frequence_4->value() * 100));
+	}
+	else {
+		_ui->channel_4->setChecked(true);
+	}
 	_ui->frequence_4->Deselect();
 	set("freq_4", _ui->frequence_4->value());
 }
 
 void channels::onSetFrequence5(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 4, _ui->channel_5->isChecked(), (int)(_ui->frequence_5->value() * 100));
+	if (_ui->channel_5->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 4, true, (int)(_ui->frequence_5->value() * 100));
+	}
+	else {
+		_ui->channel_5->setChecked(true);
+	}
 	_ui->frequence_5->Deselect();
 	set("freq_5", _ui->frequence_5->value());
 }
 
-void channels::onSetFrequence6(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 5, _ui->channel_6->isChecked(), (int)(_ui->frequence_6->value() * 100));
+void channels::onSetFrequence6(bool checked) {	
+	if (_ui->channel_6->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 5, true, (int)(_ui->frequence_6->value() * 100));
+	}
+	else {
+		_ui->channel_6->setChecked(true);
+	}
 	_ui->frequence_6->Deselect();
 	set("freq_6", _ui->frequence_6->value());
 }
 
-void channels::onSetFrequence7(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 6, _ui->channel_7->isChecked(), (int)(_ui->frequence_7->value() * 100));
+void channels::onSetFrequence7(bool checked) {	
+	if (_ui->channel_7->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 6, true, (int)(_ui->frequence_7->value() * 100));
+	}
+	else {
+		_ui->channel_7->setChecked(true);
+	}
 	_ui->frequence_7->Deselect();
 	set("freq_7", _ui->frequence_7->value());
 }
 
-void channels::onSetFrequence8(bool checked) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 7, _ui->channel_8->isChecked(), (int)(_ui->frequence_8->value() * 100));
+void channels::onSetFrequence8(bool checked) {	
+	if (_ui->channel_8->isChecked()) {
+		KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 7, true, (int)(_ui->frequence_8->value() * 100));
+	}
+	else {
+		_ui->channel_8->setChecked(true);
+	}
 	_ui->frequence_8->Deselect();
 	set("freq_8", _ui->frequence_8->value());
 }
