@@ -35,6 +35,7 @@ public:
 
 protected:
 	void showEvent(QShowEvent* e) override;
+	void resizeEvent(QResizeEvent* e) override;
 
 private:
 	std::unique_ptr<Ui::channelsui> _ui;
@@ -102,12 +103,14 @@ private:
 	void onAdvanced(int state);
 
 	void onChannelDuckingChanged(int state);
-	void onFreq1xxDuckingChanged(int state);
-	void onFreqx1xDuckingChanged(int state);
+	void onFreq1yz_abDuckingChanged(int state);
+	void onFreqxy1_abDuckingChanged(int state);
+	void onFreqxyz_1bDuckingChanged(int state);
 
 	void onChannelDuckingSliderChanged(int value);
-	void onFreq1xxDuckingSliderChanged(int value);
-	void onFreqx1xDuckingSliderChanged(int value);
+	void onFreq1yz_abDuckingSliderChanged(int value);
+	void onFreqxy1_abDuckingSliderChanged(int value);
+	void onFreqxyz_1bDuckingSliderChanged(int value);
 
 	void onRadio1PasswordChanged(QString value);
 	void onSetRadio1Password(bool checked);

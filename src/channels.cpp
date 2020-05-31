@@ -84,12 +84,14 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 
 	connect(_ui->channel_ducking, &QCheckBox::stateChanged, this, &channels::onChannelDuckingChanged);
-	connect(_ui->freq_ducking_1xx, &QCheckBox::stateChanged, this, &channels::onFreq1xxDuckingChanged);
-	connect(_ui->freq_ducking_x1x, &QCheckBox::stateChanged, this, &channels::onFreqx1xDuckingChanged);
+	connect(_ui->freq_ducking_1yz_ab, &QCheckBox::stateChanged, this, &channels::onFreq1yz_abDuckingChanged);
+	connect(_ui->freq_ducking_xy1_ab, &QCheckBox::stateChanged, this, &channels::onFreqxy1_abDuckingChanged);
+	connect(_ui->freq_ducking_xyz_1b, &QCheckBox::stateChanged, this, &channels::onFreqxyz_1bDuckingChanged);
 
 	connect(_ui->channel_ducking_slider, &QSlider::valueChanged, this, &channels::onChannelDuckingSliderChanged);
-	connect(_ui->freq_ducking_slider_1xx, &QSlider::valueChanged, this, &channels::onFreq1xxDuckingSliderChanged);
-	connect(_ui->freq_ducking_slider_x1x, &QSlider::valueChanged, this, &channels::onFreqx1xDuckingSliderChanged);
+	connect(_ui->freq_ducking_slider_1yz_ab, &QSlider::valueChanged, this, &channels::onFreq1yz_abDuckingSliderChanged);
+	connect(_ui->freq_ducking_slider_xy1_ab, &QSlider::valueChanged, this, &channels::onFreqxy1_abDuckingSliderChanged);
+	connect(_ui->freq_ducking_slider_xyz_1b, &QSlider::valueChanged, this, &channels::onFreqxyz_1bDuckingSliderChanged);
 
 	connect(_ui->radio_1_password, &QLineEdit::textChanged, this, &channels::onRadio1PasswordChanged);
 	connect(_ui->set_radio_1_password, &QPushButton::clicked, this, &channels::onSetRadio1Password);
@@ -253,6 +255,13 @@ void channels::showEvent(QShowEvent* /* e */) {
 	load();
 }
 
+void channels::resizeEvent(QResizeEvent* e) {
+	QDialog::resizeEvent(e);
+	if (!e->oldSize().isEmpty()) {
+		set("win_size", e->size());
+	}
+}
+
 void channels::save() {
 	set("freq_1", _ui->frequence_1->value());
 	set("freq_2", _ui->frequence_2->value());
@@ -268,6 +277,7 @@ void channels::save() {
 }
 
 void channels::load() {
+	resize(get("win_size").toSize());
 	_serverConnectionHandlerID = _ts3.getCurrentServerConnectionHandlerID();
 	//TODO pointer array zu jeweiligen variablen damit das _Zahl ding nicht ewig weiter geht
 	//Falls jemand weis wie man das easy umsetzen kann bitte mich kontaktieren oder ein PR DANKE
@@ -311,14 +321,18 @@ void channels::load() {
 	_ui->volume_gain_ch_6->setValue(get("gain_6").toInt());
 	_ui->volume_gain_ch_7->setValue(get("gain_7").toInt());
 	_ui->volume_gain_ch_8->setValue(get("gain_8").toInt());
+
+	_ui->advanced->setChecked(get("advanced").toBool());
 	
 	_ui->channel_ducking->setChecked(get("duck_channel").toBool());
-	_ui->freq_ducking_1xx->setChecked(get("duck_freq1xx").toBool());
-	_ui->freq_ducking_x1x->setChecked(get("duck_freqx1x").toBool());
+	_ui->freq_ducking_1yz_ab->setChecked(get("duck_freq_1yz_ab").toBool());
+	_ui->freq_ducking_xy1_ab->setChecked(get("duck_freq_xy1_ab").toBool());
+	_ui->freq_ducking_xyz_1b->setChecked(get("duck_freq_xyz_1b").toBool());
 
 	_ui->channel_ducking_slider->setValue(get("channel_ducking").toInt());
-	_ui->freq_ducking_slider_1xx->setValue(get("freq1xx_ducking").toInt());
-	_ui->freq_ducking_slider_x1x->setValue(get("freqx1x_ducking").toInt());
+	_ui->freq_ducking_slider_1yz_ab->setValue(get("freq_1yz_ab_ducking").toInt());
+	_ui->freq_ducking_slider_xy1_ab->setValue(get("freq_xy1_ab_ducking").toInt());
+	_ui->freq_ducking_slider_xyz_1b->setValue(get("freq_xyz_1b_ducking").toInt());
 
 	_ui->radio_1_password->setText(get("radio_1_password").toString());
 	Encrypter::SetPassword(0, get("radio_1_password").toString());
@@ -596,6 +610,8 @@ void channels::onAdvanced(int state) {
 	else {
 		_ui->radio_5_8->hide();
 	}
+
+	set("advanced", state == 2);
 }
 
 void channels::onChannelDuckingChanged(int state) {
@@ -603,14 +619,19 @@ void channels::onChannelDuckingChanged(int state) {
 	set("duck_channel", state == 2);
 }
 
-void channels::onFreq1xxDuckingChanged(int state) {
-	Ducker::getInstance().SetEnabled(Ducker::Type::FREQ1XX, state == 2);
-	set("duck_freq1xx", state == 2);
+void channels::onFreq1yz_abDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::FREQ_1YZ_AB, state == 2);
+	set("duck_freq_1yz_ab", state == 2);
 }
 
-void channels::onFreqx1xDuckingChanged(int state) {
-	Ducker::getInstance().SetEnabled(Ducker::Type::FREQX1X, state == 2);
-	set("duck_freqx1x", state == 2);
+void channels::onFreqxy1_abDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::FREQ_XY1_AB, state == 2);
+	set("duck_freq_xy1_ab", state == 2);
+}
+
+void channels::onFreqxyz_1bDuckingChanged(int state) {
+	Ducker::getInstance().SetEnabled(Ducker::Type::FREQ_XYZ_1B, state == 2);
+	set("duck_freq_xyz_1b", state == 2);
 }
 
 void channels::onChannelDuckingSliderChanged(int value) {
@@ -618,14 +639,19 @@ void channels::onChannelDuckingSliderChanged(int value) {
 	set("channel_ducking", value);
 }
 
-void channels::onFreq1xxDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::FREQ1XX, value / 10.0f);
-	set("freq1xx_ducking", value);
+void channels::onFreq1yz_abDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_1YZ_AB, value / 10.0f);
+	set("freq_1yz_ab_ducking", value);
 }
 
-void channels::onFreqx1xDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::FREQX1X, value / 10.0f);
-	set("freqx1x_ducking", value);
+void channels::onFreqxy1_abDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XY1_AB, value / 10.0f);
+	set("freq_xy1_ab_ducking", value);
+}
+
+void channels::onFreqxyz_1bDuckingSliderChanged(int value) {
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XYZ_1B, value / 10.0f);
+	set("freq_xyz_1b_ducking", value);
 }
 
 void channels::onRadio1PasswordChanged(QString value) {

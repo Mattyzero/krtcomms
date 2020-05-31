@@ -105,16 +105,25 @@ Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, any
 
 			foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
 				if (info->isWhispering) {
+					/*
+					if (info->frequence % 99999 == 0 && current->frequence % 99999 != 0) {
+						return Ducker::Type::BROADCAST;
+					}*/
 					if (info->frequence % 10000 == 0 && current->frequence % 10000 != 0) {
-						return Ducker::Type::FREQ1XX;
+						return Ducker::Type::FREQ_1YZ_AB;
 					}
+					/*
 					if (info->frequence % 1000 == 0 && current->frequence % 1000 != 0) {
-						if(duckerType > Ducker::Type::FREQX1X)
-							duckerType = Ducker::Type::FREQX1X;
-					}
+						if(duckerType > Ducker::Type::FREQ_X1Z_AB)
+							duckerType = Ducker::Type::FREQ_X1Z_AB;
+					}*/
 					if (info->frequence % 100 == 0 && current->frequence % 100 != 0) {
-						if (duckerType > Ducker::Type::FREQXX1)
-							duckerType = Ducker::Type::FREQXX1;
+						if (duckerType > Ducker::Type::FREQ_XY1_AB)
+							duckerType = Ducker::Type::FREQ_XY1_AB;
+					}
+					if (info->frequence % 10 == 0 && current->frequence % 10 != 0) {
+						if (duckerType > Ducker::Type::FREQ_XYZ_1B)
+							duckerType = Ducker::Type::FREQ_XYZ_1B;
 					}
 				}
 			}

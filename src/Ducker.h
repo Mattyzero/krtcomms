@@ -3,7 +3,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 
-constexpr auto TYPE_COUNT = 4;
+constexpr auto TYPE_COUNT = 5;
 
 class Ducker {
 public:
@@ -12,9 +12,10 @@ public:
 	enum Type {
 		NONE = -1,
 		CHANNEL,
-		FREQ1XX,
-		FREQX1X,
-		FREQXX1
+		BROADCAST,
+		FREQ_1YZ_AB,
+		FREQ_XY1_AB,
+		FREQ_XYZ_1B		
 	};
 
 	Ducker();
