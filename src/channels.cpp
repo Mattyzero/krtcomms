@@ -10,6 +10,7 @@
 
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
+#include <QtWidgets/QMessageBox>
 
 channels::channels(const QString& configLocation, char* pluginID, TS3Functions ts3Functions, QWidget* parent /* = nullptr */) : QDialog(parent),
 	_ui(std::make_unique<Ui::channelsui>()),
@@ -635,22 +636,22 @@ void channels::onFreqxyz_1bDuckingChanged(int state) {
 }
 
 void channels::onChannelDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::CHANNEL, value / 10.0f);
+	Ducker::getInstance().SetGain(Ducker::Type::CHANNEL, value / 100.0f);
 	set("channel_ducking", value);
 }
 
 void channels::onFreq1yz_abDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::FREQ_1YZ_AB, value / 10.0f);
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_1YZ_AB, value / 100.0f);
 	set("freq_1yz_ab_ducking", value);
 }
 
 void channels::onFreqxy1_abDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XY1_AB, value / 10.0f);
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XY1_AB, value / 100.0f);
 	set("freq_xy1_ab_ducking", value);
 }
 
 void channels::onFreqxyz_1bDuckingSliderChanged(int value) {
-	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XYZ_1B, value / 10.0f);
+	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XYZ_1B, value / 100.0f);
 	set("freq_xyz_1b_ducking", value);
 }
 
@@ -696,6 +697,24 @@ void channels::onSetRadio4Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, false, -1);
 	Encrypter::SetPassword(3, get("radio_2_password").toString());
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, true, (int)(_ui->frequence_4->value() * 100));
+}
+
+bool channels::onDifferentKey(QString keyword, QString key, QWidget *parent) {
+	QMessageBox msgBox;
+	msgBox.setText("Unterschiedliche Hotkeys erkannt!");
+	msgBox.setInformativeText(QLatin1String("Bitte richte deine Tastenbelegung nach dem Drücken auf \"OK\" erneut ein."));
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	int ret = msgBox.exec();
+
+	switch (ret) {
+	case QMessageBox::Ok:
+		KRTComms::getInstance().RequestHotkeyInputDialog(keyword.replace("send_ch_", "").replace("_", "").toInt(), parent);
+		return true; //lass ich daweil so falls ich mich umentscheide und doch wieder 2 Knöpfe einbau
+		break;
+	}
+
+	return false;
 }
 
 

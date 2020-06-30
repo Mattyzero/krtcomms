@@ -33,6 +33,8 @@ public:
 	void EnableReceiveLamp(int radio_id);
 	void DisableReceiveLamp(int radio_id);
 
+	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
+
 protected:
 	void showEvent(QShowEvent* e) override;
 	void resizeEvent(QResizeEvent* e) override;
@@ -123,5 +125,7 @@ private:
 
 	void onRadio4PasswordChanged(QString value);
 	void onSetRadio4Password(bool checked);
+
+	
 };
 

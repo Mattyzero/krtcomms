@@ -104,7 +104,7 @@ Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, any
 			ClientInfo* current = _talkers[serverConnectionHandlerID][key];
 
 			foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
-				if (info->isWhispering) {
+				if (info->isWhispering) {					
 					/*
 					if (info->frequence % 99999 == 0 && current->frequence % 99999 != 0) {
 						return Ducker::Type::BROADCAST;

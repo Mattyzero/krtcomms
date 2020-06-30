@@ -65,6 +65,7 @@ private:
 	QMap<uint64, QMap<int, int>> _activeRadios;
 	
 	QString _keyword;
+	QString _key;
 	QWidget* _parent;
 
 	bool _debug = false;

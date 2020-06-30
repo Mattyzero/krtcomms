@@ -39,12 +39,13 @@ QString Encrypter::Encrypt(int radio_id, QString value) {
 }
 
 QString Encrypter::Decrypt(uint64 serverConnectionHandlerID, QString value) {
-
+	bool no_match = false;
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		//KRTComms::Log(QString::number(Encrypter::getInstance().GetPassword(i).toULongLong()));
 
 		quint64 password = Encrypter::getInstance().GetPassword(i).toULongLong();
 		if (password == 0) continue;
+		no_match = true;
 
 		SimpleCrypt crypto(password);
 		QString decrypted = crypto.decryptToString(value);
@@ -52,6 +53,10 @@ QString Encrypter::Decrypt(uint64 serverConnectionHandlerID, QString value) {
 			KRTComms::Log("Decrypted: " + decrypted);
 			return decrypted;
 		}
+	}
+
+	if (no_match) {
+		return "-1";
 	}
 
 	int radio_id = KRTComms::getInstance().GetRadioId(serverConnectionHandlerID, value.toInt());

@@ -476,7 +476,7 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 	//QString logmessage = "Client MOVE : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(oldChannelID) + " : " + QString::number(newChannelID);
 
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
-	if (newChannelID == 0) {
+	if (newChannelID == 0) { //Anscheinend nur im eigenen Client
 		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
 	}
 
