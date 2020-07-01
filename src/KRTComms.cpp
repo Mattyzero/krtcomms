@@ -22,13 +22,16 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.0.9r2";
+char* KRTComms::version = "0.0.9r4";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		_pans[i] = 0.0f;
 		_gains[i] = 1.0f;
 		_isWhispering[i] = false;
+		_doubleClickCount[i] = 0;
+		_muted[i] = false;
+		_doubleClickTimer[i].setSingleShot(true);
 	}
 }
 
@@ -239,12 +242,12 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
-			//_ts3.printMessageToCurrentTab("Broadcast");
+			_ts3.printMessageToCurrentTab("Broadcast");
 			return true;
 		}
 
 		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
-			//_ts3.printMessageToCurrentTab("Broadcast2");
+			_ts3.printMessageToCurrentTab("Broadcast2");
 			return true;
 		}
 	}
@@ -261,10 +264,11 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
 			frequence = freq;
 			broadcast = true;
-			//_ts3.printMessageToCurrentTab("Broadcast3");
-		} else
+			_ts3.printMessageToCurrentTab("Broadcast3");
+			break;
+		}
 		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
-			//_ts3.printMessageToCurrentTab("Broadcast4");
+			_ts3.printMessageToCurrentTab("Broadcast4");
 			return true;
 		}
 	}
@@ -293,6 +297,19 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 
 bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
 	//_ts3.printMessageToCurrentTab("REMOVED");
+
+	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
+			frequence = freq;
+			_ts3.printMessageToCurrentTab("Broadcast5");
+			break;
+		}
+		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
+			_ts3.printMessageToCurrentTab("Broadcast6");
+			return true;
+		}
+	}
+
 	return _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
 }
 
@@ -603,8 +620,7 @@ void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 		}
 	}
 
-	if (shouldDuck != Ducker::Type::NONE) {		
-		//_ts3.printMessageToCurrentTab(("ShouldDuck: " + QString::number(shouldDuck)).toStdString().c_str());
+	if (shouldDuck != Ducker::Type::NONE) {
 		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, shouldDuck);
 	}
 }
@@ -665,7 +681,7 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 				
 				for (int i = 0; i < sampleCount * channels; i += channels) {
 					for (auto j = 0; j < channels; j++) {
-						auto sample = floatsSample[j][i / channels] * _gains[radio_id];
+						auto sample = floatsSample[j][i / channels] * _gains[radio_id] * (_muted[radio_id] ? 0.0f : 1.0f);
 						if (_pans[radio_id] != 0.0f) {
 							if (speaker2Channel.value(SPEAKER_HEADPHONES_LEFT, -1) == j || speaker2Channel.value(SPEAKER_FRONT_LEFT, -1) == j) {
 								sample *= gl;
@@ -696,5 +712,52 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 
 void KRTComms::OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) {
 	
+}
+
+void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
+
+	if (_doubleClickConnection != NULL) {
+		QObject::disconnect(*_doubleClickConnection);
+		delete _doubleClickConnection;
+		_doubleClickConnection = NULL;
+	}
+
+	if (_doubleClickTimer[radio_id].isActive()) {
+		_doubleClickTimer[radio_id].stop();
+		//_ts3.printMessageToCurrentTab("stopped");
+	}
+	
+	_doubleClickConnection = new QMetaObject::Connection;	
+	*_doubleClickConnection = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
+		//_ts3.printMessageToCurrentTab("Timedout");
+
+		bool oriIsWhispering = _isWhispering[radio_id];
+		//Mein Brain ist gef***
+		if (_doubleClickCount[radio_id] == 3 && !oriIsWhispering || _doubleClickCount[radio_id] == 4 && oriIsWhispering) {
+			_muted[radio_id] = true;
+			_channels->MuteReceiveLamp(radio_id);
+			//_ts3.printMessageToCurrentTab("Mute");
+			if (oriIsWhispering) { //Wenn gerade gewhispert wird und dann ein doppelklick kommt whispern ausschalten
+				this->WhisperToRadio(serverConnectionHandlerID, radio_id);
+			}
+		}
+		else if (_muted[radio_id] && !oriIsWhispering) {
+			_muted[radio_id] = false;
+			_channels->UnMuteReceiveLamp(radio_id);
+			//_ts3.printMessageToCurrentTab("UnMute");
+		}
+		else if(_doubleClickCount[radio_id] % 2 != 0) {
+			this->WhisperToRadio(serverConnectionHandlerID, radio_id);
+		}
+		
+		_doubleClickCount[radio_id] = 0;
+
+		QObject::disconnect(*_doubleClickConnection);
+		delete _doubleClickConnection;
+		_doubleClickConnection = NULL;
+	});
+	_doubleClickTimer[radio_id].start(200);
+	_doubleClickCount[radio_id]++;
+	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id])).toStdString().c_str());
 }
 

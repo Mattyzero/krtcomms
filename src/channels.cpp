@@ -252,6 +252,82 @@ void channels::DisableReceiveLamp(int radio_id) {
 	}
 }
 
+void channels::MuteReceiveLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		//_ui->receive_lamp_1->SetColor(QColor("black"));
+		_ui->receive_lamp_1->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 1:
+		//_ui->receive_lamp_2->SetColor(QColor("black"));
+		_ui->receive_lamp_2->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 2:
+		//_ui->receive_lamp_3->SetColor(QColor("black"));
+		_ui->receive_lamp_3->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 3:
+		//_ui->receive_lamp_4->SetColor(QColor("black"));
+		_ui->receive_lamp_4->SetDirection(QTriangle::Direction::LEFT);
+		break;
+
+	case 4:
+		//_ui->receive_lamp_5->SetColor(QColor("black"));
+		_ui->receive_lamp_5->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 5:
+		//_ui->receive_lamp_6->SetColor(QColor("black"));
+		_ui->receive_lamp_6->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 6:
+		//_ui->receive_lamp_7->SetColor(QColor("black"));
+		_ui->receive_lamp_7->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	case 7:
+		//_ui->receive_lamp_8->SetColor(QColor("black"));
+		_ui->receive_lamp_8->SetDirection(QTriangle::Direction::LEFT);
+		break;
+	}
+}
+
+void channels::UnMuteReceiveLamp(int radio_id) {
+	switch (radio_id) {
+	case 0:
+		//_ui->receive_lamp_1->SetColor(QColor("white"));
+		_ui->receive_lamp_1->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 1:
+		//_ui->receive_lamp_2->SetColor(QColor("white"));
+		_ui->receive_lamp_2->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 2:
+		//_ui->receive_lamp_3->SetColor(QColor("white"));
+		_ui->receive_lamp_3->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 3:
+		//_ui->receive_lamp_4->SetColor(QColor("white"));
+		_ui->receive_lamp_4->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+
+	case 4:
+		//_ui->receive_lamp_5->SetColor(QColor("white"));
+		_ui->receive_lamp_5->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 5:
+		//_ui->receive_lamp_6->SetColor(QColor("white"));
+		_ui->receive_lamp_6->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 6:
+		//_ui->receive_lamp_7->SetColor(QColor("white"));
+		_ui->receive_lamp_7->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	case 7:
+		//_ui->receive_lamp_8->SetColor(QColor("white"));
+		_ui->receive_lamp_8->SetDirection(QTriangle::Direction::BOTTOM);
+		break;
+	}
+}
+
 void channels::showEvent(QShowEvent* /* e */) {
 	load();
 }

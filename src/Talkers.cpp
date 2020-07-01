@@ -1,5 +1,6 @@
 #include "Talkers.h"
 #include "Ducker.h"
+#include "KRTComms.h"
 
 #include <math.h>
 
@@ -100,11 +101,10 @@ Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, any
 	QString clientIDString = QString::number(clientID);
 	Ducker::Type duckerType = Ducker::Type::NONE;
 	foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
-		if (key.endsWith(clientIDString)) {
+		if (key.endsWith(clientIDString)) {			
 			ClientInfo* current = _talkers[serverConnectionHandlerID][key];
-
 			foreach(ClientInfo* info, _talkers[serverConnectionHandlerID].values()) {
-				if (info->isWhispering) {					
+				if (info->isWhispering) {
 					/*
 					if (info->frequence % 99999 == 0 && current->frequence % 99999 != 0) {
 						return Ducker::Type::BROADCAST;
@@ -118,11 +118,11 @@ Ducker::Type Talkers::PrioritizedFrequence(uint64 serverConnectionHandlerID, any
 							duckerType = Ducker::Type::FREQ_X1Z_AB;
 					}*/
 					if (info->frequence % 100 == 0 && current->frequence % 100 != 0) {
-						if (duckerType > Ducker::Type::FREQ_XY1_AB)
+						if (duckerType == Ducker::Type::NONE || duckerType > Ducker::Type::FREQ_XY1_AB)
 							duckerType = Ducker::Type::FREQ_XY1_AB;
 					}
 					if (info->frequence % 10 == 0 && current->frequence % 10 != 0) {
-						if (duckerType > Ducker::Type::FREQ_XYZ_1B)
+						if (duckerType == Ducker::Type::NONE || duckerType > Ducker::Type::FREQ_XYZ_1B)
 							duckerType = Ducker::Type::FREQ_XYZ_1B;
 					}
 				}

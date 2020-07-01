@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <future>
 #include "teamspeak/public_errors.h"
 #include "teamspeak/public_errors_rare.h"
 #include "teamspeak/public_definitions.h"
@@ -876,7 +877,7 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 		bool ok;
 		int radio_id = keyword_.replace("send_ch_", "").replace("_", "").toInt(&ok);
 		if (ok) {
-			KRTComms::getInstance().WhisperToRadio(serverConnectionHandlerID, radio_id);
+			KRTComms::getInstance().OnHotkeyEvent(serverConnectionHandlerID, radio_id);
 		}
 	}
 }

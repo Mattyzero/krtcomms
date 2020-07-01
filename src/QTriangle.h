@@ -8,7 +8,9 @@ public:
 
 	enum Direction {
 		TOP,
-		BOTTOM
+		BOTTOM,
+		LEFT,
+		RIGHT
 	};
 
 	void SetColor(QColor color);

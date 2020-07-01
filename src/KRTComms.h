@@ -3,6 +3,7 @@
 #include <QtWidgets/QDialog>
 #include <QtCore/QMap>
 #include <QtCore/QList>
+#include <QtCore/QTimer>
 #include "channels.h"
 
 #define RADIO_COUNT 8
@@ -57,6 +58,8 @@ public:
 	void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
 	void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
 	void OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited);
+	void OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id);
+	void OnTimerTimeout();
 private:
 	
 	bool _firstX = true;
@@ -84,5 +87,11 @@ private:
 	char* _pluginID;
 	struct TS3Functions _ts3;
 	channels* _channels;
+
+	QTimer _doubleClickTimer[RADIO_COUNT];
+	int _doubleClickCount[RADIO_COUNT];
+	bool _muted[RADIO_COUNT];
+
+	QMetaObject::Connection * _doubleClickConnection = NULL;
 };
 

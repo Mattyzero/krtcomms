@@ -32,6 +32,8 @@ public:
 	void DisableSendLamp(int radio_id);
 	void EnableReceiveLamp(int radio_id);
 	void DisableReceiveLamp(int radio_id);
+	void MuteReceiveLamp(int radio_id);
+	void UnMuteReceiveLamp(int radio_id);
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
 

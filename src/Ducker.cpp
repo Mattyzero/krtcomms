@@ -52,11 +52,11 @@ void Ducker::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int statu
 	if (me == clientID) {
 		return;
 	}
-
-	
 }
 
 void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, int type) {
+
+	if (!IsEnabled(type)) return;
 
 	static thread_local size_t allocatedFloatsSample = 0;
 	static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;
