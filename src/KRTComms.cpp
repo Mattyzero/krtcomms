@@ -22,7 +22,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.0.9r4";
+char* KRTComms::version = "0.0.9";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -242,12 +242,12 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
-			_ts3.printMessageToCurrentTab("Broadcast");
+			//_ts3.printMessageToCurrentTab("Broadcast");
 			return true;
 		}
 
 		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
-			_ts3.printMessageToCurrentTab("Broadcast2");
+			//_ts3.printMessageToCurrentTab("Broadcast2");
 			return true;
 		}
 	}
@@ -264,11 +264,11 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
 			frequence = freq;
 			broadcast = true;
-			_ts3.printMessageToCurrentTab("Broadcast3");
+			//_ts3.printMessageToCurrentTab("Broadcast3");
 			break;
 		}
 		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
-			_ts3.printMessageToCurrentTab("Broadcast4");
+			//_ts3.printMessageToCurrentTab("Broadcast4");
 			return true;
 		}
 	}
@@ -301,11 +301,11 @@ bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequen
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
 			frequence = freq;
-			_ts3.printMessageToCurrentTab("Broadcast5");
+			//_ts3.printMessageToCurrentTab("Broadcast5");
 			break;
 		}
 		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
-			_ts3.printMessageToCurrentTab("Broadcast6");
+			//_ts3.printMessageToCurrentTab("Broadcast6");
 			return true;
 		}
 	}
