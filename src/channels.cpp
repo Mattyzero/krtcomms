@@ -118,6 +118,8 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	_ui->receive_lamp_8->SetDirection(QTriangle::Direction::BOTTOM);
 
 	_ui->radio_5_8->hide();
+
+	connect(_ui->push_to_mute_all, &QPushButton::clicked, this, &channels::onPushToMuteAllClick);
 }
 
 channels::~channels() {
@@ -791,6 +793,10 @@ bool channels::onDifferentKey(QString keyword, QString key, QWidget *parent) {
 	}
 
 	return false;
+}
+
+void channels::onPushToMuteAllClick(bool checked) {
+	KRTComms::getInstance().RequestHotkeyInputDialog("push_to_mute", this);
 }
 
 

@@ -37,6 +37,7 @@ public:
 	bool AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
 
 	void WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id);
+	void UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence);
 	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray);
 
 	void SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk);
@@ -53,6 +54,7 @@ public:
 	void Disconnected(uint64 serverConnectionHandlerID, anyID clientID);
 
 	void RequestHotkeyInputDialog(int radio_id, QWidget *parent = nullptr);
+	void RequestHotkeyInputDialog(QString keyword, QWidget *parent = nullptr);
 	void OnHotkeyRecordedEvent(QString keyword, QString key);
 	void OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID);
 	void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
@@ -60,6 +62,8 @@ public:
 	void OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited);
 	void OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id);
 	void OnTimerTimeout();
+
+	void PushToMuteAll(uint64 serverConnectionHandlerID);
 private:
 	
 	bool _firstX = true;

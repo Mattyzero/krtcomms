@@ -398,7 +398,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(16);  /* Create x hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(18);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -416,6 +416,9 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("send_ch_6_", "Radio 7 END");
 	CREATE_HOTKEY("send_ch_7", "Radio 8");
 	CREATE_HOTKEY("send_ch_7_", "Radio 8 END");
+
+	CREATE_HOTKEY("push_to_mute", "Push-To-Mute ALL")
+	CREATE_HOTKEY("push_to_mute_", "Push-To-Mute ALL END")
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -477,7 +480,8 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 	//QString logmessage = "Client MOVE : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(oldChannelID) + " : " + QString::number(newChannelID);
 
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
-	if (newChannelID == 0) { //Anscheinend nur im eigenen Client
+
+	if (newChannelID == 0) { //Man benötigt gewisse Rechte um onClientMoveEvents zu empfangen
 		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
 	}
 
@@ -879,6 +883,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 		if (ok) {
 			KRTComms::getInstance().OnHotkeyEvent(serverConnectionHandlerID, radio_id);
 		}
+	}
+
+	if (keyword_.startsWith("push_to_mute")) {
+		KRTComms::getInstance().PushToMuteAll(serverConnectionHandlerID);
 	}
 }
 

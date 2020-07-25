@@ -128,6 +128,6 @@ private:
 	void onRadio4PasswordChanged(QString value);
 	void onSetRadio4Password(bool checked);
 
-	
+	void onPushToMuteAllClick(bool checked);
 };
 

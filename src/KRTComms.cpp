@@ -22,7 +22,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.0.9";
+char* KRTComms::version = "0.1.0";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -181,11 +181,12 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 		if (state) {
 			if (isActive && old_frequence != frequence && _activeRadios[serverConnectionHandlerID].values().count(old_frequence) <= 1) {
 				QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));
-				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
+				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL); //TODO Überlegung ob LEFT nur an die Clients in Frequenz gesendet werden soll?
 				logmessage += " LEFT";
 
 				RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
 				_isWhispering[radio_id] = false;
+				Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
 			}
 
 			if (!isActive || old_frequence != frequence) {
@@ -205,6 +206,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 
 					RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
 					_isWhispering[radio_id] = false;
+					Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
 				}
 
 				_activeRadios[serverConnectionHandlerID].remove(radio_id);
@@ -237,8 +239,6 @@ bool KRTComms::ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id) {
 bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence) {
 	bool isActive = _activeRadios[serverConnectionHandlerID].values().contains(frequence);
 	if (isActive) return true;
-
-	
 
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
 		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
@@ -290,6 +290,8 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 		_nicknames[serverConnectionHandlerID][clientID] = nickname;
 	}
 
+	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+
 	if (broadcast) return false;
 
 	return true;
@@ -310,7 +312,11 @@ bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequen
 		}
 	}
 
-	return _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
+	bool result = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
+
+	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+
+	return result;
 }
 
 void KRTComms::RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence) {
@@ -368,6 +374,8 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	}
 
+	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+	/*
 	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
 	QList<anyID> targetClientIDs;
 
@@ -375,6 +383,20 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		if (_isWhispering[i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
 			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);			
+		}
+	}
+
+	WhisperTo(serverConnectionHandlerID, targetChannelIDs, targetClientIDs);*/
+}
+
+void KRTComms::UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence) {
+	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
+	QList<anyID> targetClientIDs;
+
+	for (int i = 0; i < _isWhispering.size(); i++) {
+		if (_isWhispering[i]) {
+			int freq = GetFrequence(serverConnectionHandlerID, i);
+			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
 		}
 	}
 
@@ -533,7 +555,11 @@ void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 }
 
 void KRTComms::RequestHotkeyInputDialog(int radio_id, QWidget *parent) {
-	_keyword = "send_ch_" + QString::number(radio_id);
+	RequestHotkeyInputDialog("send_ch_" + QString::number(radio_id), parent);
+}
+
+void KRTComms::RequestHotkeyInputDialog(QString keyword, QWidget *parent) {
+	_keyword = keyword;
 	_parent = parent;
 	_ts3.requestHotkeyInputDialog(_pluginID, _keyword.toStdString().c_str(), 1, _parent);
 }
@@ -759,5 +785,17 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 	_doubleClickTimer[radio_id].start(200);
 	_doubleClickCount[radio_id]++;
 	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id])).toStdString().c_str());
+}
+
+void KRTComms::PushToMuteAll(uint64 serverConnectionHandlerID) {
+	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
+		_muted[radio_id] = !_muted[radio_id];
+		if (_muted[radio_id]) {
+			_channels->MuteReceiveLamp(radio_id);
+		}
+		else {
+			_channels->UnMuteReceiveLamp(radio_id);
+		}
+	}
 }
 

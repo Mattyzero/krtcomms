@@ -49,6 +49,16 @@ void Talkers::Remove(uint64 serverConnectionHandlerID, anyID clientID, int isRec
 	}
 }
 
+void Talkers::Clear(uint64 serverConnectionHandlerID, int frequence) {
+	foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
+		if (key.startsWith(QString::number(frequence))) {
+			delete _talkers[serverConnectionHandlerID][key];
+			_talkers[serverConnectionHandlerID][key] = NULL;
+			_talkers[serverConnectionHandlerID].remove(key);
+		}
+	}
+}
+
 void Talkers::SetFrequenceIfNotSet(uint64 serverConnectionHandlerID, anyID clientID, int frequence) {
 	QString key = QString::number(frequence) + "_" + QString::number(clientID);
 	if (_talkers[serverConnectionHandlerID].contains(key)) {

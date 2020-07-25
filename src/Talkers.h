@@ -22,6 +22,7 @@ public:
 
 	void Add(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence);
 	void Remove(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence);
+	void Clear(uint64 serverConnectionHandlerID, int frequence);
 	void SetFrequenceIfNotSet(uint64 serverConnectionHandlerID, anyID clientID, int frequence);
 
 	bool IsWhispering(uint64 serverConnectionHandlerID, anyID clientID);
