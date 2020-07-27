@@ -23,12 +23,13 @@ public:
 	void Add(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence);
 	void Remove(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence);
 	void Clear(uint64 serverConnectionHandlerID, int frequence);
-	void SetFrequenceIfNotSet(uint64 serverConnectionHandlerID, anyID clientID, int frequence);
 
 	bool IsWhispering(uint64 serverConnectionHandlerID, anyID clientID);
 	bool IsWhispering(uint64 serverConnectionHandlerID, anyID clientID, int frequence);
 	bool IsAnyWhispering(uint64 serverConnectionHandlerID);
 	bool IsAnyWhisperingInFrequence(uint64 serverConnectionHandlerID, int frequence);
+	bool IsAnyWhisperingAndNotMuted(uint64 serverConnectionHandlerID);
+	QList<int> GetFrequences(uint64 serverConnectionHandlerID, anyID clientID);
 	Ducker::Type PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID);
 
 private:

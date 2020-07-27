@@ -22,7 +22,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.0";
+char* KRTComms::version = "0.1.1";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -587,47 +587,7 @@ void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 }
 
 void KRTComms::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
-	/* Versuch über PluginCommands 
-	//TODO Handle multiple STATUS_TALKING
-	try {
-		int clientFrequence = -1;
-		
-		//foreach(int frequence, _targetClientIDs[serverConnectionHandlerID].keys()) {
-		//	if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
-		//		//_isClientWhispering[serverConnectionHandlerID][clientID] = isReceivedWhisper;
-		//		clientFrequence = frequence;
-		//		//TODO Support für multiple frequences
-		//		break;
-		//	}
-		//}
-
-		//TODO Was wenn es einen Disconnect gibt wärenddessen sie STATUS_TALKING sind
-		anyID me;
-		_ts3.getClientID(serverConnectionHandlerID, &me);
-
-		if (status == STATUS_TALKING) {
-			//if(isReceivedWhisper) {
-			//	_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
-			//}
-			//_ts3.printMessageToCurrentTab("STATUS_TALKING");
-			Talkers::getInstance().Add(serverConnectionHandlerID, clientID, isReceivedWhisper, clientFrequence);
-		} else
-		if(status == STATUS_NOT_TALKING) {		
-			Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, isReceivedWhisper);
-			
-			//if(!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, clientFrequence)) {
-			//	_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, clientFrequence));
-			//}
-			//_ts3.printMessageToCurrentTab("STATUS_NOT_TALKING");
-		}
-	} 
-	catch (const std::exception& e) {
-		_ts3.logMessage(e.what(), LogLevel_ERROR, "KRTC OnTalkStatusChangeEvent", serverConnectionHandlerID);
-	}
-	catch (...) {
-		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC OnTalkStatusChangeEvent", serverConnectionHandlerID);
-	}
-	*/
+	
 }
 
 void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
@@ -635,9 +595,20 @@ void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 	//Hier alles was den Ducker nicht braucht coden
 
 	if (!Ducker::getInstance().IsEnabled()) return;
+
+	//Wenn alles gemuted ist braucht er nichts ducken
+	bool all_muted = true;
+	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
+		if (!_muted[radio_id]) {
+			all_muted = false;
+			break;
+		}
+	}
+	if (all_muted) return;
+
 	Ducker::Type shouldDuck = Ducker::Type::NONE;
 
-	if (Talkers::getInstance().IsAnyWhispering(serverConnectionHandlerID)) {
+	if (Talkers::getInstance().IsAnyWhisperingAndNotMuted(serverConnectionHandlerID)) {
 		if (!Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
 			shouldDuck = Ducker::Type::CHANNEL;
 		}
@@ -797,5 +768,26 @@ void KRTComms::PushToMuteAll(uint64 serverConnectionHandlerID) {
 			_channels->UnMuteReceiveLamp(radio_id);
 		}
 	}
+}
+
+bool KRTComms::IsFrequenceMuted(uint64 serverConnectionHandlerID, int frequence) {
+
+	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
+		if (GetFrequence(serverConnectionHandlerID, radio_id) == frequence && _muted[radio_id]) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+QList<int> KRTComms::GetMutedFrequences(uint64 serverConnectionHandlerID) {
+	QList<int> list;
+	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
+		if (_muted[radio_id]) {
+			list.append(GetFrequence(serverConnectionHandlerID, radio_id));
+		}
+	}
+	return list;
 }
 

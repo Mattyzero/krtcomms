@@ -64,6 +64,8 @@ public:
 	void OnTimerTimeout();
 
 	void PushToMuteAll(uint64 serverConnectionHandlerID);
+	bool IsFrequenceMuted(uint64 serverConnectionHandlerID, int frequence);
+	QList<int> GetMutedFrequences(uint64 serverConnectionHandlerID);
 private:
 	
 	bool _firstX = true;
