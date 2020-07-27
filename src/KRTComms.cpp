@@ -32,6 +32,7 @@ KRTComms::KRTComms() {
 		_doubleClickCount[i] = 0;
 		_muted[i] = false;
 		_doubleClickTimer[i].setSingleShot(true);
+		_doubleClickConnection[i] = NULL;
 	}
 }
 
@@ -713,10 +714,10 @@ void KRTComms::OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, sh
 
 void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 
-	if (_doubleClickConnection != NULL) {
-		QObject::disconnect(*_doubleClickConnection);
-		delete _doubleClickConnection;
-		_doubleClickConnection = NULL;
+	if (_doubleClickConnection[radio_id] != NULL) {
+		QObject::disconnect(*_doubleClickConnection[radio_id]);
+		delete _doubleClickConnection[radio_id];
+		_doubleClickConnection[radio_id] = NULL;
 	}
 
 	if (_doubleClickTimer[radio_id].isActive()) {
@@ -724,8 +725,8 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 		//_ts3.printMessageToCurrentTab("stopped");
 	}
 	
-	_doubleClickConnection = new QMetaObject::Connection;	
-	*_doubleClickConnection = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
+	_doubleClickConnection[radio_id] = new QMetaObject::Connection;	
+	*_doubleClickConnection[radio_id] = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
 		//_ts3.printMessageToCurrentTab("Timedout");
 
 		bool oriIsWhispering = _isWhispering[radio_id];
@@ -749,13 +750,13 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 		
 		_doubleClickCount[radio_id] = 0;
 
-		QObject::disconnect(*_doubleClickConnection);
-		delete _doubleClickConnection;
-		_doubleClickConnection = NULL;
+		QObject::disconnect(*_doubleClickConnection[radio_id]);
+		delete _doubleClickConnection[radio_id];
+		_doubleClickConnection[radio_id] = NULL;
 	});
 	_doubleClickTimer[radio_id].start(200);
 	_doubleClickCount[radio_id]++;
-	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id])).toStdString().c_str());
+	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id]) + " | " + QString::number(radio_id)).toStdString().c_str());
 }
 
 void KRTComms::PushToMuteAll(uint64 serverConnectionHandlerID) {

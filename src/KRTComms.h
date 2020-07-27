@@ -98,6 +98,6 @@ private:
 	int _doubleClickCount[RADIO_COUNT];
 	bool _muted[RADIO_COUNT];
 
-	QMetaObject::Connection * _doubleClickConnection = NULL;
+	QMetaObject::Connection * _doubleClickConnection[RADIO_COUNT];
 };
 
