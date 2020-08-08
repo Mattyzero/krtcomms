@@ -13,6 +13,7 @@
 #include <array>
 #include <QtCore/QString>
 #include <QtWidgets/QDialog>
+#include <QtCore/QFileInfo>
 #include <math.h>
 
 #ifndef M_PI
@@ -22,7 +23,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.1";
+char* KRTComms::version = "0.1.2rc4";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -31,9 +32,13 @@ KRTComms::KRTComms() {
 		_isWhispering[i] = false;
 		_doubleClickCount[i] = 0;
 		_muted[i] = false;
+		_toggleMuted[i] = false;
 		_doubleClickTimer[i].setSingleShot(true);
 		_doubleClickConnection[i] = NULL;
 	}
+
+	_allMuted = false;
+	_channelMuted = false;
 }
 
 KRTComms& KRTComms::getInstance() {
@@ -51,6 +56,27 @@ void KRTComms::Init(const struct TS3Functions funcs, char* pluginID, channels* c
 	_pluginID = pluginID;
 	_channels = channels;
 	//_ts3.getClientID(_serverConnectionHandlerID, &_me);
+
+	char soundsPath[512];
+	_ts3.getPluginPath(soundsPath, 512, pluginID);
+
+	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
+		QString startPath = QString(soundsPath) + "\\krt_comms\\start" + QString::number(radio_id+1) + ".wav";
+		if (QFileInfo(startPath).exists()) {
+			_soundsPath[radio_id][0] = startPath;
+		}
+		else {
+			_soundsPath[radio_id][0] = QString(soundsPath) + "\\krt_comms\\start.wav";
+		}
+
+		QString endPath = QString(soundsPath) + "\\krt_comms\\end" + QString::number(radio_id+1) + ".wav";
+		if (QFileInfo(endPath).exists()) {
+			_soundsPath[radio_id][1] = endPath;
+		}
+		else {
+			_soundsPath[radio_id][1] = QString(soundsPath) + "\\krt_comms\\end.wav";
+		}
+	}
 }
 
 void KRTComms::SetDebug(bool debug) {
@@ -112,8 +138,12 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
-			_channels->EnableReceiveLamp(GetRadioId(serverConnectionHandlerID, frequence));
+			int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
+			_channels->EnableReceiveLamp(radio_id);
 			Talkers::getInstance().Add(serverConnectionHandlerID, invokerClientID, true, frequence);
+
+			if(_soundsEnabled)
+				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][0].toStdString().c_str());
 		}
 		return;
 	}
@@ -123,8 +153,12 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {			
 			Talkers::getInstance().Remove(serverConnectionHandlerID, invokerClientID, false, frequence);
-			if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {				
-				_channels->DisableReceiveLamp(GetRadioId(serverConnectionHandlerID, frequence));
+			if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {
+				int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
+				_channels->DisableReceiveLamp(radio_id);
+
+				if(_soundsEnabled && tokens[1] == "SENDOFF")
+					_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][1].toStdString().c_str());
 			}
 		}
 		if(tokens[1] != "LEFT") return;
@@ -134,7 +168,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
-			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName)) { //false wenn selbst
+			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, true)) { //false wenn selbst
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
 			}
 		}
@@ -154,7 +188,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
-			AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName);
+			AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, false); //Bei METOO braucht er keinen UpdateWhisperTo
 		}
 		return;
 	}
@@ -257,7 +291,7 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 	return isActive;
 }
 
-bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname) {
+bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname, bool shouldUpdate) {
 
 	//Falls Broadcast auch Empfangen soll dann das hier löschen
 	bool broadcast = false;
@@ -291,7 +325,7 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 		_nicknames[serverConnectionHandlerID][clientID] = nickname;
 	}
 
-	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID, frequence);
 
 	if (broadcast) return false;
 
@@ -501,13 +535,14 @@ void KRTComms::Reset(uint64 serverConnectionHandlerID) {
 		int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 
 		QList<anyID> tmp = QList(_targetClientIDs[serverConnectionHandlerID][frequence]);
-		if (tmp.size() == 0) return;
+		if (tmp.size() == 0) continue;
 		tmp.append(0);
 
 		
 		QString command = "SENDOFF\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 	}
+	_channelMuted = false;
 }
 
 void KRTComms::SetPan(int radio_id, float pan) {
@@ -595,8 +630,6 @@ void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 		
 	//Hier alles was den Ducker nicht braucht coden
 
-	if (!Ducker::getInstance().IsEnabled()) return;
-
 	//Wenn alles gemuted ist braucht er nichts ducken
 	bool all_muted = true;
 	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
@@ -607,10 +640,16 @@ void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 	}
 	if (all_muted) return;
 
+	bool notWhispering = !Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID);
+	if (_channelMuted && notWhispering) {
+		Ducker::getInstance().EditPlaybackVoiceData(samples, sampleCount, channels, 0.0f);
+		return;
+	}
+	
 	Ducker::Type shouldDuck = Ducker::Type::NONE;
-
+	
 	if (Talkers::getInstance().IsAnyWhisperingAndNotMuted(serverConnectionHandlerID)) {
-		if (!Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID)) {
+		if (notWhispering) {
 			shouldDuck = Ducker::Type::CHANNEL;
 		}
 		else {
@@ -619,7 +658,7 @@ void KRTComms::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 	}
 
 	if (shouldDuck != Ducker::Type::NONE) {
-		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, shouldDuck);
+		Ducker::getInstance().OnEditPlaybackVoiceDataEvent(serverConnectionHandlerID, clientID, samples, sampleCount, channels, shouldDuck);		
 	}
 }
 
@@ -724,6 +763,17 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 		_doubleClickTimer[radio_id].stop();
 		//_ts3.printMessageToCurrentTab("stopped");
 	}
+
+	_doubleClickCount[radio_id]++;
+	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id]) + " | " + QString::number(radio_id)).toStdString().c_str());
+	if (_toggleMute) {
+		if (_doubleClickCount[radio_id] % 2 != 0) {
+			ToggleMute(serverConnectionHandlerID, radio_id);
+		} else {
+			_doubleClickCount[radio_id] = 0;
+		}
+		return;
+	}
 	
 	_doubleClickConnection[radio_id] = new QMetaObject::Connection;	
 	*_doubleClickConnection[radio_id] = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
@@ -731,21 +781,29 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 
 		bool oriIsWhispering = _isWhispering[radio_id];
 		//Mein Brain ist gef***
-		if (_doubleClickCount[radio_id] == 3 && !oriIsWhispering || _doubleClickCount[radio_id] == 4 && oriIsWhispering) {
-			_muted[radio_id] = true;
-			_channels->MuteReceiveLamp(radio_id);
+		if (_doubleClickCount[radio_id] == 3 && !oriIsWhispering && !_allMuted || _doubleClickCount[radio_id] == 4 && oriIsWhispering && !_allMuted || (_allMuted || _toggleMuted[radio_id]) && oriIsWhispering) {
+			if (!_toggleMuted[radio_id]) {
+				_muted[radio_id] = true;
+				_channels->MuteReceiveLamp(radio_id);
+			}
 			//_ts3.printMessageToCurrentTab("Mute");
 			if (oriIsWhispering) { //Wenn gerade gewhispert wird und dann ein doppelklick kommt whispern ausschalten
-				this->WhisperToRadio(serverConnectionHandlerID, radio_id);
+				this->WhisperToRadio(serverConnectionHandlerID, radio_id);				
+				_toggleMuted[radio_id] = false;
 			}
 		}
 		else if (_muted[radio_id] && !oriIsWhispering) {
 			_muted[radio_id] = false;
 			_channels->UnMuteReceiveLamp(radio_id);
 			//_ts3.printMessageToCurrentTab("UnMute");
+
+			if ((_allMuted || _toggleMuted[radio_id]) && _doubleClickCount[radio_id] % 2 != 0) {
+				this->WhisperToRadio(serverConnectionHandlerID, radio_id);				
+			}
 		}
 		else if(_doubleClickCount[radio_id] % 2 != 0) {
 			this->WhisperToRadio(serverConnectionHandlerID, radio_id);
+			//_ts3.printMessageToCurrentTab("Modulo");
 		}
 		
 		_doubleClickCount[radio_id] = 0;
@@ -755,19 +813,48 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 		_doubleClickConnection[radio_id] = NULL;
 	});
 	_doubleClickTimer[radio_id].start(200);
-	_doubleClickCount[radio_id]++;
-	//_ts3.printMessageToCurrentTab(("doubleClickCount: " + QString::number(_doubleClickCount[radio_id]) + " | " + QString::number(radio_id)).toStdString().c_str());
+}
+
+void KRTComms::PushToMute(uint64 serverConnectionHandlerID, QString type) {
+	if (type == "all") {
+		PushToMuteAll(serverConnectionHandlerID);
+	}
+	else if (type == "channel") {
+		PushToMuteChannel(serverConnectionHandlerID);
+	}
 }
 
 void KRTComms::PushToMuteAll(uint64 serverConnectionHandlerID) {
+	_allMuted = !_allMuted;
+
 	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
-		_muted[radio_id] = !_muted[radio_id];
+		_muted[radio_id] = _allMuted;
 		if (_muted[radio_id]) {
 			_channels->MuteReceiveLamp(radio_id);
 		}
 		else {
 			_channels->UnMuteReceiveLamp(radio_id);
 		}
+	}
+}
+
+void KRTComms::PushToMuteChannel(uint64 serverConnectionHandlerID) {
+	_channelMuted = !_channelMuted;
+	_channels->ChangeChannelMuted(_channelMuted);
+}
+
+void KRTComms::ToggleMute(uint64 serverConnectionhandlerID) {
+	_toggleMute = !_toggleMute;
+}
+
+void KRTComms::ToggleMute(uint64 serverConnectionHandlerID, int radio_id) {
+	_toggleMuted[radio_id] = !_toggleMuted[radio_id];
+	_muted[radio_id] = !_muted[radio_id];
+	if (_muted[radio_id]) {
+		_channels->MuteReceiveLamp(radio_id);
+	}
+	else {
+		_channels->UnMuteReceiveLamp(radio_id);
 	}
 }
 
@@ -790,5 +877,34 @@ QList<int> KRTComms::GetMutedFrequences(uint64 serverConnectionHandlerID) {
 		}
 	}
 	return list;
+}
+
+int KRTComms::OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
+	if (_debug) {
+		_ts3.printMessageToCurrentTab(("PLUGIN: onServerErrorEvent " + QString::number(serverConnectionHandlerID) + " " + QString(errorMessage) + " " + QString::number(error) + " " + (returnCode ? QString(returnCode) : "") + " " + QString(extraMessage)).toStdString().c_str());
+	}
+	if (returnCode) {
+		/* A plugin could now check the returnCode with previously (when calling a function) remembered returnCodes and react accordingly */
+		/* In case of using a a plugin return code, the plugin can return:
+		 * 0: Client will continue handling this error (print to chat tab)
+		 * 1: Client will ignore this error, the plugin announces it has handled it */
+		return 1;
+	}
+	return 0;  /* If no plugin return code was used, the return value of this function is ignored */
+}
+
+void KRTComms::OnClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
+	if (_debug) {
+		QString logmessage = "OnClientMoveTimeoutEvent " + QString::number(clientID) + " oldChannelID: " + QString::number(oldChannelID) + " newChannleID: " + QString::number(newChannelID) + " vis: " + QString::number(visibility) + " timeoutMessage: " + QString(timeoutMessage);
+		_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+	}
+
+	if (newChannelID == 0) {
+		Disconnected(serverConnectionHandlerID, clientID);
+	}
+}
+
+void KRTComms::SetSoundsEnabled(bool enabled) {
+	_soundsEnabled = enabled;
 }
 

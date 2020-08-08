@@ -45,6 +45,10 @@ void Ducker::SetGain(int type, float value) {
 	_ducking[type] = value;
 }
 
+float Ducker::GetGain(int type) {
+	return _ducking[type];
+}
+
 void Ducker::OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID, int clientFrequence) {
 
 	anyID me;
@@ -58,6 +62,10 @@ void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyI
 
 	if (!IsEnabled(type)) return;
 
+	EditPlaybackVoiceData(samples, sampleCount, channels, _ducking[type]);
+}
+
+void Ducker::EditPlaybackVoiceData(short* samples, int sampleCount, int channels, float ducking) {
 	static thread_local size_t allocatedFloatsSample = 0;
 	static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;
 	if (allocatedFloatsSample != floatsSample[0].size())
@@ -81,7 +89,7 @@ void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyI
 
 	for (int i = 0; i < sampleCount * channels; i += channels) {
 		for (auto j = 0; j < channels; j++) {
-			auto sample = floatsSample[j][i / channels] * _ducking[type];			
+			auto sample = floatsSample[j][i / channels] * ducking;
 			short newValue;
 			if (sample > 1.0) newValue = SHRT_MAX;
 			else if (sample < -1.0) newValue = SHRT_MIN;
@@ -89,11 +97,10 @@ void Ducker::OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyI
 			samples[i + j] = newValue;
 		}
 	}
-
 }
 
 void Ducker::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-
+	/*
 	unsigned int error;
 
 	anyID me;
@@ -112,6 +119,5 @@ void Ducker::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID,
 			}
 		}
 	}
-
-
+	*/
 }

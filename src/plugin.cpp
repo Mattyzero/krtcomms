@@ -147,12 +147,15 @@ int ts3plugin_init() {
     ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, pluginID);
 
-	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
+	QString logmessage = "PLUGIN: App path: " + QString(appPath) + "\nResources path: " + QString(resourcesPath) + "\nConfig path: " + QString(configPath) + "\nPlugin path: " + QString(pluginPath) + "\n";
+
+	ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	*/
 	//QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	channelsui_init();
 	KRTComms::getInstance().Init(ts3Functions, pluginID, channels_);
 	Ducker::getInstance().Init(ts3Functions, pluginID);
+	channels_->OnStartup();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -398,7 +401,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(18);  /* Create x hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(22);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -406,7 +409,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("send_ch_2", "Radio 3");
 	CREATE_HOTKEY("send_ch_2_", "Radio 3 END");
 	CREATE_HOTKEY("send_ch_3", "Radio 4");
-	CREATE_HOTKEY("send_ch_3_", "Radio 4 END");
+	CREATE_HOTKEY("send_ch_3_", "Radio 4 END"); //8
 
 	CREATE_HOTKEY("send_ch_4", "Radio 5");
 	CREATE_HOTKEY("send_ch_4_", "Radio 5 END");
@@ -415,10 +418,15 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("send_ch_6", "Radio 7");
 	CREATE_HOTKEY("send_ch_6_", "Radio 7 END");
 	CREATE_HOTKEY("send_ch_7", "Radio 8");
-	CREATE_HOTKEY("send_ch_7_", "Radio 8 END");
+	CREATE_HOTKEY("send_ch_7_", "Radio 8 END"); //16
 
-	CREATE_HOTKEY("push_to_mute", "Push-To-Mute ALL")
-	CREATE_HOTKEY("push_to_mute_", "Push-To-Mute ALL END")
+	CREATE_HOTKEY("push_to_mute_all", "Push-To-Mute ALL");
+	CREATE_HOTKEY("push_to_mute_all_", "Push-To-Mute ALL END");
+	CREATE_HOTKEY("push_to_mute_channel", "Push-To-Mute Channel");
+	CREATE_HOTKEY("push_to_mute_channel_", "Push-To-Mute Channel END"); //20
+
+	CREATE_HOTKEY("toggle_mute", "Toggle Mute");
+	CREATE_HOTKEY("toggle_mute_", "Toggle Mute END"); //22
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -434,24 +442,24 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 
 void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
     /* Some example code following to show how to use the information query functions. */
-
-    if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  /* connection established and we have client and channels available */
+	/*
+    if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  // connection established and we have client and channels available 
         char* s;
         char msg[1024];
 
-        /* Print clientlib version */
+        // Print clientlib version 
         if(ts3Functions.getClientLibVersion(&s) == ERROR_ok) {
             printf("PLUGIN: Client lib version: %s\n", s);
-            ts3Functions.freeMemory(s);  /* Release string */
+            ts3Functions.freeMemory(s);  // Release string
         } else {
             ts3Functions.logMessage("Error querying client lib version", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
             return;
         }
 
-		/* Write plugin name and version to log */
+		// Write plugin name and version to log 
         snprintf(msg, sizeof(msg), "Plugin %s, Version %s, Author: %s", ts3plugin_name(), ts3plugin_version(), ts3plugin_author());
         ts3Functions.logMessage(msg, LogLevel_INFO, "Plugin", serverConnectionHandlerID);
-    }
+    }*/
 }
 
 void ts3plugin_onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID) {
@@ -473,34 +481,46 @@ void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint
 }
 
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {	
+	//ts3Functions.printMessageToCurrentTab("OnUpdateClientEvent");
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 
 	//QString logmessage = "Client MOVE : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(oldChannelID) + " : " + QString::number(newChannelID);
-
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 
 	if (newChannelID == 0) { //Man benötigt gewisse Rechte um onClientMoveEvents zu empfangen
 		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
 	}
 
-	Ducker::getInstance().OnClientMoveEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage);
+	//Ducker::getInstance().OnClientMoveEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage);
 }
 
 void ts3plugin_onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
 }
 
-void ts3plugin_onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {	
+void ts3plugin_onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
+
+	//QString logmessage = "OnClientMoveTimeoutEvent " + QString::number(clientID) + " oldChannelID: " + QString::number(oldChannelID) + " newChannleID: " + QString::number(newChannelID) + " vis: " + QString::number(visibility) + " timeoutMessage: " + QString(timeoutMessage);
+	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
+
+	if (newChannelID == 0) {
+		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
+	}
+
+	//KRTComms::getInstance().OnClientMoveTimeoutEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, timeoutMessage);
 }
 
 void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
+	//ts3Functions.printMessageToCurrentTab("OnClientMoveMovedEvent");
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
+	//ts3Functions.printMessageToCurrentTab("OnClientKickFromChannelEvent");
 }
 
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
+	//ts3Functions.printMessageToCurrentTab("OnClientKickFromServerEvent");
 }
 
 void ts3plugin_onClientIDsEvent(uint64 serverConnectionHandlerID, const char* uniqueClientIdentifier, anyID clientID, const char* clientName) {
@@ -516,22 +536,14 @@ void ts3plugin_onServerUpdatedEvent(uint64 serverConnectionHandlerID) {
 }
 
 int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
-	printf("PLUGIN: onServerErrorEvent %llu %s %d %s\n", (long long unsigned int)serverConnectionHandlerID, errorMessage, error, (returnCode ? returnCode : ""));
-	if(returnCode) {
-		/* A plugin could now check the returnCode with previously (when calling a function) remembered returnCodes and react accordingly */
-		/* In case of using a a plugin return code, the plugin can return:
-		 * 0: Client will continue handling this error (print to chat tab)
-		 * 1: Client will ignore this error, the plugin announces it has handled it */
-		return 1;
-	}
-	return 0;  /* If no plugin return code was used, the return value of this function is ignored */
+	return KRTComms::getInstance().OnServerErrorEvent(serverConnectionHandlerID, errorMessage, error, returnCode, extraMessage);
 }
 
 void ts3plugin_onServerStopEvent(uint64 serverConnectionHandlerID, const char* shutdownMessage) {
 }
 
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-    printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
+    //printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
 
 	/* Friend/Foe manager has ignored the message, so ignore here as well. */
 	if(ffIgnored) {
@@ -559,6 +571,7 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 }
 
 void ts3plugin_onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID) {
+	//ts3Functions.printMessageToCurrentTab("OnConnectionInfoEvent");
 }
 
 void ts3plugin_onServerConnectionInfoEvent(uint64 serverConnectionHandlerID) {
@@ -885,8 +898,12 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 		}
 	}
 
-	if (keyword_.startsWith("push_to_mute")) {
-		KRTComms::getInstance().PushToMuteAll(serverConnectionHandlerID);
+	if (keyword_.startsWith("push_to_mute_")) {
+		KRTComms::getInstance().PushToMute(serverConnectionHandlerID, keyword_.replace("push_to_mute_", "").replace("_", ""));
+	}
+
+	if (keyword_.startsWith("toggle_mute")) {
+		KRTComms::getInstance().ToggleMute(serverConnectionHandlerID);
 	}
 }
 

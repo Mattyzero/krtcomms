@@ -26,7 +26,9 @@ public:
 
 	void set(const QString& option, const QVariant& value);
 	QVariant get(const QString& option) const;
+	QVariant get(const QString& option, const QVariant& defaultValue) const;
 
+	void OnStartup();
 
 	void EnableSendLamp(int radio_id);
 	void DisableSendLamp(int radio_id);
@@ -34,6 +36,7 @@ public:
 	void DisableReceiveLamp(int radio_id);
 	void MuteReceiveLamp(int radio_id);
 	void UnMuteReceiveLamp(int radio_id);
+	void ChangeChannelMuted(bool checked);
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
 
@@ -129,5 +132,10 @@ private:
 	void onSetRadio4Password(bool checked);
 
 	void onPushToMuteAllClick(bool checked);
+	void onPushToMuteChannelClick(bool checked);
+	void onToggleMuteClick(bool checked);
+
+	void onBeepSoundChanged(int state);
+	void onActivateRadioOnStartupChanged(int state);
 };
 

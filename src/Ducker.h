@@ -28,9 +28,11 @@ public:
 	bool IsEnabled(int type);
 
 	void SetGain(int type, float value);
+	float GetGain(int type);
 
 	void OnTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID, int clientFrequence);
 	void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, int type);
+	void EditPlaybackVoiceData(short* samples, int sampleCount, int channels, float ducking);
 	void OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage);
 
 private:

@@ -30,7 +30,7 @@ public:
 	void SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bool state, int frequence);
 	bool ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id);
 	bool ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence);
-	bool AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname);
+	bool AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname, bool shouldUpdate);
 	bool RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
 	void RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence);
 
@@ -63,13 +63,18 @@ public:
 	void OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id);
 	void OnTimerTimeout();
 
+	void PushToMute(uint64 serverConnectionHandlerID, QString type);
 	void PushToMuteAll(uint64 serverConnectionHandlerID);
+	void PushToMuteChannel(uint64 serverConnectionHandlerID);
+	void ToggleMute(uint64 serverConnectionHandlerID);
+	void ToggleMute(uint64 serverConnectionHandlerID, int radio_id);
 	bool IsFrequenceMuted(uint64 serverConnectionHandlerID, int frequence);
 	QList<int> GetMutedFrequences(uint64 serverConnectionHandlerID);
+	int OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage);
+	void OnClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
+
+	void SetSoundsEnabled(bool enabled);
 private:
-	
-	bool _firstX = true;
-	bool _firstY = true;
 
 	QMap<uint64, QMap<int, int>> _activeRadios;
 	
@@ -93,10 +98,16 @@ private:
 	char* _pluginID;
 	struct TS3Functions _ts3;
 	channels* _channels;
+	bool _soundsEnabled = true;
+	QString _soundsPath[RADIO_COUNT][2];
 
 	QTimer _doubleClickTimer[RADIO_COUNT];
 	int _doubleClickCount[RADIO_COUNT];
 	bool _muted[RADIO_COUNT];
+	bool _allMuted = false;
+	bool _channelMuted = false;
+	bool _toggleMute = false;
+	bool _toggleMuted[RADIO_COUNT];
 
 	QMetaObject::Connection * _doubleClickConnection[RADIO_COUNT];
 };
