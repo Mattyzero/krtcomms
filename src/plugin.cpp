@@ -154,7 +154,7 @@ int ts3plugin_init() {
 	//QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	channelsui_init();
 	KRTComms::getInstance().Init(ts3Functions, pluginID, channels_);
-	Ducker::getInstance().Init(ts3Functions, pluginID);
+	Ducker::getInstance().Init(ts3Functions, pluginID);	
 	channels_->OnStartup();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
@@ -167,7 +167,8 @@ int ts3plugin_init() {
 void ts3plugin_shutdown() {
     /* Your plugin cleanup code here */
     //printf("PLUGIN: shutdown\n");
-
+	
+	//ts3Functions.printMessageToCurrentTab("SHUTDOWN");
 	KRTComms::getInstance().Disconnect();
 
 	if (channels_) {
@@ -236,7 +237,9 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 
 /* Client changed current server connection handler */
 void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) {
-    printf("PLUGIN: currentServerConnectionChanged %llu (%llu)\n", (long long unsigned int)serverConnectionHandlerID, (long long unsigned int)ts3Functions.getCurrentServerConnectionHandlerID());
+	//Wird ausgeführt wenn man mehrere Verbindungen in Tabs offen hat
+    //QString logmessage = "currentServerConnectionChanged " + QString::number(serverConnectionHandlerID) + " (" + QString::number(ts3Functions.getCurrentServerConnectionHandlerID()) + ")";
+	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 }
 
 /*
@@ -460,6 +463,15 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
         snprintf(msg, sizeof(msg), "Plugin %s, Version %s, Author: %s", ts3plugin_name(), ts3plugin_version(), ts3plugin_author());
         ts3Functions.logMessage(msg, LogLevel_INFO, "Plugin", serverConnectionHandlerID);
     }*/
+
+	if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
+		channels_->OnStartup();
+	}
+
+	if (newStatus == STATUS_DISCONNECTED) {
+		//ts3Functions.printMessageToCurrentTab("onConnectStatusChangeEvent");
+		KRTComms::getInstance().Disconnect(serverConnectionHandlerID);
+	} 
 }
 
 void ts3plugin_onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID) {

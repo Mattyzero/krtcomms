@@ -148,17 +148,7 @@ QVariant channels::get(const QString& option, const QVariant& defaultValue) cons
 void channels::OnStartup() {
 	if (get("activate_radio_on_startup").toBool()) {
 		//_ui->debug->setChecked("true");
-		load();
-
-		_ui->channel_1->setChecked(get("radio_1").toBool());
-		_ui->channel_2->setChecked(get("radio_2").toBool());
-		_ui->channel_3->setChecked(get("radio_3").toBool());
-		_ui->channel_4->setChecked(get("radio_4").toBool());
-
-		_ui->channel_5->setChecked(get("radio_5").toBool());
-		_ui->channel_6->setChecked(get("radio_6").toBool());
-		_ui->channel_7->setChecked(get("radio_7").toBool());
-		_ui->channel_8->setChecked(get("radio_8").toBool());
+		load(true);
 	}
 }
 
@@ -393,21 +383,17 @@ void channels::save() {
 }
 
 void channels::load() {
-	resize(get("win_size").toSize());
+	load(false);
+}
+
+void channels::load(bool onStartup) {	
 	_serverConnectionHandlerID = _ts3.getCurrentServerConnectionHandlerID();
+	if (_serverConnectionHandlerID <= 0) return;
+	
+	resize(get("win_size").toSize());
 	//TODO pointer array zu jeweiligen variablen damit das _Zahl ding nicht ewig weiter geht
 	//Falls jemand weis wie man das easy umsetzen kann bitte mich kontaktieren oder ein PR DANKE
-
-	_ui->channel_1->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 0));
-	_ui->channel_2->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 1));
-	_ui->channel_3->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 2));
-	_ui->channel_4->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 3));
-
-	_ui->channel_5->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 4));
-	_ui->channel_6->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 5));
-	_ui->channel_7->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 6));
-	_ui->channel_8->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 7));
-
+	
 	_ui->frequence_1->FormatDisplay(get("freq_1").toDouble());
 	_ui->frequence_2->FormatDisplay(get("freq_2").toDouble());
 	_ui->frequence_3->FormatDisplay(get("freq_3").toDouble());
@@ -462,9 +448,90 @@ void channels::load() {
 	_ui->radio_4_password->setText(get("radio_4_password").toString());
 	Encrypter::SetPassword(3, get("radio_4_password").toString());
 
-
 	_ui->beep_sound->setChecked(get("beep_sound", true).toBool());
 	_ui->activate_radio_on_startup->setChecked(get("activate_radio_on_startup").toBool());
+
+	
+
+	if (onStartup) {
+		bool radio_on = false;
+		radio_on = get("radio_1").toBool();
+		if (_ui->channel_1->isChecked() && radio_on) {
+			onChange1(get("radio_1").toBool() ? 2 : 0);
+		}
+		else {
+			_ui->channel_1->setChecked(radio_on);
+		}
+		
+
+		radio_on = get("radio_2").toBool();
+		if (_ui->channel_2->isChecked() && radio_on) {
+			onChange2(2);
+		}
+		else {
+			_ui->channel_2->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_3").toBool();
+		if (_ui->channel_3->isChecked() && radio_on) {
+			onChange3(2);
+		}
+		else {
+			_ui->channel_3->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_4").toBool();
+		if (_ui->channel_4->isChecked() && radio_on) {
+			onChange4(2);
+		}
+		else {
+			_ui->channel_4->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_5").toBool();
+		if (_ui->channel_5->isChecked() && radio_on) {
+			onChange5(2);
+		}
+		else {
+			_ui->channel_5->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_6").toBool();
+		if (_ui->channel_6->isChecked() && radio_on) {
+			onChange6(2);
+		}
+		else {
+			_ui->channel_6->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_7").toBool();
+		if (_ui->channel_7->isChecked() && radio_on) {
+			onChange7(2);
+		}
+		else {
+			_ui->channel_7->setChecked(radio_on);
+		}
+
+		radio_on = get("radio_8").toBool();
+		if (_ui->channel_8->isChecked() && radio_on) {
+			onChange8(2);
+		}
+		else {
+			_ui->channel_8->setChecked(radio_on);
+		}
+		
+	}
+	else {
+		_ui->channel_1->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 0));
+		_ui->channel_2->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 1));
+		_ui->channel_3->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 2));
+		_ui->channel_4->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 3));
+
+		_ui->channel_5->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 4));
+		_ui->channel_6->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 5));
+		_ui->channel_7->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 6));
+		_ui->channel_8->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 7));
+	}
 }
 
 void channels::onChange1(int state) {

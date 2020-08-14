@@ -23,7 +23,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.2rc4";
+char* KRTComms::version = "0.1.2";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -168,7 +168,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
-			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, true)) { //false wenn selbst
+			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, true)) { //AddToFrequence returns false wenn selbst
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
 			}
 		}
@@ -347,11 +347,15 @@ bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequen
 		}
 	}
 
-	bool result = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
+	bool shouldUpdate = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
 
-	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+	//QString logmessage = QString::number(serverConnectionHandlerID)  + "   |   " + QString::number(frequence) + "   |   " + QString::number(clientID) + "   |   _targetClientIDs Count: " + QString::number(_targetClientIDs[serverConnectionHandlerID][frequence].size());
+	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+	
+	//UpdateWhisperTo nur wenn wirklich jemand von der Liste entfernt wurde
+	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID, frequence);
 
-	return result;
+	return shouldUpdate;
 }
 
 void KRTComms::RemoveAllFromFrequence(uint64 serverConnectionHandlerID, int frequence) {
@@ -576,6 +580,9 @@ void KRTComms::Disconnect() {
 }
 
 void KRTComms::Disconnect(uint64 serverConnectionHandlerID) {
+	if (_debug) {
+		_ts3.printMessageToCurrentTab(("Disconnect " + QString::number(serverConnectionHandlerID)).toStdString().c_str());
+	}
 	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 		SetActiveRadio(serverConnectionHandlerID, radio_id, false, -1);
 	}
@@ -828,7 +835,7 @@ void KRTComms::PushToMuteAll(uint64 serverConnectionHandlerID) {
 	_allMuted = !_allMuted;
 
 	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
-		_muted[radio_id] = _allMuted;
+		_muted[radio_id] = _allMuted || _toggleMuted[radio_id];
 		if (_muted[radio_id]) {
 			_channels->MuteReceiveLamp(radio_id);
 		}

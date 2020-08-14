@@ -54,6 +54,7 @@ private:
 
 	void save();
 	void load();
+	void load(bool onStartup);
 
 	void onChange1(int state);
 	void onChange2(int state);
