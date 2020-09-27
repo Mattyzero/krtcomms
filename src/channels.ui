@@ -91,7 +91,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
             <x>0</x>
             <y>0</y>
             <width>669</width>
-            <height>576</height>
+            <height>574</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -111,40 +111,41 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                <number>0</number>
               </property>
               <item>
-               <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0,0,0,100,0,0,156">
+               <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0,0,0,0,100,0,0,156">
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
-                <item row="2" column="5">
-                 <widget class="QDial" name="pan_ch_2">
+                <item row="1" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_1">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
                   <property name="minimum">
-                   <number>-10</number>
+                   <number>10</number>
                   </property>
                   <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
                    <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="4">
-                 <widget class="QGroupBox" name="statusBox_2">
+                <item row="0" column="7">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>1.0f                +dB                5.0f</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="QGroupBox" name="statusBox_4">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -166,7 +167,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   <property name="title">
                    <string>Status</string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
                    <property name="spacing">
                     <number>3</number>
                    </property>
@@ -177,7 +178,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                     <number>15</number>
                    </property>
                    <item>
-                    <widget class="QTriangle" name="send_lamp_2">
+                    <widget class="QTriangle" name="send_lamp_4">
                      <property name="text">
                       <string/>
                      </property>
@@ -187,7 +188,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QTriangle" name="receive_lamp_2">
+                    <widget class="QTriangle" name="receive_lamp_4">
                      <property name="text">
                       <string/>
                      </property>
@@ -199,64 +200,57 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="4" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_13">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_4">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="channel_3">
+                <item row="3" column="2">
+                 <widget class="QPushButton" name="ch_3_hotkey">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
                   <property name="text">
-                   <string>Radio 3</string>
+                   <string>HotKey</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
+                <item row="4" column="4">
+                 <widget class="QPushButton" name="set_frequence_4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>31</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>51</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="5">
                  <widget class="QGroupBox" name="statusBox_3">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -321,7 +315,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                    </sizepolicy>
                   </property>
                   <property name="text">
-                   <string>Radio 1</string>
+                   <string/>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -331,321 +325,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="5">
-                 <widget class="QDial" name="pan_ch_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="5">
-                 <widget class="QDial" name="pan_ch_1">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="ch_2_hotkey">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>HotKey</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="3">
-                 <widget class="QPushButton" name="set_frequence_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>31</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>51</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="6">
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>1.0f                +dB                5.0f</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QPushButton" name="set_frequence_3">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>31</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>51</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_10">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QCheckBox" name="channel_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Radio 4</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_11">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_1">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_3">
-                  <property name="minimum">
-                   <number>10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>50</number>
-                  </property>
-                  <property name="value">
-                   <number>10</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="4">
-                 <widget class="QGroupBox" name="statusBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>75</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="title">
-                   <string>Status</string>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_9">
-                   <property name="spacing">
-                    <number>3</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>15</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>15</number>
-                   </property>
-                   <item>
-                    <widget class="QTriangle" name="send_lamp_4">
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QTriangle" name="receive_lamp_4">
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="4" column="1">
+                <item row="4" column="2">
                  <widget class="QPushButton" name="ch_4_hotkey">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -667,29 +347,20 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="ch_3_hotkey">
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="channel_2">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
                   <property name="text">
-                   <string>HotKey</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
+                <item row="3" column="3">
                  <layout class="QVBoxLayout" name="verticalLayout_12">
                   <property name="spacing">
                    <number>0</number>
@@ -733,30 +404,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </item>
                  </layout>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="channel_2">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Radio 2</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>Balance</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
+                <item row="2" column="4">
                  <widget class="QPushButton" name="set_frequence_2">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -784,7 +432,311 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="4" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_4">
+                  <property name="minimum">
+                   <number>10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_11">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_1">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="6">
+                 <widget class="QDial" name="pan_ch_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_2">
+                  <property name="minimum">
+                   <number>10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_13">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_4">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QPushButton" name="set_frequence_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>31</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>51</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="5">
+                 <widget class="QGroupBox" name="statusBox_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="title">
+                   <string>Status</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>15</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>15</number>
+                   </property>
+                   <item>
+                    <widget class="QTriangle" name="send_lamp_2">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTriangle" name="receive_lamp_2">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="3" column="6">
+                 <widget class="QDial" name="pan_ch_3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
                  <widget class="QPushButton" name="ch_1_hotkey">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -806,7 +758,33 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="4" column="0">
+                 <widget class="QCheckBox" name="channel_4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="channel_3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5">
                  <widget class="QGroupBox" name="statusBox_1">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -874,8 +852,8 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="2" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_2">
+                <item row="3" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_3">
                   <property name="minimum">
                    <number>10</number>
                   </property>
@@ -890,58 +868,8 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="5">
-                 <widget class="QDial" name="pan_ch_3">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_1">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimum">
-                   <number>10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>50</number>
-                  </property>
-                  <property name="value">
-                   <number>10</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QPushButton" name="set_frequence_1">
+                <item row="3" column="4">
+                 <widget class="QPushButton" name="set_frequence_3">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                     <horstretch>0</horstretch>
@@ -968,23 +896,95 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_4">
+                <item row="1" column="6">
+                 <widget class="QDial" name="pan_ch_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
                   <property name="minimum">
-                   <number>10</number>
+                   <number>-10</number>
                   </property>
                   <property name="maximum">
-                   <number>50</number>
-                  </property>
-                  <property name="value">
                    <number>10</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
+                <item row="2" column="2">
+                 <widget class="QPushButton" name="ch_2_hotkey">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>HotKey</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="6">
+                 <widget class="QDial" name="pan_ch_4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Balance</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
                  <widget class="QLabel" name="label_channel_muted">
                   <property name="enabled">
                    <bool>true</bool>
@@ -996,6 +996,18 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                    <string>Ch. Muted</string>
                   </property>
                  </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QEditableLabel" name="lineedit_1"/>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QEditableLabel" name="lineedit_2"/>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QEditableLabel" name="lineedit_3"/>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QEditableLabel" name="lineedit_4"/>
                 </item>
                </layout>
               </item>
@@ -1018,55 +1030,11 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                <number>0</number>
               </property>
               <item>
-               <layout class="QGridLayout" name="gridLayout_8" columnminimumwidth="0,0,0,100,0,0,156">
+               <layout class="QGridLayout" name="gridLayout_8" columnminimumwidth="0,0,0,0,100,0,0,156">
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
-                <item row="2" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_20">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_7">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="2">
+                <item row="0" column="3">
                  <layout class="QVBoxLayout" name="verticalLayout_18">
                   <property name="spacing">
                    <number>0</number>
@@ -1110,143 +1078,18 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </item>
                  </layout>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="channel_7">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                <item row="4" column="6">
+                 <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>Radio 7</string>
+                   <string>Balance</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_5">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimum">
-                   <number>10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>50</number>
-                  </property>
-                  <property name="value">
-                   <number>10</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="4">
-                 <widget class="QGroupBox" name="statusBox_7">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>75</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="title">
-                   <string>Status</string>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_16">
-                   <property name="spacing">
-                    <number>3</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>15</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>15</number>
-                   </property>
-                   <item>
-                    <widget class="QTriangle" name="send_lamp_7">
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QTriangle" name="receive_lamp_7">
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_17">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_6">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="5">
-                 <widget class="QDial" name="pan_ch_8">
+                 <widget class="QDial" name="pan_ch_5">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -1273,96 +1116,8 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <layout class="QVBoxLayout" name="verticalLayout_15">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QEditableLCDNumber" name="frequence_8">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>91</width>
-                      <height>41</height>
-                     </size>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="digitCount">
-                     <number>6</number>
-                    </property>
-                    <property name="segmentStyle">
-                     <enum>QLCDNumber::Flat</enum>
-                    </property>
-                    <property name="value" stdset="0">
-                     <double>999.990000000000009</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="ch_5_hotkey">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>HotKey</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="ch_8_hotkey">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>HotKey</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="channel_8">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="channel_5">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
@@ -1370,11 +1125,17 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                    </sizepolicy>
                   </property>
                   <property name="text">
-                   <string>Radio 8</string>
+                   <string/>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>32</width>
+                    <height>32</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="1" column="5">
                  <widget class="QGroupBox" name="statusBox_6">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1430,7 +1191,257 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="0" column="4">
+                <item row="2" column="4">
+                 <widget class="QPushButton" name="set_frequence_7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>31</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>51</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_17">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_6">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="ch_6_hotkey">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>HotKey</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="6">
+                 <widget class="QDial" name="pan_ch_8">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="5">
+                 <widget class="QGroupBox" name="statusBox_7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="title">
+                   <string>Status</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_16">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>15</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>15</number>
+                   </property>
+                   <item>
+                    <widget class="QTriangle" name="send_lamp_7">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTriangle" name="receive_lamp_7">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="3" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_8">
+                  <property name="minimum">
+                   <number>10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="6">
+                 <widget class="QDial" name="pan_ch_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="6">
+                 <widget class="QDial" name="pan_ch_7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>128</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>-10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
                  <widget class="QGroupBox" name="statusBox_5">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1498,36 +1509,8 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="0" column="5">
-                 <widget class="QDial" name="pan_ch_5">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QPushButton" name="set_frequence_6">
+                <item row="0" column="4">
+                 <widget class="QPushButton" name="set_frequence_5">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                     <horstretch>0</horstretch>
@@ -1554,73 +1537,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="3">
-                 <widget class="QPushButton" name="set_frequence_7">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>31</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>51</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="ch_6_hotkey">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>HotKey</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_8">
-                  <property name="minimum">
-                   <number>10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>50</number>
-                  </property>
-                  <property name="value">
-                   <number>10</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="6">
+                <item row="1" column="7">
                  <widget class="QSlider" name="volume_gain_ch_6">
                   <property name="minimum">
                    <number>10</number>
@@ -1636,82 +1553,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="5">
-                 <widget class="QDial" name="pan_ch_7">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="5">
-                 <widget class="QDial" name="pan_ch_6">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>128</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <number>-10</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="channel_5">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Radio 5</string>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>32</width>
-                    <height>32</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="4">
+                <item row="3" column="5">
                  <widget class="QGroupBox" name="statusBox_8">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1767,48 +1609,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </layout>
                  </widget>
                 </item>
-                <item row="0" column="3">
-                 <widget class="QPushButton" name="set_frequence_5">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>31</width>
-                    <height>23</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>51</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0;</string>
-                  </property>
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="channel_6">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Radio 6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="3">
+                <item row="3" column="4">
                  <widget class="QPushButton" name="set_frequence_8">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -1836,7 +1637,187 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="1" column="4">
+                 <widget class="QPushButton" name="set_frequence_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>31</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>51</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimum">
+                   <number>10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_20">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_7">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="3" column="3">
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QEditableLCDNumber" name="frequence_8">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>91</width>
+                      <height>41</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Panel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="digitCount">
+                     <number>6</number>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="value" stdset="0">
+                     <double>999.990000000000009</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="channel_7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="7">
+                 <widget class="QSlider" name="volume_gain_ch_7">
+                  <property name="minimum">
+                   <number>10</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="channel_8">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
                  <widget class="QPushButton" name="ch_7_hotkey">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -1858,35 +1839,81 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="6">
-                 <widget class="QSlider" name="volume_gain_ch_7">
-                  <property name="minimum">
-                   <number>10</number>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="ch_5_hotkey">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
                   </property>
-                  <property name="maximum">
-                   <number>50</number>
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>23</height>
+                   </size>
                   </property>
-                  <property name="value">
-                   <number>10</number>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
                   </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="5">
-                 <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>Stereo</string>
+                   <string>HotKey</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="6">
+                <item row="3" column="2">
+                 <widget class="QPushButton" name="ch_8_hotkey">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">padding: 0;</string>
+                  </property>
+                  <property name="text">
+                   <string>HotKey</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="channel_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="7">
                  <widget class="QLabel" name="label_10">
                   <property name="text">
                    <string>1.0f                +dB                5.0f</string>
                   </property>
                  </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QEditableLabel" name="lineedit_5"/>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QEditableLabel" name="lineedit_6"/>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QEditableLabel" name="lineedit_7"/>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QEditableLabel" name="lineedit_8"/>
                 </item>
                </layout>
               </item>
@@ -2312,7 +2339,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
        <item row="0" column="0">
-        <layout class="QGridLayout" name="gridLayout_9" rowminimumheight="23,23,23,23,0,0" columnminimumwidth="100,0,0">
+        <layout class="QGridLayout" name="gridLayout_9" rowminimumheight="23,23,23,23,0,0,0" columnminimumwidth="100,0,0">
          <item row="3" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QCheckBox" name="beep_sound">
            <property name="enabled">
@@ -2332,24 +2359,10 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-          <widget class="QCheckBox" name="activate_radio_on_startup">
+         <item row="2" column="1">
+          <widget class="QPushButton" name="toggle_mute">
            <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Activate Radio on Startup</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Push-To-Mute Channel</string>
+            <string>HotKey</string>
            </property>
           </widget>
          </item>
@@ -2360,14 +2373,34 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_13">
+         <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <widget class="QCheckBox" name="activate_radio_on_startup">
            <property name="text">
-            <string>Play Start / End Beep</string>
+            <string/>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="2">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Toggle Mute</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -2394,30 +2427,38 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_15">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Toggle Mute</string>
+            <string>Play Start / End Beep</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="toggle_mute">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>HotKey</string>
+            <string>Activate Radio on Startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Push-To-Mute Channel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Set Freq. by Channelname</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" alignment="Qt::AlignHCenter">
+          <widget class="QCheckBox" name="set_freq_by_channelname">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>
@@ -2439,6 +2480,11 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
    <class>QTriangle</class>
    <extends>QLabel</extends>
    <header>QTriangle.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEditableLabel</class>
+   <extends>QLineEdit</extends>
+   <header>QEditableLabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

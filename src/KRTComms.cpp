@@ -12,6 +12,7 @@
 #include <thread>
 #include <array>
 #include <QtCore/QString>
+#include <QtCore/QRegularExpression>
 #include <QtWidgets/QDialog>
 #include <QtCore/QFileInfo>
 #include <math.h>
@@ -23,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.2";
+char* KRTComms::version = "0.1.3";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -142,7 +143,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 			_channels->EnableReceiveLamp(radio_id);
 			Talkers::getInstance().Add(serverConnectionHandlerID, invokerClientID, true, frequence);
 
-			if(_soundsEnabled)
+			if(_soundsEnabled && !Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence))
 				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][0].toStdString().c_str());
 		}
 		return;
@@ -167,7 +168,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 	if (tokens[1] == "JOINED") {
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
-		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
+		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence) && !IsInSameBroadcast(serverConnectionHandlerID, frequence)) {
 			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, true)) { //AddToFrequence returns false wenn selbst
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
 			}
@@ -275,17 +276,19 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 	bool isActive = _activeRadios[serverConnectionHandlerID].values().contains(frequence);
 	if (isActive) return true;
 
+	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
-		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
+		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast");
 			return true;
 		}
 
-		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
+		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast2");
 			return true;
 		}
 	}
+	//Broadcast-END
 	
 
 	return isActive;
@@ -296,13 +299,13 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 	//Falls Broadcast auch Empfangen soll dann das hier löschen
 	bool broadcast = false;
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
-		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
+		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			frequence = freq;
 			broadcast = true;
 			//_ts3.printMessageToCurrentTab("Broadcast3");
 			break;
 		}
-		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
+		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast4");
 			return true;
 		}
@@ -335,17 +338,19 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
 	//_ts3.printMessageToCurrentTab("REMOVED");
 
+	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
-		if (freq == 99999 || freq % 100 == 99 && freq / 100 == frequence / 100) {
+		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			frequence = freq;
 			//_ts3.printMessageToCurrentTab("Broadcast5");
 			break;
 		}
-		if (frequence == 99999 || frequence % 100 == 99 && freq / 100 == frequence / 100) {
+		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast6");
 			return true;
 		}
 	}
+	//Broadcast-END
 
 	bool shouldUpdate = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
 
@@ -504,6 +509,13 @@ void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) 
 			return;
 		}
 		_inputActive = !input; // We want to know when it is active, not when it is inactive
+
+		char* agc;
+		if ((error = _ts3.getPreProcessorConfigValue(serverConnectionHandlerID, "agc", &agc)) != ERROR_ok) {
+			return;
+		}
+		_agcActive = !strcmp(agc, "true");
+		_ts3.freeMemory(agc);
 	}
 
 	// Wenn VAD (Voice Activation Detection) an ist schalten wir dennoch auf Dauersenden um und aktivieren es später wieder
@@ -517,6 +529,15 @@ void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) 
 		(shouldTalk || _inputActive) ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
 		return;
 	}
+
+	//_ts3.printMessageToCurrentTab(_agcActive ? "_agcActive true" : "_agcActive false");
+	/*
+	if ((error = _ts3.setPreProcessorConfigValue(serverConnectionHandlerID, "agc",
+		(shouldTalk) ? "true" : "false")) != ERROR_ok) {
+		return;
+	}*/
+
+	
 
 	//QString logmessage = "Test: " + QString(_pttActive ? "pttActive true " : "pttActive false ") + QString(_vadActive ? "_vadActive true " : "_vadActive false ") + QString(_inputActive ? "_inputActive true " : "_inputActive false ") + " " + QString(shouldTalk ? "shouldTalk true" : "shouldTalk false");
 	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
@@ -566,9 +587,20 @@ int KRTComms::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
 
 int KRTComms::GetRadioId(uint64 serverConnectionHandlerID, int frequence) {
 	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
-		if (_activeRadios[serverConnectionHandlerID][radio_id] == frequence) {
+		int freq = _activeRadios[serverConnectionHandlerID][radio_id];
+		if (freq == frequence) {
 			return radio_id;
 		}
+
+		//Broadcast		
+		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
+			return radio_id;
+		}
+
+		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
+			return radio_id;
+		}		
+		//Broadcast-END
 	}
 	return -1;
 }
@@ -625,6 +657,8 @@ void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 		}
 		else {
 			_key = "";
+
+			_channels->GetHotkeysFromKeywords();
 		}
 	}
 }
@@ -915,3 +949,53 @@ void KRTComms::SetSoundsEnabled(bool enabled) {
 	_soundsEnabled = enabled;
 }
 
+void KRTComms::SetFreqByChannelname(bool enabled) {
+	_setFreqByChannelname = enabled;
+}
+
+bool KRTComms::IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence) {
+	//Broadcast
+	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+		if ((freq == 99999 || freq % 10000 == 9999 || freq % 100 == 99) && freq == frequence) { //999.99, X99.99, XYZ.99
+			return true;
+		}
+		if ((frequence == 99999 || frequence % 10000 == 9999 || frequence % 100 == 99) && freq == frequence) { //999.99, X99.99, XYZ.99
+			//_ts3.printMessageToCurrentTab("Broadcast6");
+			return true;
+		}
+	}
+	//Broadcast-END
+
+	return false;
+}
+
+void KRTComms::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	SetFreqByChannelname(serverConnectionHandlerID, clientID, newChannelID);
+}
+
+void KRTComms::OnClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
+	SetFreqByChannelname(serverConnectionHandlerID, clientID, newChannelID);
+}
+
+void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID) {
+	if (!_setFreqByChannelname) return;
+
+
+	anyID me;
+	_ts3.getClientID(serverConnectionHandlerID, &me);
+	if (me == clientID) {
+		char* name = NULL;
+		_ts3.getChannelVariableAsString(serverConnectionHandlerID, newChannelID, CHANNEL_NAME, &name);
+
+		QRegularExpression re("\\([0-9]{3}\\.[0-9]{2}\\)");
+		QRegularExpressionMatch match = re.match(QString(name));
+
+		if (match.hasMatch()) {
+			QString matched = match.captured(0);
+
+			_channels->SetFrequence(2, matched.replace("(", "").replace(")", "").toDouble());
+		}
+
+		_ts3.freeMemory(name);
+	}
+}

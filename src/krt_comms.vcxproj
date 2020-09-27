@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include=".vsgen\channels_moc.cpp" />
+    <ClCompile Include=".vsgen\QEditableLabel_moc.cpp" />
     <ClCompile Include=".vsgen\QEditableLCDNumber_moc.cpp" />
     <ClCompile Include=".vsgen\QTriangle_moc.cpp" />
     <ClCompile Include="channels.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="KRTComms.cpp" />
     <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="QEditableLabel.cpp" />
     <ClCompile Include="QEditableLCDNumber.cpp" />
     <ClCompile Include="QTriangle.cpp" />
     <ClCompile Include="SimpleCrypt.cpp" />
@@ -189,6 +191,16 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Performing Qt Class</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="QEditableLabel.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing Qt Class</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Performing Qt Class</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="SimpleCrypt.h" />

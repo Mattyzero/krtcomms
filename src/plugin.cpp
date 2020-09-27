@@ -484,6 +484,8 @@ void ts3plugin_onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channe
 }
 
 void ts3plugin_onChannelMoveEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 newChannelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+	//QString logmessage = "ChannelMoveEvent : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(channelID) + " : " + QString::number(newChannelParentID) + " : " + QString::number(invokerID);
+	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 }
 
 void ts3plugin_onUpdateChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID) {
@@ -503,6 +505,9 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 
 	if (newChannelID == 0) { //Man benötigt gewisse Rechte um onClientMoveEvents zu empfangen
 		KRTComms::getInstance().Disconnected(serverConnectionHandlerID, clientID);
+	}
+	else {
+		KRTComms::getInstance().OnClientMoveEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage);
 	}
 
 	//Ducker::getInstance().OnClientMoveEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage);
@@ -524,7 +529,9 @@ void ts3plugin_onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID 
 }
 
 void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
-	//ts3Functions.printMessageToCurrentTab("OnClientMoveMovedEvent");
+	ts3Functions.printMessageToCurrentTab("OnClientMoveMovedEvent");
+
+	KRTComms::getInstance().OnClientMoveMovedEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moverID, moverName, moverUniqueIdentifier, moveMessage);
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {

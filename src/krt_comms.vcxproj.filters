@@ -56,6 +56,12 @@
     <ClCompile Include=".vsgen\QTriangle_moc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QEditableLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".vsgen\QEditableLabel_moc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -106,7 +112,7 @@
     <ClInclude Include="SimpleCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QTriangle.h">
+    <ClInclude Include="QEditableLabel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -118,6 +124,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="QEditableLCDNumber.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QTriangle.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

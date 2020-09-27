@@ -29,6 +29,7 @@ public:
 	QVariant get(const QString& option, const QVariant& defaultValue) const;
 
 	void OnStartup();
+	void GetHotkeysFromKeywords();
 
 	void EnableSendLamp(int radio_id);
 	void DisableSendLamp(int radio_id);
@@ -37,6 +38,7 @@ public:
 	void MuteReceiveLamp(int radio_id);
 	void UnMuteReceiveLamp(int radio_id);
 	void ChangeChannelMuted(bool checked);
+	void SetFrequence(int radio_id, double frequence);
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
 
@@ -138,5 +140,8 @@ private:
 
 	void onBeepSoundChanged(int state);
 	void onActivateRadioOnStartupChanged(int state);
+	void onSetFreqByChannelnameChanged(int state);
+
+	int toInt(double frequence);
 };
 
