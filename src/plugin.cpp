@@ -529,7 +529,7 @@ void ts3plugin_onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID 
 }
 
 void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
-	ts3Functions.printMessageToCurrentTab("OnClientMoveMovedEvent");
+	//ts3Functions.printMessageToCurrentTab("OnClientMoveMovedEvent");
 
 	KRTComms::getInstance().OnClientMoveMovedEvent(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moverID, moverName, moverUniqueIdentifier, moveMessage);
 }
