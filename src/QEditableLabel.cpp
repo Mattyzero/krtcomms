@@ -9,6 +9,7 @@ QEditableLabel::QEditableLabel(QWidget* parent, const QString& text)
 		"    background: transparent; }"
 		"QLineEdit {"
 		"    background: white; "
+		"    padding: 0; "
 		"}");
 	connect(this, &QLineEdit::editingFinished, [this] {
 		this->unsetCursor();
