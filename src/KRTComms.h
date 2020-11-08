@@ -19,6 +19,9 @@ public:
 
 	void Init(const struct TS3Functions funcs, char* pluginID, channels* channels);
 
+	void Connected(uint64 serverConnectionHandlerID);
+	void InitVars(uint64 serverConnectionHandlerID);
+
 	void SetDebug(bool debug);
 
 	void InfoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data);
@@ -82,6 +85,7 @@ public:
 	void SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID);
 
 	void ReloadConfig(uint64 serverConnectionHandlerID);
+	
 private:
 
 	QMap<uint64, QMap<int, int>> _activeRadios;
@@ -91,11 +95,11 @@ private:
 	QWidget* _parent;
 
 	bool _debug = false;
-	QMap<int, bool> _isWhispering;
-	bool _pttActive = false;
-	bool _vadActive = false;
-	bool _inputActive = false;
-	bool _agcActive = false;
+	QMap<uint64, QMap<int, bool>> _isWhispering;
+	QMap<uint64, bool> _pttActive;
+	QMap<uint64, bool> _vadActive;
+	QMap<uint64, bool> _inputActive;
+	QMap<uint64, bool> _agcActive;
 
 	QMap<uint64, QMap<int, QList<uint64>>> _targetChannelIDs;
 	QMap<uint64, QMap<int, QList<anyID>>>  _targetClientIDs;

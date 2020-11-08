@@ -404,7 +404,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(22);  /* Create x hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(23);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -431,7 +431,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("toggle_mute", "Toggle Mute");
 	CREATE_HOTKEY("toggle_mute_", "Toggle Mute END"); //22
 
-	CREATE_HOTKEY("reload_config", "Reload Config");
+	CREATE_HOTKEY("reload_config", "Reload Config"); //23
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -466,12 +466,17 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
         ts3Functions.logMessage(msg, LogLevel_INFO, "Plugin", serverConnectionHandlerID);
     }*/
 
+	if (newStatus == STATUS_CONNECTED) {
+		KRTComms::getInstance().Connected(serverConnectionHandlerID);
+	}
+
+	//ts3Functions.printMessageToCurrentTab("onConnectStatusChangeEvent");
 	if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
 		channels_->OnStartup();
 	}
 
 	if (newStatus == STATUS_DISCONNECTED) {
-		//ts3Functions.printMessageToCurrentTab("onConnectStatusChangeEvent");
+		
 		KRTComms::getInstance().Disconnect(serverConnectionHandlerID);
 	} 
 }

@@ -24,13 +24,12 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.5rc4";
+char* KRTComms::version = "0.1.5";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		_pans[i] = 0.0f;
 		_gains[i] = 1.0f;
-		_isWhispering[i] = false;
 		_doubleClickCount[i] = 0;
 		_muted[i] = false;
 		_toggleMuted[i] = false;
@@ -77,6 +76,37 @@ void KRTComms::Init(const struct TS3Functions funcs, char* pluginID, channels* c
 		else {
 			_soundsPath[radio_id][1] = QString(soundsPath) + "\\krt_comms\\end.wav";
 		}
+	}
+
+	uint64* serverConnectionHandlerIDs;
+	unsigned int res = _ts3.getServerConnectionHandlerList(&serverConnectionHandlerIDs);
+	if (res == ERROR_ok) {
+
+		for (int i = 0; serverConnectionHandlerIDs[i] != 0; i++) {
+			InitVars(serverConnectionHandlerIDs[i]);
+		}
+
+		_ts3.freeMemory(serverConnectionHandlerIDs);
+	}
+
+}
+
+void KRTComms::Connected(uint64 serverConnectionHandlerID) {
+	InitVars(serverConnectionHandlerID);
+}
+
+void KRTComms::InitVars(uint64 serverConnectionHandlerID) {
+	_pttActive[serverConnectionHandlerID] = false;
+	_vadActive[serverConnectionHandlerID] = false;
+	_inputActive[serverConnectionHandlerID] = false;
+	_agcActive[serverConnectionHandlerID] = false;
+
+	for (int i = 0; i < RADIO_COUNT; i++) {
+		_isWhispering[serverConnectionHandlerID][i] = false;
+	}
+
+	if (_debug) {
+		_ts3.printMessageToCurrentTab("InitVars");
 	}
 }
 
@@ -221,7 +251,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 				logmessage += " LEFT";
 
 				RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
-				_isWhispering[radio_id] = false;
+				_isWhispering[serverConnectionHandlerID][radio_id] = false;
 				Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
 			}
 
@@ -241,7 +271,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 					logmessage += " LEFT";
 
 					RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
-					_isWhispering[radio_id] = false;
+					_isWhispering[serverConnectionHandlerID][radio_id] = false;
 					Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
 				}
 
@@ -382,7 +412,7 @@ bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, an
 //		_ts3.printMessageToCurrentTab(("AnswerTheCall: " + QString::number(clientID)).toStdString().c_str());
 //	}
 
-	if (_isWhispering[radio_id]) {
+	if (_isWhispering[serverConnectionHandlerID][radio_id]) {
 		command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 	}
@@ -400,7 +430,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	QList<anyID> tmp = QList(_targetClientIDs[serverConnectionHandlerID][frequence]);
 	tmp.append(0);
 
-	if (_isWhispering[radio_id]) {
+	if (_isWhispering[serverConnectionHandlerID][radio_id]) {
 		_channels->DisableSendLamp(radio_id);
 		if (tmp.size() > 1) {
 			QString command = "SENDOFF\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
@@ -416,7 +446,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	}
 
 	std::vector<anyID> empty;
-	_isWhispering[radio_id] = !_isWhispering[radio_id];
+	_isWhispering[serverConnectionHandlerID][radio_id] = !_isWhispering[serverConnectionHandlerID][radio_id];
 
 	
 	
@@ -431,8 +461,8 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
 	QList<anyID> targetClientIDs;
 
-	for (int i = 0; i < _isWhispering.size(); i++) {
-		if (_isWhispering[i]) {
+	for (int i = 0; i < _isWhispering[serverConnectionHandlerID].size(); i++) {
+		if (_isWhispering[serverConnectionHandlerID][i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
 			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);			
 		}
@@ -446,7 +476,7 @@ void KRTComms::UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence) 
 	QList<anyID> targetClientIDs;
 
 	for (int i = 0; i < _isWhispering.size(); i++) {
-		if (_isWhispering[i]) {
+		if (_isWhispering[serverConnectionHandlerID][i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
 			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
 		}
@@ -477,7 +507,7 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 
 	if (_debug) {
 		char message[256];
-		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size() - 1, _isWhispering.values().contains(true) ? "true" : "false");
+		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size() - 1, _isWhispering[serverConnectionHandlerID].values().contains(true) ? "true" : "false");
 		_ts3.printMessageToCurrentTab(message);
 
 		for (int i = 0; i < targetClientIDArray.size() - 1; i++) {
@@ -502,13 +532,13 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) {
 	unsigned int error;
 
-	if (!_pttActive) {
+	if (!_pttActive[serverConnectionHandlerID]) {
 		// Is VAD (Voice Activation Detection) aktiv?
 		char* vad;
 		if ((error = _ts3.getPreProcessorConfigValue(serverConnectionHandlerID, "vad", &vad)) != ERROR_ok) {
 			return;
 		}
-		_vadActive = !strcmp(vad, "true");
+		_vadActive[serverConnectionHandlerID] = !strcmp(vad, "true");
 		_ts3.freeMemory(vad);
 
 		// Schaun ob PTT (Push-To-Talk) + VAD (Voice Activation Detection) aktiv ist
@@ -516,29 +546,29 @@ void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) 
 		if ((error = _ts3.getClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_INPUT_DEACTIVATED, &input)) != ERROR_ok) {
 			return;
 		}
-		_inputActive = !input; // We want to know when it is active, not when it is inactive
+		_inputActive[serverConnectionHandlerID] = !input; // We want to know when it is active, not when it is inactive
 
 		char* agc;
 		if ((error = _ts3.getPreProcessorConfigValue(serverConnectionHandlerID, "agc", &agc)) != ERROR_ok) {
 			return;
 		}
-		_agcActive = !strcmp(agc, "true");
+		_agcActive[serverConnectionHandlerID] = !strcmp(agc, "true");
 		_ts3.freeMemory(agc);
 	}
 
 	// Wenn VAD (Voice Activation Detection) an ist schalten wir dennoch auf Dauersenden um und aktivieren es später wieder
 	if ((error = _ts3.setPreProcessorConfigValue(serverConnectionHandlerID, "vad",
-		(shouldTalk && (_vadActive && _inputActive)) ? "false" : (_vadActive) ? "true" : "false")) != ERROR_ok) {
+		(shouldTalk && (_vadActive[serverConnectionHandlerID] && _inputActive[serverConnectionHandlerID])) ? "false" : (_vadActive[serverConnectionHandlerID]) ? "true" : "false")) != ERROR_ok) {
 		return;
 	}
 	
 	// Activate the input, restore the input setting afterwards
 	if ((error = _ts3.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_INPUT_DEACTIVATED,
-		(shouldTalk || _inputActive) ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
+		(shouldTalk || _inputActive[serverConnectionHandlerID]) ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
 		return;
 	}
 
-	//_ts3.printMessageToCurrentTab(_agcActive ? "_agcActive true" : "_agcActive false");
+	//_ts3.printMessageToCurrentTab(_agcActive[serverConnectionHandlerID] ? "_agcActive true" : "_agcActive false");
 	/*
 	if ((error = _ts3.setPreProcessorConfigValue(serverConnectionHandlerID, "agc",
 		(shouldTalk) ? "true" : "false")) != ERROR_ok) {
@@ -547,21 +577,21 @@ void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) 
 
 	
 
-	//QString logmessage = "Test: " + QString(_pttActive ? "pttActive true " : "pttActive false ") + QString(_vadActive ? "_vadActive true " : "_vadActive false ") + QString(_inputActive ? "_inputActive true " : "_inputActive false ") + " " + QString(shouldTalk ? "shouldTalk true" : "shouldTalk false");
+	//QString logmessage = "Test: " + QString(_pttActive[serverConnectionHandlerID] ? "pttActive true " : "pttActive false ") + QString(_vadActive[serverConnectionHandlerID] ? "_vadActive true " : "_vadActive false ") + QString(_inputActive[serverConnectionHandlerID] ? "_inputActive true " : "_inputActive false ") + " " + QString(shouldTalk ? "shouldTalk true" : "shouldTalk false");
 	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 
 
 	_ts3.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
 
-	_pttActive = shouldTalk;
+	_pttActive[serverConnectionHandlerID] = shouldTalk;
 }
 
 void KRTComms::Reset(uint64 serverConnectionHandlerID) {
 	//_ts3.printMessageToCurrentTab("RESET");
 	_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, NULL);
 	SetPushToTalk(serverConnectionHandlerID, false);
-	for (int radio_id = 0; radio_id < _isWhispering.size(); radio_id++) {
-		_isWhispering[radio_id] = false;
+	for (int radio_id = 0; radio_id < _isWhispering[serverConnectionHandlerID].size(); radio_id++) {
+		_isWhispering[serverConnectionHandlerID][radio_id] = false;
 		if (!_activeRadios[serverConnectionHandlerID].contains(radio_id)) continue;
 		_channels->DisableSendLamp(radio_id);
 
@@ -623,9 +653,13 @@ void KRTComms::Disconnect(uint64 serverConnectionHandlerID) {
 	if (_debug) {
 		_ts3.printMessageToCurrentTab(("Disconnect " + QString::number(serverConnectionHandlerID)).toStdString().c_str());
 	}
+
 	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 		SetActiveRadio(serverConnectionHandlerID, radio_id, false, -1);
 	}
+
+	_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, NULL);
+	SetPushToTalk(serverConnectionHandlerID, false);
 }
 
 void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
@@ -828,7 +862,7 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 	*_doubleClickConnection[radio_id] = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
 		//_ts3.printMessageToCurrentTab("Timedout");
 
-		bool oriIsWhispering = _isWhispering[radio_id];
+		bool oriIsWhispering = _isWhispering[serverConnectionHandlerID][radio_id];
 		//Mein Brain ist gef***
 		if (_doubleClickCount[radio_id] == 3 && !oriIsWhispering && !_allMuted || _doubleClickCount[radio_id] == 4 && oriIsWhispering && !_allMuted || (_allMuted || _toggleMuted[radio_id]) && oriIsWhispering) {
 			if (!_toggleMuted[radio_id]) {
