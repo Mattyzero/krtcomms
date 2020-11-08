@@ -430,6 +430,8 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 
 	CREATE_HOTKEY("toggle_mute", "Toggle Mute");
 	CREATE_HOTKEY("toggle_mute_", "Toggle Mute END"); //22
+
+	CREATE_HOTKEY("reload_config", "Reload Config");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -488,10 +490,15 @@ void ts3plugin_onChannelMoveEvent(uint64 serverConnectionHandlerID, uint64 chann
 	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 }
 
-void ts3plugin_onUpdateChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID) {
+void ts3plugin_onUpdateChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID) {	
+	//QString logmessage = "UpdateChannelEvent : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(channelID);
+	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
 }
 
 void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+	//QString logmessage = "UpdateChannelEditedEvent : " + QString::number(serverConnectionHandlerID) + " : " + QString::number(channelID) + " : " + QString::number(invokerID) + " : " + QString(invokerName) + " : " + QString(invokerUniqueIdentifier);
+	//ts3Functions.printMessageToCurrentTab(logmessage.toStdString().c_str());
+	KRTComms::getInstance().OnUpdateChannelEditedEvent(serverConnectionHandlerID, channelID, invokerID, invokerName, invokerUniqueIdentifier);
 }
 
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {	
@@ -915,14 +922,22 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 		if (ok) {
 			KRTComms::getInstance().OnHotkeyEvent(serverConnectionHandlerID, radio_id);
 		}
+		return;
 	}
 
 	if (keyword_.startsWith("push_to_mute_")) {
 		KRTComms::getInstance().PushToMute(serverConnectionHandlerID, keyword_.replace("push_to_mute_", "").replace("_", ""));
+		return;
 	}
 
 	if (keyword_.startsWith("toggle_mute")) {
 		KRTComms::getInstance().ToggleMute(serverConnectionHandlerID);
+		return;
+	}
+
+	if (keyword_.startsWith("reload_config")) {
+		channels_->Load();
+		return;
 	}
 }
 

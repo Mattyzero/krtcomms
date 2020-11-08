@@ -74,11 +74,14 @@ public:
 	void OnClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
 
 	void SetSoundsEnabled(bool enabled);
-	void SetFreqByChannelname(bool enabled);
+	void SetFreqByChannelname(int radio_id);
 	bool IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence);
+	void OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
 	void OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage);
 	void OnClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage);
 	void SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID);
+
+	void ReloadConfig(uint64 serverConnectionHandlerID);
 private:
 
 	QMap<uint64, QMap<int, int>> _activeRadios;
@@ -114,7 +117,7 @@ private:
 	bool _channelMuted = false;
 	bool _toggleMute = false;
 	bool _toggleMuted[RADIO_COUNT];
-	bool _setFreqByChannelname = false;
+	int _setFreqByChannelname = -1;
 
 	QMetaObject::Connection * _doubleClickConnection[RADIO_COUNT];
 };

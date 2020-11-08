@@ -9,6 +9,8 @@
 #include <QtGui/QFont>
 #include <QtCore/QMap>
 #include <QtCore/QList>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QListWidgetItem>
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
 
@@ -39,6 +41,7 @@ public:
 	void UnMuteReceiveLamp(int radio_id);
 	void ChangeChannelMuted(bool checked);
 	void SetFrequence(int radio_id, double frequence);
+	void Load();
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
 
@@ -49,10 +52,18 @@ protected:
 private:
 	std::unique_ptr<Ui::channelsui> _ui;
 	std::unique_ptr<QSettings> _settings;
+	QComboBox* _profiles = NULL;
+	QString _profile = "";
 
 	char* _pluginID;
 	TS3Functions _ts3;
 	uint64 _serverConnectionHandlerID;
+
+	QString _oldItemName = "";
+	bool _elgatoStreamDeck = false;
+	QMap<int, QMap<int, int>> _lampStatus;
+	QString _configLocation = "";
+	QString _statusLocation = "";
 
 	void save();
 	void load();
@@ -141,7 +152,31 @@ private:
 	void onBeepSoundChanged(int state);
 	void onActivateRadioOnStartupChanged(int state);
 	void onSetFreqByChannelnameChanged(int state);
+	void onSetFreqByChannelnameRadioChanged(int index);
+	void onElgatoStreamDeckChanged(int state);
+
+	void onProfileChanged(int index);
+	void onProfilesListItemActivated(QListWidgetItem *item);
+	void onProfilesListCurrentTextChanged(QString text);
+	void onProfilesListItemChanged(QListWidgetItem *item);
+	void onProfileNewClicked(bool checked);
+	void onProfileDeleteClicked(bool checked);
+	void onProfileRenameClicked(bool checked);
+
+	void onLineEdit1EditingFinished();
+	void onLineEdit2EditingFinished();
+	void onLineEdit3EditingFinished();
+	void onLineEdit4EditingFinished();
+
+	void onLineEdit5EditingFinished();
+	void onLineEdit6EditingFinished();
+	void onLineEdit7EditingFinished();
+	void onLineEdit8EditingFinished();
+
 
 	int toInt(double frequence);
+	void renameGroup(QString currentName, QString newName);
+
+	void writeStatus();
 };
 

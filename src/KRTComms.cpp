@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.3";
+char* KRTComms::version = "0.1.5rc4";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -374,11 +374,19 @@ bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, an
 	tmp.append(clientID);
 	tmp.append(0);
 
-	QString command = "METOO\t" + Encrypter::Encrypt(GetRadioId(serverConnectionHandlerID, frequence), QString::number(frequence));
+	int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
+
+	QString command = "METOO\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 	SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 //	if (_debug) {
 //		_ts3.printMessageToCurrentTab(("AnswerTheCall: " + QString::number(clientID)).toStdString().c_str());
 //	}
+
+	if (_isWhispering[radio_id]) {
+		command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
+		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
+	}
+
 	return true;
 }
 
@@ -949,8 +957,8 @@ void KRTComms::SetSoundsEnabled(bool enabled) {
 	_soundsEnabled = enabled;
 }
 
-void KRTComms::SetFreqByChannelname(bool enabled) {
-	_setFreqByChannelname = enabled;
+void KRTComms::SetFreqByChannelname(int radio_id) {
+	_setFreqByChannelname = radio_id;
 }
 
 bool KRTComms::IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence) {
@@ -969,6 +977,12 @@ bool KRTComms::IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence
 	return false;
 }
 
+void KRTComms::OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+	anyID me;
+	_ts3.getClientID(serverConnectionHandlerID, &me);
+	SetFreqByChannelname(serverConnectionHandlerID, me, channelID);
+}
+
 void KRTComms::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	SetFreqByChannelname(serverConnectionHandlerID, clientID, newChannelID);
 }
@@ -978,7 +992,7 @@ void KRTComms::OnClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID cl
 }
 
 void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID) {
-	if (!_setFreqByChannelname) return;
+	if (_setFreqByChannelname == -1) return;
 
 
 	anyID me;
@@ -993,9 +1007,13 @@ void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clie
 		if (match.hasMatch()) {
 			QString matched = match.captured(0);
 
-			_channels->SetFrequence(2, matched.replace("(", "").replace(")", "").toDouble());
+			_channels->SetFrequence(_setFreqByChannelname, matched.replace("(", "").replace(")", "").toDouble());
 		}
 
 		_ts3.freeMemory(name);
 	}
+}
+
+void KRTComms::ReloadConfig(uint64 serverConnectionHandlerID) {
+	_channels->Load();
 }

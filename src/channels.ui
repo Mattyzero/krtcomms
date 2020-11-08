@@ -111,7 +111,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                <number>0</number>
               </property>
               <item>
-               <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0,0,0,0,100,0,0,156">
+               <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0,70,0,0,100,0,0,156">
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
@@ -998,16 +998,44 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QEditableLabel" name="lineedit_1"/>
+                 <widget class="QEditableLabel" name="lineedit_1">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QEditableLabel" name="lineedit_2"/>
+                 <widget class="QEditableLabel" name="lineedit_2">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QEditableLabel" name="lineedit_3"/>
+                 <widget class="QEditableLabel" name="lineedit_3">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QEditableLabel" name="lineedit_4"/>
+                 <widget class="QEditableLabel" name="lineedit_4">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1030,7 +1058,7 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                <number>0</number>
               </property>
               <item>
-               <layout class="QGridLayout" name="gridLayout_8" columnminimumwidth="0,0,0,0,100,0,0,156">
+               <layout class="QGridLayout" name="gridLayout_8" columnminimumwidth="0,70,0,0,100,0,0,156">
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
@@ -1904,16 +1932,44 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QEditableLabel" name="lineedit_5"/>
+                 <widget class="QEditableLabel" name="lineedit_5">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QEditableLabel" name="lineedit_6"/>
+                 <widget class="QEditableLabel" name="lineedit_6">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QEditableLabel" name="lineedit_7"/>
+                 <widget class="QEditableLabel" name="lineedit_7">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QEditableLabel" name="lineedit_8"/>
+                 <widget class="QEditableLabel" name="lineedit_8">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1939,6 +1995,9 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
              <width>75</width>
              <height>23</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Löscht die aktuelle Whisperliste (Funken wird unterbrochen)&lt;/p&gt;&lt;p&gt;Setzt die Spracheingabe auf den von dir ausgewählten Standard zurück&lt;/p&gt;&lt;p&gt;Stellt alle Radios auf nicht senden&lt;/p&gt;&lt;p&gt;Deaktiviert die Sende Lampe&lt;/p&gt;&lt;p&gt;Deaktiviert den Channel Mute&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Reset</string>
@@ -2339,23 +2398,109 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
        <item row="0" column="0">
-        <layout class="QGridLayout" name="gridLayout_9" rowminimumheight="23,23,23,23,0,0,0" columnminimumwidth="100,0,0">
+        <layout class="QGridLayout" name="gridLayout_9" rowminimumheight="23,23,23,23,23,23,23,23" columnminimumwidth="100,0,0,0">
          <item row="3" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QCheckBox" name="beep_sound">
            <property name="enabled">
             <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="checked">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Push-To-Mute Channel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <widget class="QCheckBox" name="activate_radio_on_startup">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="push_to_mute_channel">
+           <property name="text">
+            <string>HotKey</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Toggle Mute</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" alignment="Qt::AlignHCenter">
+          <widget class="QCheckBox" name="set_freq_by_channelname">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="3">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Push-To-Mute All</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Activate Radio on Startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Set Freq. by Channelname</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QComboBox" name="set_freq_by_channelname_radio"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Play Start / End Beep</string>
            </property>
           </widget>
          </item>
@@ -2373,96 +2518,92 @@ QScrollArea &gt; QWidget &gt; QScrollBar { background: palette(base); }</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-          <widget class="QCheckBox" name="activate_radio_on_startup">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Toggle Mute</string>
-           </property>
-          </widget>
-         </item>
          <item row="6" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="push_to_mute_channel">
+          <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>HotKey</string>
+            <string>Elgato StreamDeck</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Push-To-Mute All</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Play Start / End Beep</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Activate Radio on Startup</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Push-To-Mute Channel</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Set Freq. by Channelname</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1" alignment="Qt::AlignHCenter">
-          <widget class="QCheckBox" name="set_freq_by_channelname">
+         <item row="6" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <widget class="QCheckBox" name="elgato_streamdeck">
            <property name="text">
             <string/>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="profiles_tab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Profiles</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_12">
+       <item row="3" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_11">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="profiles_list"/>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="profile_new">
+           <property name="text">
+            <string>New</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="profile_delete">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="profile_rename">
+           <property name="text">
+            <string>Rename</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="1">
+        <spacer name="horizontalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

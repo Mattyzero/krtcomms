@@ -12,6 +12,9 @@
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QListWidget>
+#include <QtCore/QTextStream>
 
 channels::channels(const QString& configLocation, char* pluginID, TS3Functions ts3Functions, QWidget* parent /* = nullptr */) : QDialog(parent),
 	_ui(std::make_unique<Ui::channelsui>()),
@@ -21,6 +24,9 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	_pluginID = pluginID;
 	_ts3 = ts3Functions;
+
+	_configLocation = configLocation;
+	_statusLocation = QString(configLocation).replace(".cnf", ".status");
 	
 
 	_ui->setupUi(this);
@@ -41,6 +47,26 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->channel_6, &QCheckBox::stateChanged, this, &channels::onChange6);
 	connect(_ui->channel_7, &QCheckBox::stateChanged, this, &channels::onChange7);
 	connect(_ui->channel_8, &QCheckBox::stateChanged, this, &channels::onChange8);
+
+	connect(_ui->lineedit_1, &QEditableLabel::clicked, _ui->channel_1, &QCheckBox::toggle);
+	connect(_ui->lineedit_2, &QEditableLabel::clicked, _ui->channel_2, &QCheckBox::toggle);
+	connect(_ui->lineedit_3, &QEditableLabel::clicked, _ui->channel_3, &QCheckBox::toggle);
+	connect(_ui->lineedit_4, &QEditableLabel::clicked, _ui->channel_4, &QCheckBox::toggle);
+
+	connect(_ui->lineedit_5, &QEditableLabel::clicked, _ui->channel_5, &QCheckBox::toggle);
+	connect(_ui->lineedit_6, &QEditableLabel::clicked, _ui->channel_6, &QCheckBox::toggle);
+	connect(_ui->lineedit_7, &QEditableLabel::clicked, _ui->channel_7, &QCheckBox::toggle);
+	connect(_ui->lineedit_8, &QEditableLabel::clicked, _ui->channel_8, &QCheckBox::toggle);
+
+	connect(_ui->lineedit_1, &QEditableLabel::editingFinished, this, &channels::onLineEdit1EditingFinished);
+	connect(_ui->lineedit_2, &QEditableLabel::editingFinished, this, &channels::onLineEdit2EditingFinished);
+	connect(_ui->lineedit_3, &QEditableLabel::editingFinished, this, &channels::onLineEdit3EditingFinished);
+	connect(_ui->lineedit_4, &QEditableLabel::editingFinished, this, &channels::onLineEdit4EditingFinished);
+
+	connect(_ui->lineedit_5, &QEditableLabel::editingFinished, this, &channels::onLineEdit5EditingFinished);
+	connect(_ui->lineedit_6, &QEditableLabel::editingFinished, this, &channels::onLineEdit6EditingFinished);
+	connect(_ui->lineedit_7, &QEditableLabel::editingFinished, this, &channels::onLineEdit7EditingFinished);
+	connect(_ui->lineedit_8, &QEditableLabel::editingFinished, this, &channels::onLineEdit8EditingFinished);
 
 	connect(_ui->ch_1_hotkey, &QPushButton::clicked, this, &channels::onClick1);
 	connect(_ui->ch_2_hotkey, &QPushButton::clicked, this, &channels::onClick2);
@@ -131,6 +157,28 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->beep_sound, &QCheckBox::stateChanged, this, &channels::onBeepSoundChanged); 
 	connect(_ui->activate_radio_on_startup, &QCheckBox::stateChanged, this, &channels::onActivateRadioOnStartupChanged);
 	connect(_ui->set_freq_by_channelname, &QCheckBox::stateChanged, this, &channels::onSetFreqByChannelnameChanged);
+	connect(_ui->set_freq_by_channelname_radio, QOverload<int>::of(&QComboBox::activated), this, &channels::onSetFreqByChannelnameRadioChanged);
+	connect(_ui->elgato_streamdeck, &QCheckBox::stateChanged, this, &channels::onElgatoStreamDeckChanged);
+
+
+	//connect(_ui->profiles_list, &QListWidget::itemActivated, this, &channels::onProfilesListItemActivated);
+	connect(_ui->profiles_list, &QListWidget::currentTextChanged, this, &channels::onProfilesListCurrentTextChanged);
+	connect(_ui->profiles_list, &QListWidget::itemChanged, this, &channels::onProfilesListItemChanged);
+
+	connect(_ui->profile_new, &QPushButton::clicked, this, &channels::onProfileNewClicked);
+	connect(_ui->profile_delete, &QPushButton::clicked, this, &channels::onProfileDeleteClicked);
+	connect(_ui->profile_rename, &QPushButton::clicked, this, &channels::onProfileRenameClicked);
+
+	QStringList groups = _settings->childGroups();
+
+	_ui->profiles_list->addItems(groups);
+
+	_profiles = new QComboBox(this);
+	_profiles->addItem("General");
+	_profiles->addItems(groups);
+	_ui->tabWidget->setCornerWidget(_profiles, Qt::TopRightCorner);
+
+	connect(_profiles, QOverload<int>::of(&QComboBox::activated), this, &channels::onProfileChanged);
 }
 
 channels::~channels() {
@@ -138,15 +186,25 @@ channels::~channels() {
 }
 
 void channels::set(const QString& option, const QVariant& value) {
+	_settings->beginGroup(_profile);
 	_settings->setValue(option, value);
+	_settings->endGroup();
 }
 
-QVariant channels::get(const QString& option) const {
-	return _settings->value(option);
+QVariant channels::get(const QString& option) const {	
+	_settings->beginGroup(_profile);
+	QVariant ret = _settings->value(option);
+	_settings->endGroup();
+
+	return ret;
 }
 
 QVariant channels::get(const QString& option, const QVariant& defaultValue) const {
-	return _settings->value(option, defaultValue);
+	_settings->beginGroup(_profile);
+	QVariant ret = _settings->value(option, defaultValue);
+	_settings->endGroup();
+
+	return ret;
 }
 
 void channels::OnStartup() {
@@ -253,6 +311,10 @@ void channels::EnableSendLamp(int radio_id) {
 		_ui->send_lamp_8->SetColor(QColor("green"));
 		break;
 	}
+	if (_elgatoStreamDeck) {
+		_lampStatus[radio_id][0] = 1;
+		writeStatus();
+	}
 }
 
 void channels::DisableSendLamp(int radio_id) {
@@ -282,6 +344,10 @@ void channels::DisableSendLamp(int radio_id) {
 	case 7:
 		_ui->send_lamp_8->SetColor(QColor("white"));
 		break;
+	}
+	if (_elgatoStreamDeck) {
+		_lampStatus[radio_id][0] = 0;
+		writeStatus();
 	}
 }
 
@@ -313,6 +379,10 @@ void channels::EnableReceiveLamp(int radio_id) {
 		_ui->receive_lamp_8->SetColor(QColor("red"));
 		break;
 	}
+	if (_elgatoStreamDeck) {
+		_lampStatus[radio_id][1] = 1;
+		writeStatus();
+	}
 }
 
 void channels::DisableReceiveLamp(int radio_id) {
@@ -342,6 +412,10 @@ void channels::DisableReceiveLamp(int radio_id) {
 	case 7:
 		_ui->receive_lamp_8->SetColor(QColor("white"));
 		break;
+	}
+	if (_elgatoStreamDeck) {
+		_lampStatus[radio_id][1] = 0;
+		writeStatus();
 	}
 }
 
@@ -418,7 +492,7 @@ void channels::UnMuteReceiveLamp(int radio_id) {
 		//_ui->receive_lamp_8->SetColor(QColor("white"));
 		_ui->receive_lamp_8->SetDirection(QTriangle::Direction::BOTTOM);
 		break;
-	}
+	}	
 }
 
 void channels::ChangeChannelMuted(bool checked) {
@@ -468,6 +542,10 @@ void channels::SetFrequence(int radio_id, double frequence) {
 	}
 }
 
+void channels::Load() {
+	load();
+}
+
 void channels::showEvent(QShowEvent* /* e */) {
 	load();
 }
@@ -480,24 +558,6 @@ void channels::resizeEvent(QResizeEvent* e) {
 }
 
 void channels::save() {
-	set("freq_1", _ui->frequence_1->value());
-	set("freq_2", _ui->frequence_2->value());
-	set("freq_3", _ui->frequence_3->value());
-	set("freq_4", _ui->frequence_4->value());
-
-	set("freq_5", _ui->frequence_5->value());
-	set("freq_6", _ui->frequence_6->value());
-	set("freq_7", _ui->frequence_7->value());
-	set("freq_8", _ui->frequence_8->value());
-
-	set("channel_1_text", _ui->lineedit_1->text());
-	set("channel_2_text", _ui->lineedit_2->text());
-	set("channel_3_text", _ui->lineedit_3->text());
-	set("channel_4_text", _ui->lineedit_4->text());
-	set("channel_5_text", _ui->lineedit_5->text());
-	set("channel_6_text", _ui->lineedit_6->text());
-	set("channel_7_text", _ui->lineedit_7->text());
-	set("channel_8_text", _ui->lineedit_8->text());
 
 	close();
 }
@@ -558,19 +618,24 @@ void channels::load(bool onStartup) {
 
 	_ui->radio_1_password->setText(get("radio_1_password").toString());
 	Encrypter::SetPassword(0, get("radio_1_password").toString());
+	_ui->lineedit_1->setLocked(!get("radio_1_password").toString().isEmpty());
 
 	_ui->radio_2_password->setText(get("radio_2_password").toString());
 	Encrypter::SetPassword(1, get("radio_2_password").toString());
+	_ui->lineedit_2->setLocked(!get("radio_2_password").toString().isEmpty());
 
 	_ui->radio_3_password->setText(get("radio_3_password").toString());
 	Encrypter::SetPassword(2, get("radio_3_password").toString());
+	_ui->lineedit_3->setLocked(!get("radio_3_password").toString().isEmpty());
 
 	_ui->radio_4_password->setText(get("radio_4_password").toString());
 	Encrypter::SetPassword(3, get("radio_4_password").toString());
+	_ui->lineedit_4->setLocked(!get("radio_4_password").toString().isEmpty());
 
 	_ui->beep_sound->setChecked(get("beep_sound", true).toBool());
 	_ui->activate_radio_on_startup->setChecked(get("activate_radio_on_startup", false).toBool());
 	_ui->set_freq_by_channelname->setChecked(get("set_freq_by_channelname", false).toBool());
+	_ui->elgato_streamdeck->setChecked(get("elgato_streamdeck", false).toBool());
 
 	
 
@@ -671,6 +736,14 @@ void channels::load(bool onStartup) {
 	_ui->lineedit_6->resizeToContent();
 	_ui->lineedit_7->resizeToContent();
 	_ui->lineedit_8->resizeToContent();
+
+	_ui->set_freq_by_channelname_radio->clear();
+
+	for (int i = 0; i < RADIO_COUNT; i++) {
+		_ui->set_freq_by_channelname_radio->addItem(get("channel_" + QString::number(i + 1) + "_text", "Radio " + QString::number(i + 1)).toString());
+	}
+
+	_ui->set_freq_by_channelname_radio->setCurrentIndex(get("set_freq_by_channelname_radio", 2).toInt());
 
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(false);
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setAutoDefault(false);
@@ -1002,7 +1075,8 @@ void channels::onRadio1PasswordChanged(QString value) {
 void channels::onSetRadio1Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, false, -1);
 	Encrypter::SetPassword(0, get("radio_1_password").toString());
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, true, toInt(_ui->frequence_1->value()));
+	_ui->lineedit_1->setLocked(!get("radio_1_password").toString().isEmpty());
+	onSetFrequence1(true);
 }
 
 void channels::onRadio2PasswordChanged(QString value) {
@@ -1013,7 +1087,8 @@ void channels::onRadio2PasswordChanged(QString value) {
 void channels::onSetRadio2Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, false, -1);
 	Encrypter::SetPassword(1, get("radio_2_password").toString());
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, true, toInt(_ui->frequence_2->value()));
+	_ui->lineedit_2->setLocked(!get("radio_2_password").toString().isEmpty());
+	onSetFrequence2(true);
 }
 
 void channels::onRadio3PasswordChanged(QString value) {
@@ -1024,7 +1099,8 @@ void channels::onRadio3PasswordChanged(QString value) {
 void channels::onSetRadio3Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, false, -1);
 	Encrypter::SetPassword(2, get("radio_3_password").toString());
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, true, toInt(_ui->frequence_3->value()));
+	_ui->lineedit_3->setLocked(!get("radio_3_password").toString().isEmpty());
+	onSetFrequence3(true);
 }
 
 void channels::onRadio4PasswordChanged(QString value) {
@@ -1034,8 +1110,9 @@ void channels::onRadio4PasswordChanged(QString value) {
 
 void channels::onSetRadio4Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, false, -1);
-	Encrypter::SetPassword(3, get("radio_2_password").toString());
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, true, toInt(_ui->frequence_4->value()));
+	Encrypter::SetPassword(3, get("radio_4_password").toString());
+	_ui->lineedit_4->setLocked(!get("radio_4_password").toString().isEmpty());
+	onSetFrequence4(true);
 }
 
 bool channels::onDifferentKey(QString keyword, QString key, QWidget *parent) {
@@ -1078,11 +1155,155 @@ void channels::onActivateRadioOnStartupChanged(int state) {
 }
 
 void channels::onSetFreqByChannelnameChanged(int state) {
-	KRTComms::getInstance().SetFreqByChannelname(state == 2);
+	KRTComms::getInstance().SetFreqByChannelname(state == 2 ? get("set_freq_by_channelname_radio", 2).toInt() : -1);
 	set("set_freq_by_channelname", state == 2);
 }
 
+void channels::onSetFreqByChannelnameRadioChanged(int index) {
+	set("set_freq_by_channelname_radio", index);
+	onSetFreqByChannelnameChanged(_ui->set_freq_by_channelname->isChecked() ? 2 : 0);
+}
+
+void channels::onElgatoStreamDeckChanged(int state) {
+	set("elgato_streamdeck", state == 2);
+	_elgatoStreamDeck = state == 2;
+
+	//debug mode
+	if (_ui->debug->isChecked() && state == 2) {
+		_ts3.printMessageToCurrentTab(_configLocation.toStdString().c_str());
+	}
+}
+
+void channels::onProfileChanged(int index) {
+	_profile = _profiles->currentText();
+	if (_profile == "General") _profile = "";
+	load();
+}
+
+void channels::onProfilesListItemActivated(QListWidgetItem *item) {
+
+}
+
+void channels::onProfilesListCurrentTextChanged(QString text) {
+	
+}
+
+void channels::onProfilesListItemChanged(QListWidgetItem *item) {
+	if (_oldItemName == item->text() || _oldItemName.isEmpty()) return;
+
+	renameGroup(_oldItemName, item->text());
+
+	int index = _profiles->findText(_oldItemName);
+	if (index == -1) {
+		_profiles->addItem(item->text());
+	}
+	else {
+		_profiles->setItemText(index, item->text());
+	}
+	
+
+	_oldItemName = "";
+}
+
+void channels::onProfileNewClicked(bool checked) {
+	QList<QListWidgetItem *> found = _ui->profiles_list->findItems("New Profile", Qt::MatchExactly);
+	if (found.length() > 0) return;
+
+	_ui->profiles_list->addItem("New Profile");
+	_settings->beginGroup("New Profile");
+	_settings->setValue("freq_1", 1);
+	_settings->endGroup();
+}
+
+void channels::onProfileDeleteClicked(bool checked) {
+	QListWidgetItem *item = _ui->profiles_list->currentItem();
+	if (item == nullptr) return;
+
+	_settings->remove(item->text());
+	_profiles->removeItem(_profiles->findText(item->text()));
+
+	_ui->profiles_list->takeItem(_ui->profiles_list->row(item));
+}
+
+void channels::onProfileRenameClicked(bool checked) {
+	QListWidgetItem *item = _ui->profiles_list->currentItem();
+	item->setFlags(item->flags() | Qt::ItemIsEditable);
+	_oldItemName = item->text();
+	_ui->profiles_list->editItem(item);
+
+	
+}
+
+void channels::onLineEdit1EditingFinished() {
+	set("channel_1_text", _ui->lineedit_1->text());
+}
+
+void channels::onLineEdit2EditingFinished() {
+	set("channel_2_text", _ui->lineedit_2->text());
+}
+
+void channels::onLineEdit3EditingFinished() {
+	set("channel_3_text", _ui->lineedit_3->text());
+}
+
+void channels::onLineEdit4EditingFinished() {
+	set("channel_4_text", _ui->lineedit_4->text());
+}
+
+void channels::onLineEdit5EditingFinished() {
+	set("channel_5_text", _ui->lineedit_5->text());
+}
+
+void channels::onLineEdit6EditingFinished() {
+	set("channel_6_text", _ui->lineedit_6->text());
+}
+
+void channels::onLineEdit7EditingFinished() {
+	set("channel_7_text", _ui->lineedit_7->text());
+}
+
+void channels::onLineEdit8EditingFinished() {
+	set("channel_8_text", _ui->lineedit_8->text());
+}
+
+
 int channels::toInt(double frequence) {
 	return frequence * 100.0 + 0.1; //floating-point fix
+}
+
+void channels::renameGroup(QString currentName, QString newName) {
+
+	//QString logmessage = "Try to rename Profile from " + currentName + " to " + newName;
+	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+
+	QHash<QString, QVariant> hash;
+	_settings->beginGroup(currentName);
+	foreach(const QString &key, _settings->childKeys()) {
+		hash[key] = _settings->value(key);
+	}
+	_settings->endGroup();
+
+	//_ts3.printMessageToCurrentTab(QString::number(hash.size()).toStdString().c_str());
+
+	_settings->beginGroup(newName);
+	foreach(const QString &key, hash.keys()) {
+		_settings->setValue(key, hash[key]);
+	}
+	_settings->endGroup();
+
+	_settings->remove(currentName);
+}
+
+void channels::writeStatus() {	
+	QFile file(_statusLocation);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		QTextStream stream(&file);
+
+		foreach(int radio_id, _lampStatus.keys()) {
+			stream << "r" << (radio_id+1) << ":" << _lampStatus[radio_id][0] << ":" << _lampStatus[radio_id][1] << "\n";
+		}
+
+		file.close();
+	}
 }
 

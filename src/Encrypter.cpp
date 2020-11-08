@@ -19,10 +19,10 @@ void Encrypter::SetPassword(int radio_id, QString value) {
 		Encrypter::getInstance()._password[radio_id] = "";
 		return;
 	}
-	qulonglong ulonglong = 255;
+	qulonglong ulonglong = 1992060300072645261L;
 	for (int i = 0; i < value.length(); i++) {
 		ulonglong += value.at(i).toLatin1() * i;
-	}	
+	}
 	Encrypter::getInstance()._password[radio_id] = QString::number(ulonglong);	
 }
 
@@ -39,13 +39,12 @@ QString Encrypter::Encrypt(int radio_id, QString value) {
 }
 
 QString Encrypter::Decrypt(uint64 serverConnectionHandlerID, QString value) {
-	bool no_match = false;
-	for (int i = 0; i < RADIO_COUNT; i++) {
-		//KRTComms::Log(QString::number(Encrypter::getInstance().GetPassword(i).toULongLong()));
 
+	//Niemals überhalb des Passwort checks ein return machen, würde das PW aushebeln
+
+	for (int i = 0; i < RADIO_COUNT; i++) {
 		quint64 password = Encrypter::getInstance().GetPassword(i).toULongLong();
 		if (password == 0) continue;
-		no_match = true;
 
 		SimpleCrypt crypto(password);
 		QString decrypted = crypto.decryptToString(value);
@@ -55,12 +54,13 @@ QString Encrypter::Decrypt(uint64 serverConnectionHandlerID, QString value) {
 		}
 	}
 
-	if (no_match) {
-		return "-1";
+	bool ok;
+	int parsed = value.toInt(&ok);
+	if (ok) {
+		int radio_id = KRTComms::getInstance().GetRadioId(serverConnectionHandlerID, parsed);
+		if (!Encrypter::getInstance().GetPassword(radio_id).isEmpty()) return "-1";
+		return value;
 	}
 
-	int radio_id = KRTComms::getInstance().GetRadioId(serverConnectionHandlerID, value.toInt());
-	if (!Encrypter::getInstance().GetPassword(radio_id).isEmpty()) return "-1";
-
-	return value;
+	return "-1";
 }
