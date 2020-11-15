@@ -38,6 +38,10 @@ void QEditableLCDNumber::FormatDisplay(QString value) {
 	this->display(value);
 }
 
+void QEditableLCDNumber::onSubmit(bool checked) {
+	//DO NOTHING
+}
+
 void QEditableLCDNumber::setDigitAreaPressed(QMouseEvent * e, const int areaId)
 {
 	int ndigits = this->digitCount();
@@ -140,10 +144,14 @@ void QEditableLCDNumber::keyPressEvent(QKeyEvent * event)
 		}
 	}
 
-	/* Enter + Esc press event handler */
-	if ((key == Qt::Key_Return) || (key == Qt::Key_Escape)) {
+	/* Enter + Return + Esc press event handler */
+	if ((key == Qt::Key_Return) || (key == Qt::Key_Escape) || (key == Qt::Key_Enter)) {
 		this->mDigitIdToChange = -1;
 		update();
+	}
+
+	if ((key == Qt::Key_Return) || (key == Qt::Key_Enter)) {
+		emit submitted();
 	}
 
 }

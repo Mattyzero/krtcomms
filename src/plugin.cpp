@@ -404,7 +404,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(23);  /* Create x hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(25);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -431,7 +431,10 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("toggle_mute", "Toggle Mute");
 	CREATE_HOTKEY("toggle_mute_", "Toggle Mute END"); //22
 
-	CREATE_HOTKEY("reload_config", "Reload Config"); //23
+	CREATE_HOTKEY("toggle_radio", "Toggle Mute");
+	CREATE_HOTKEY("toggle_radio_", "Toggle Mute END"); //24
+
+	CREATE_HOTKEY("reload_config", "Reload Config"); //25
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -937,6 +940,11 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 
 	if (keyword_.startsWith("toggle_mute")) {
 		KRTComms::getInstance().ToggleMute(serverConnectionHandlerID);
+		return;
+	}
+
+	if (keyword_.startsWith("toggle_radio")) {
+		KRTComms::getInstance().ToggleRadio(serverConnectionHandlerID);
 		return;
 	}
 

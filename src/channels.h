@@ -11,6 +11,13 @@
 #include <QtCore/QList>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QListWidgetItem>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QDial>
+#include <QtWidgets/QSlider>
+#include "QTriangle.h"
+#include "QEditableLabel.h"
+#include "QEditableLCDNumber.h"
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
 
@@ -41,6 +48,7 @@ public:
 	void UnMuteReceiveLamp(int radio_id);
 	void ChangeChannelMuted(bool checked);
 	void SetFrequence(int radio_id, double frequence);
+	void ToggleRadio(int radio_id);
 	void Load();
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
@@ -65,9 +73,37 @@ private:
 	QString _configLocation = "";
 	QString _statusLocation = "";
 
+	QList<QCheckBox*> _channels;
+	QList<void(channels::*)(int state)> _channelEvents;
+	QList<QPushButton*> _channelHotkeys;
+	QList<void(channels::*)(bool checked)> _channelHotkeyEvents;
+
+	QList<QEditableLabel*> _lineEdits;
+	QList<void(channels::*)()> _editingFinisheds;
+
+	QList<QDial*> _panChannels;
+	QList<void(channels::*)(int value)> _panChannelEvents;
+
+	QList<QSlider*> _volumeGains;
+	QList<void(channels::*)(int value)> _volumeGainEvents;
+
+	QList<QPushButton*> _setFrequences;
+	QList<void(channels::*)(bool checked)> _setFrequenceEvents;
+
+	QList<QTriangle*> _sendLamps;
+	QList<QTriangle*> _receiveLamps;
+
+	QList<QEditableLCDNumber*> _frequences;
+
+
+	
+
 	void save();
 	void load();
 	void load(bool onStartup);
+	void load(bool onStartup, bool reload);
+
+	void uncheckAll();
 
 	void onChange1(int state);
 	void onChange2(int state);
@@ -148,6 +184,7 @@ private:
 	void onPushToMuteAllClick(bool checked);
 	void onPushToMuteChannelClick(bool checked);
 	void onToggleMuteClick(bool checked);
+	void onToggleRadioClick(bool checked);
 
 	void onBeepSoundChanged(int state);
 	void onActivateRadioOnStartupChanged(int state);

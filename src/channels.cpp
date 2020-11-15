@@ -27,7 +27,6 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	_configLocation = configLocation;
 	_statusLocation = QString(configLocation).replace(".cnf", ".status");
-	
 
 	_ui->setupUi(this);
 
@@ -38,79 +37,181 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->buttonBox, &QDialogButtonBox::accepted, this, &channels::save);
 	connect(_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	connect(_ui->channel_1, &QCheckBox::stateChanged, this, &channels::onChange1);
-	connect(_ui->channel_2, &QCheckBox::stateChanged, this, &channels::onChange2);
-	connect(_ui->channel_3, &QCheckBox::stateChanged, this, &channels::onChange3);
-	connect(_ui->channel_4, &QCheckBox::stateChanged, this, &channels::onChange4);
+	_channels.append(_ui->channel_1);
+	_channels.append(_ui->channel_2);
+	_channels.append(_ui->channel_3);
+	_channels.append(_ui->channel_4);
+	_channels.append(_ui->channel_5);
+	_channels.append(_ui->channel_6);
+	_channels.append(_ui->channel_7);
+	_channels.append(_ui->channel_8);
 
-	connect(_ui->channel_5, &QCheckBox::stateChanged, this, &channels::onChange5);
-	connect(_ui->channel_6, &QCheckBox::stateChanged, this, &channels::onChange6);
-	connect(_ui->channel_7, &QCheckBox::stateChanged, this, &channels::onChange7);
-	connect(_ui->channel_8, &QCheckBox::stateChanged, this, &channels::onChange8);
+	_channelEvents.append(&channels::onChange1);
+	_channelEvents.append(&channels::onChange2);
+	_channelEvents.append(&channels::onChange3);
+	_channelEvents.append(&channels::onChange4);
 
-	connect(_ui->lineedit_1, &QEditableLabel::clicked, _ui->channel_1, &QCheckBox::toggle);
-	connect(_ui->lineedit_2, &QEditableLabel::clicked, _ui->channel_2, &QCheckBox::toggle);
-	connect(_ui->lineedit_3, &QEditableLabel::clicked, _ui->channel_3, &QCheckBox::toggle);
-	connect(_ui->lineedit_4, &QEditableLabel::clicked, _ui->channel_4, &QCheckBox::toggle);
+	_channelEvents.append(&channels::onChange5);
+	_channelEvents.append(&channels::onChange6);
+	_channelEvents.append(&channels::onChange7);
+	_channelEvents.append(&channels::onChange8);
 
-	connect(_ui->lineedit_5, &QEditableLabel::clicked, _ui->channel_5, &QCheckBox::toggle);
-	connect(_ui->lineedit_6, &QEditableLabel::clicked, _ui->channel_6, &QCheckBox::toggle);
-	connect(_ui->lineedit_7, &QEditableLabel::clicked, _ui->channel_7, &QCheckBox::toggle);
-	connect(_ui->lineedit_8, &QEditableLabel::clicked, _ui->channel_8, &QCheckBox::toggle);
+	_lineEdits.append(_ui->lineedit_1);
+	_lineEdits.append(_ui->lineedit_2);
+	_lineEdits.append(_ui->lineedit_3);
+	_lineEdits.append(_ui->lineedit_4);
 
-	connect(_ui->lineedit_1, &QEditableLabel::editingFinished, this, &channels::onLineEdit1EditingFinished);
-	connect(_ui->lineedit_2, &QEditableLabel::editingFinished, this, &channels::onLineEdit2EditingFinished);
-	connect(_ui->lineedit_3, &QEditableLabel::editingFinished, this, &channels::onLineEdit3EditingFinished);
-	connect(_ui->lineedit_4, &QEditableLabel::editingFinished, this, &channels::onLineEdit4EditingFinished);
+	_lineEdits.append(_ui->lineedit_5);
+	_lineEdits.append(_ui->lineedit_6);
+	_lineEdits.append(_ui->lineedit_7);
+	_lineEdits.append(_ui->lineedit_8);
 
-	connect(_ui->lineedit_5, &QEditableLabel::editingFinished, this, &channels::onLineEdit5EditingFinished);
-	connect(_ui->lineedit_6, &QEditableLabel::editingFinished, this, &channels::onLineEdit6EditingFinished);
-	connect(_ui->lineedit_7, &QEditableLabel::editingFinished, this, &channels::onLineEdit7EditingFinished);
-	connect(_ui->lineedit_8, &QEditableLabel::editingFinished, this, &channels::onLineEdit8EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit1EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit2EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit3EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit4EditingFinished);
 
-	connect(_ui->ch_1_hotkey, &QPushButton::clicked, this, &channels::onClick1);
-	connect(_ui->ch_2_hotkey, &QPushButton::clicked, this, &channels::onClick2);
-	connect(_ui->ch_3_hotkey, &QPushButton::clicked, this, &channels::onClick3);
-	connect(_ui->ch_4_hotkey, &QPushButton::clicked, this, &channels::onClick4);
+	_editingFinisheds.append(&channels::onLineEdit5EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit6EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit7EditingFinished);
+	_editingFinisheds.append(&channels::onLineEdit8EditingFinished);
 
-	connect(_ui->ch_5_hotkey, &QPushButton::clicked, this, &channels::onClick5);
-	connect(_ui->ch_6_hotkey, &QPushButton::clicked, this, &channels::onClick6);
-	connect(_ui->ch_7_hotkey, &QPushButton::clicked, this, &channels::onClick7);
-	connect(_ui->ch_8_hotkey, &QPushButton::clicked, this, &channels::onClick8);
+	_channelHotkeys.append(_ui->ch_1_hotkey);
+	_channelHotkeys.append(_ui->ch_2_hotkey);
+	_channelHotkeys.append(_ui->ch_3_hotkey);
+	_channelHotkeys.append(_ui->ch_4_hotkey);
 
-	connect(_ui->pan_ch_1, &QDial::valueChanged, this, &channels::onPanChanged1);
-	connect(_ui->pan_ch_2, &QDial::valueChanged, this, &channels::onPanChanged2);
-	connect(_ui->pan_ch_3, &QDial::valueChanged, this, &channels::onPanChanged3);
-	connect(_ui->pan_ch_4, &QDial::valueChanged, this, &channels::onPanChanged4);
+	_channelHotkeys.append(_ui->ch_5_hotkey);
+	_channelHotkeys.append(_ui->ch_6_hotkey);
+	_channelHotkeys.append(_ui->ch_7_hotkey);
+	_channelHotkeys.append(_ui->ch_8_hotkey);
 
-	connect(_ui->pan_ch_5, &QDial::valueChanged, this, &channels::onPanChanged5);
-	connect(_ui->pan_ch_6, &QDial::valueChanged, this, &channels::onPanChanged6);
-	connect(_ui->pan_ch_7, &QDial::valueChanged, this, &channels::onPanChanged7);
-	connect(_ui->pan_ch_8, &QDial::valueChanged, this, &channels::onPanChanged8);
+	_channelHotkeyEvents.append(&channels::onClick1);
+	_channelHotkeyEvents.append(&channels::onClick2);
+	_channelHotkeyEvents.append(&channels::onClick3);
+	_channelHotkeyEvents.append(&channels::onClick4);
 
-	connect(_ui->volume_gain_ch_1, &QSlider::valueChanged, this, &channels::onVolumeGainChanged1);
-	connect(_ui->volume_gain_ch_2, &QSlider::valueChanged, this, &channels::onVolumeGainChanged2);
-	connect(_ui->volume_gain_ch_3, &QSlider::valueChanged, this, &channels::onVolumeGainChanged3);
-	connect(_ui->volume_gain_ch_4, &QSlider::valueChanged, this, &channels::onVolumeGainChanged4);
+	_channelHotkeyEvents.append(&channels::onClick5);
+	_channelHotkeyEvents.append(&channels::onClick6);
+	_channelHotkeyEvents.append(&channels::onClick7);
+	_channelHotkeyEvents.append(&channels::onClick8);
 
-	connect(_ui->volume_gain_ch_5, &QSlider::valueChanged, this, &channels::onVolumeGainChanged5);
-	connect(_ui->volume_gain_ch_6, &QSlider::valueChanged, this, &channels::onVolumeGainChanged6);
-	connect(_ui->volume_gain_ch_7, &QSlider::valueChanged, this, &channels::onVolumeGainChanged7);
-	connect(_ui->volume_gain_ch_8, &QSlider::valueChanged, this, &channels::onVolumeGainChanged8);
+
+	_panChannels.append(_ui->pan_ch_1);
+	_panChannels.append(_ui->pan_ch_2);
+	_panChannels.append(_ui->pan_ch_3);
+	_panChannels.append(_ui->pan_ch_4);
+
+	_panChannels.append(_ui->pan_ch_5);
+	_panChannels.append(_ui->pan_ch_6);
+	_panChannels.append(_ui->pan_ch_7);
+	_panChannels.append(_ui->pan_ch_8);
+
+	_panChannelEvents.append(&channels::onPanChanged1);
+	_panChannelEvents.append(&channels::onPanChanged2);
+	_panChannelEvents.append(&channels::onPanChanged3);
+	_panChannelEvents.append(&channels::onPanChanged4);
+
+	_panChannelEvents.append(&channels::onPanChanged5);
+	_panChannelEvents.append(&channels::onPanChanged6);
+	_panChannelEvents.append(&channels::onPanChanged7);
+	_panChannelEvents.append(&channels::onPanChanged8);
+
+	_volumeGains.append(_ui->volume_gain_ch_1);
+	_volumeGains.append(_ui->volume_gain_ch_2);
+	_volumeGains.append(_ui->volume_gain_ch_3);
+	_volumeGains.append(_ui->volume_gain_ch_4);
+
+	_volumeGains.append(_ui->volume_gain_ch_5);
+	_volumeGains.append(_ui->volume_gain_ch_6);
+	_volumeGains.append(_ui->volume_gain_ch_7);
+	_volumeGains.append(_ui->volume_gain_ch_8);
+
+	_volumeGainEvents.append(&channels::onVolumeGainChanged1);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged2);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged3);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged4);
+
+	_volumeGainEvents.append(&channels::onVolumeGainChanged5);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged6);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged7);
+	_volumeGainEvents.append(&channels::onVolumeGainChanged8);
+
+	_setFrequences.append(_ui->set_frequence_1);
+	_setFrequences.append(_ui->set_frequence_2);
+	_setFrequences.append(_ui->set_frequence_3);
+	_setFrequences.append(_ui->set_frequence_4);
+
+	_setFrequences.append(_ui->set_frequence_5);
+	_setFrequences.append(_ui->set_frequence_6);
+	_setFrequences.append(_ui->set_frequence_7);
+	_setFrequences.append(_ui->set_frequence_8);
+
+	_setFrequenceEvents.append(&channels::onSetFrequence1);
+	_setFrequenceEvents.append(&channels::onSetFrequence2);
+	_setFrequenceEvents.append(&channels::onSetFrequence3);
+	_setFrequenceEvents.append(&channels::onSetFrequence4);
+
+	_setFrequenceEvents.append(&channels::onSetFrequence5);
+	_setFrequenceEvents.append(&channels::onSetFrequence6);
+	_setFrequenceEvents.append(&channels::onSetFrequence7);
+	_setFrequenceEvents.append(&channels::onSetFrequence8);
+
+	_sendLamps.append(_ui->send_lamp_1);
+	_sendLamps.append(_ui->send_lamp_2);
+	_sendLamps.append(_ui->send_lamp_3);
+	_sendLamps.append(_ui->send_lamp_4);
+
+	_sendLamps.append(_ui->send_lamp_5);
+	_sendLamps.append(_ui->send_lamp_6);
+	_sendLamps.append(_ui->send_lamp_7);
+	_sendLamps.append(_ui->send_lamp_8);
+
+	_receiveLamps.append(_ui->receive_lamp_1);
+	_receiveLamps.append(_ui->receive_lamp_2);
+	_receiveLamps.append(_ui->receive_lamp_3);
+	_receiveLamps.append(_ui->receive_lamp_4);
+
+	_receiveLamps.append(_ui->receive_lamp_5);
+	_receiveLamps.append(_ui->receive_lamp_6);
+	_receiveLamps.append(_ui->receive_lamp_7);
+	_receiveLamps.append(_ui->receive_lamp_8);
+
+	_frequences.append(_ui->frequence_1);
+	_frequences.append(_ui->frequence_2);
+	_frequences.append(_ui->frequence_3);
+	_frequences.append(_ui->frequence_4);
+
+	_frequences.append(_ui->frequence_5);
+	_frequences.append(_ui->frequence_6);
+	_frequences.append(_ui->frequence_7);
+	_frequences.append(_ui->frequence_8);
+
+
+
+	for (int id = 0; id < RADIO_COUNT; id++) {
+		connect(_channels[id], &QCheckBox::stateChanged, this, _channelEvents[id]);
+
+		
+		connect(_lineEdits[id], &QEditableLabel::clicked, _channels[id], &QCheckBox::toggle);
+		connect(_lineEdits[id], &QEditableLabel::editingFinished, this, _editingFinisheds[id]);
+
+		connect(_channelHotkeys[id], &QPushButton::clicked, this, _channelHotkeyEvents[id]);
+
+		connect(_panChannels[id], &QDial::valueChanged, this, _panChannelEvents[id]);
+
+		connect(_volumeGains[id], &QSlider::valueChanged, this, _volumeGainEvents[id]);
+
+		connect(_setFrequences[id], &QPushButton::clicked, this, _setFrequenceEvents[id]);
+
+		_receiveLamps[id]->SetDirection(QTriangle::Direction::BOTTOM);
+
+		connect(_frequences[id], &QEditableLCDNumber::submitted, this, _setFrequenceEvents[id]);
+	}
 
 	connect(_ui->reset, &QPushButton::clicked, this, &channels::onReset);
 	connect(_ui->debug, &QCheckBox::stateChanged, this, &channels::onDebug);
 	connect(_ui->advanced, &QCheckBox::stateChanged, this, &channels::onAdvanced);
-
-	connect(_ui->set_frequence_1, &QPushButton::clicked, this, &channels::onSetFrequence1);
-	connect(_ui->set_frequence_2, &QPushButton::clicked, this, &channels::onSetFrequence2);
-	connect(_ui->set_frequence_3, &QPushButton::clicked, this, &channels::onSetFrequence3);
-	connect(_ui->set_frequence_4, &QPushButton::clicked, this, &channels::onSetFrequence4);
-
-	connect(_ui->set_frequence_5, &QPushButton::clicked, this, &channels::onSetFrequence5);
-	connect(_ui->set_frequence_6, &QPushButton::clicked, this, &channels::onSetFrequence6);
-	connect(_ui->set_frequence_7, &QPushButton::clicked, this, &channels::onSetFrequence7);
-	connect(_ui->set_frequence_8, &QPushButton::clicked, this, &channels::onSetFrequence8);
 
 
 	connect(_ui->channel_ducking, &QCheckBox::stateChanged, this, &channels::onChannelDuckingChanged);
@@ -135,22 +236,12 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->radio_4_password, &QLineEdit::textChanged, this, &channels::onRadio4PasswordChanged);
 	connect(_ui->set_radio_4_password, &QPushButton::clicked, this, &channels::onSetRadio4Password);
 
-
-	_ui->receive_lamp_1->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_2->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_3->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_4->SetDirection(QTriangle::Direction::BOTTOM);
-
-	_ui->receive_lamp_5->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_6->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_7->SetDirection(QTriangle::Direction::BOTTOM);
-	_ui->receive_lamp_8->SetDirection(QTriangle::Direction::BOTTOM);
-
 	_ui->radio_5_8->hide();
 
 	connect(_ui->push_to_mute_all, &QPushButton::clicked, this, &channels::onPushToMuteAllClick);
 	connect(_ui->push_to_mute_channel, &QPushButton::clicked, this, &channels::onPushToMuteChannelClick);
 	connect(_ui->toggle_mute, &QPushButton::clicked, this, &channels::onToggleMuteClick);
+	connect(_ui->toggle_radio, &QPushButton::clicked, this, &channels::onToggleRadioClick);
 
 	_ui->label_channel_muted->hide();
 
@@ -217,8 +308,8 @@ void channels::OnStartup() {
 }
 
 void channels::GetHotkeysFromKeywords() {
-	const size_t arrayLen = 11;
-	const size_t hotkeyBufSize = 50;
+	const size_t arrayLen = 12;
+	const size_t hotkeyBufSize = 64;
 	const char* keywords[hotkeyBufSize] = {
 		"send_ch_0",
 		"send_ch_1",
@@ -232,7 +323,8 @@ void channels::GetHotkeysFromKeywords() {
 		"push_to_mute_all",
 		"push_to_mute_channel",
 		"toggle_mute",
-	};
+		"toggle_radio",
+	}; //!!! NICHT VERGESSEN arrayLen zu erhöhen wenn hier Elemente hinzugefügt werden!!!
 
 	char** hotkeys = (char**)malloc(sizeof(char*) * arrayLen);
 	for (int i = 0; i < arrayLen; i++) {
@@ -242,29 +334,10 @@ void channels::GetHotkeysFromKeywords() {
 	unsigned int result = _ts3.getHotkeyFromKeyword(_pluginID, keywords, hotkeys, arrayLen, hotkeyBufSize);
 
 	if (result == ERROR_ok) {
-		QString ch_1_hotkey(hotkeys[0]);
-		if (!ch_1_hotkey.isEmpty()) _ui->ch_1_hotkey->setToolTip(ch_1_hotkey);
-
-		QString ch_2_hotkey(hotkeys[1]);
-		if (!ch_2_hotkey.isEmpty()) _ui->ch_2_hotkey->setToolTip(ch_2_hotkey);
-
-		QString ch_3_hotkey(hotkeys[2]);
-		if (!ch_3_hotkey.isEmpty()) _ui->ch_3_hotkey->setToolTip(ch_3_hotkey);
-
-		QString ch_4_hotkey(hotkeys[3]);
-		if (!ch_4_hotkey.isEmpty()) _ui->ch_4_hotkey->setToolTip(ch_4_hotkey);
-
-		QString ch_5_hotkey(hotkeys[4]);
-		if (!ch_5_hotkey.isEmpty()) _ui->ch_5_hotkey->setToolTip(ch_5_hotkey);
-
-		QString ch_6_hotkey(hotkeys[5]);
-		if (!ch_6_hotkey.isEmpty()) _ui->ch_6_hotkey->setToolTip(ch_6_hotkey);
-
-		QString ch_7_hotkey(hotkeys[6]);
-		if (!ch_7_hotkey.isEmpty()) _ui->ch_7_hotkey->setToolTip(ch_7_hotkey);
-
-		QString ch_8_hotkey(hotkeys[7]);
-		if (!ch_8_hotkey.isEmpty()) _ui->ch_8_hotkey->setToolTip(ch_8_hotkey);
+		for (int id = 0; id < RADIO_COUNT; id++) {
+			QString ch_hotkey(hotkeys[id]);
+			if (!ch_hotkey.isEmpty()) _channelHotkeys[id]->setToolTip(ch_hotkey);
+		}
 
 		QString push_to_mute_all(hotkeys[8]);
 		if (!push_to_mute_all.isEmpty()) _ui->push_to_mute_all->setToolTip(push_to_mute_all);
@@ -274,6 +347,9 @@ void channels::GetHotkeysFromKeywords() {
 
 		QString toggle_mute(hotkeys[10]);
 		if (!toggle_mute.isEmpty()) _ui->toggle_mute->setToolTip(toggle_mute);
+
+		QString toggle_radio(hotkeys[11]);
+		if (!toggle_radio.isEmpty()) _ui->toggle_radio->setToolTip(toggle_radio);
 	}
 
 	for (int i = 0; i < arrayLen; i++) {
@@ -284,33 +360,9 @@ void channels::GetHotkeysFromKeywords() {
 }
 
 void channels::EnableSendLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		_ui->send_lamp_1->SetColor(QColor("green"));
-		break;
-	case 1:
-		_ui->send_lamp_2->SetColor(QColor("green"));
-		break;
-	case 2:
-		_ui->send_lamp_3->SetColor(QColor("green"));
-		break;	
-	case 3:
-		_ui->send_lamp_4->SetColor(QColor("green"));
-		break;
 
-	case 4:
-		_ui->send_lamp_5->SetColor(QColor("green"));
-		break;
-	case 5:
-		_ui->send_lamp_6->SetColor(QColor("green"));
-		break;
-	case 6:
-		_ui->send_lamp_7->SetColor(QColor("green"));
-		break;
-	case 7:
-		_ui->send_lamp_8->SetColor(QColor("green"));
-		break;
-	}
+	_sendLamps[radio_id]->SetColor(QColor("green"));
+
 	if (_elgatoStreamDeck) {
 		_lampStatus[radio_id][0] = 1;
 		writeStatus();
@@ -318,33 +370,9 @@ void channels::EnableSendLamp(int radio_id) {
 }
 
 void channels::DisableSendLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		_ui->send_lamp_1->SetColor(QColor("white"));
-		break;
-	case 1:
-		_ui->send_lamp_2->SetColor(QColor("white"));
-		break;
-	case 2:
-		_ui->send_lamp_3->SetColor(QColor("white"));
-		break;
-	case 3:
-		_ui->send_lamp_4->SetColor(QColor("white"));
-		break;
 
-	case 4:
-		_ui->send_lamp_5->SetColor(QColor("white"));
-		break;
-	case 5:
-		_ui->send_lamp_6->SetColor(QColor("white"));
-		break;
-	case 6:
-		_ui->send_lamp_7->SetColor(QColor("white"));
-		break;
-	case 7:
-		_ui->send_lamp_8->SetColor(QColor("white"));
-		break;
-	}
+	_sendLamps[radio_id]->SetColor(QColor("white"));
+	
 	if (_elgatoStreamDeck) {
 		_lampStatus[radio_id][0] = 0;
 		writeStatus();
@@ -352,33 +380,9 @@ void channels::DisableSendLamp(int radio_id) {
 }
 
 void channels::EnableReceiveLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		_ui->receive_lamp_1->SetColor(QColor("red"));
-		break;
-	case 1:
-		_ui->receive_lamp_2->SetColor(QColor("red"));
-		break;
-	case 2:
-		_ui->receive_lamp_3->SetColor(QColor("red"));
-		break;
-	case 3:
-		_ui->receive_lamp_4->SetColor(QColor("red"));
-		break;
 
-	case 4:
-		_ui->receive_lamp_5->SetColor(QColor("red"));
-		break;
-	case 5:
-		_ui->receive_lamp_6->SetColor(QColor("red"));
-		break;
-	case 6:
-		_ui->receive_lamp_7->SetColor(QColor("red"));
-		break;
-	case 7:
-		_ui->receive_lamp_8->SetColor(QColor("red"));
-		break;
-	}
+	_receiveLamps[radio_id]->SetColor(QColor("red"));
+	
 	if (_elgatoStreamDeck) {
 		_lampStatus[radio_id][1] = 1;
 		writeStatus();
@@ -386,33 +390,9 @@ void channels::EnableReceiveLamp(int radio_id) {
 }
 
 void channels::DisableReceiveLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		_ui->receive_lamp_1->SetColor(QColor("white"));
-		break;
-	case 1:
-		_ui->receive_lamp_2->SetColor(QColor("white"));
-		break;
-	case 2:
-		_ui->receive_lamp_3->SetColor(QColor("white"));
-		break;
-	case 3:
-		_ui->receive_lamp_4->SetColor(QColor("white"));
-		break;
 
-	case 4:
-		_ui->receive_lamp_5->SetColor(QColor("white"));
-		break;
-	case 5:
-		_ui->receive_lamp_6->SetColor(QColor("white"));
-		break;
-	case 6:
-		_ui->receive_lamp_7->SetColor(QColor("white"));
-		break;
-	case 7:
-		_ui->receive_lamp_8->SetColor(QColor("white"));
-		break;
-	}
+	_receiveLamps[radio_id]->SetColor(QColor("white"));
+
 	if (_elgatoStreamDeck) {
 		_lampStatus[radio_id][1] = 0;
 		writeStatus();
@@ -420,79 +400,11 @@ void channels::DisableReceiveLamp(int radio_id) {
 }
 
 void channels::MuteReceiveLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		//_ui->receive_lamp_1->SetColor(QColor("black"));
-		_ui->receive_lamp_1->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 1:
-		//_ui->receive_lamp_2->SetColor(QColor("black"));
-		_ui->receive_lamp_2->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 2:
-		//_ui->receive_lamp_3->SetColor(QColor("black"));
-		_ui->receive_lamp_3->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 3:
-		//_ui->receive_lamp_4->SetColor(QColor("black"));
-		_ui->receive_lamp_4->SetDirection(QTriangle::Direction::LEFT);
-		break;
-
-	case 4:
-		//_ui->receive_lamp_5->SetColor(QColor("black"));
-		_ui->receive_lamp_5->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 5:
-		//_ui->receive_lamp_6->SetColor(QColor("black"));
-		_ui->receive_lamp_6->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 6:
-		//_ui->receive_lamp_7->SetColor(QColor("black"));
-		_ui->receive_lamp_7->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	case 7:
-		//_ui->receive_lamp_8->SetColor(QColor("black"));
-		_ui->receive_lamp_8->SetDirection(QTriangle::Direction::LEFT);
-		break;
-	}
+	_receiveLamps[radio_id]->SetDirection(QTriangle::Direction::LEFT);
 }
 
 void channels::UnMuteReceiveLamp(int radio_id) {
-	switch (radio_id) {
-	case 0:
-		//_ui->receive_lamp_1->SetColor(QColor("white"));
-		_ui->receive_lamp_1->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 1:
-		//_ui->receive_lamp_2->SetColor(QColor("white"));
-		_ui->receive_lamp_2->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 2:
-		//_ui->receive_lamp_3->SetColor(QColor("white"));
-		_ui->receive_lamp_3->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 3:
-		//_ui->receive_lamp_4->SetColor(QColor("white"));
-		_ui->receive_lamp_4->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-
-	case 4:
-		//_ui->receive_lamp_5->SetColor(QColor("white"));
-		_ui->receive_lamp_5->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 5:
-		//_ui->receive_lamp_6->SetColor(QColor("white"));
-		_ui->receive_lamp_6->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 6:
-		//_ui->receive_lamp_7->SetColor(QColor("white"));
-		_ui->receive_lamp_7->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	case 7:
-		//_ui->receive_lamp_8->SetColor(QColor("white"));
-		_ui->receive_lamp_8->SetDirection(QTriangle::Direction::BOTTOM);
-		break;
-	}	
+	_receiveLamps[radio_id]->SetDirection(QTriangle::Direction::BOTTOM);
 }
 
 void channels::ChangeChannelMuted(bool checked) {
@@ -505,44 +417,16 @@ void channels::ChangeChannelMuted(bool checked) {
 }
 
 void channels::SetFrequence(int radio_id, double frequence) {
-	switch (radio_id) {
-	case 0:
-		_ui->frequence_1->FormatDisplay(frequence);
-		onSetFrequence1(true);
-		break;
-	case 1:
-		_ui->frequence_2->FormatDisplay(frequence);
-		onSetFrequence2(true);
-		break;
-	case 2:
-		_ui->frequence_3->FormatDisplay(frequence);
-		onSetFrequence3(true);
-		break;
-	case 3:
-		_ui->frequence_4->FormatDisplay(frequence);
-		onSetFrequence4(true);
-		break;
+	_frequences[radio_id]->FormatDisplay(frequence);
+	QMetaObject::invokeMethod(_setFrequences[radio_id], "clicked", Q_ARG(bool, true));
+}
 
-	case 4:
-		_ui->frequence_5->FormatDisplay(frequence);
-		onSetFrequence5(true);
-		break;
-	case 5:
-		_ui->frequence_6->FormatDisplay(frequence);
-		onSetFrequence6(true);
-		break;
-	case 6:
-		_ui->frequence_7->FormatDisplay(frequence);
-		onSetFrequence7(true);
-		break;
-	case 7:
-		_ui->frequence_8->FormatDisplay(frequence);
-		onSetFrequence8(true);
-		break;
-	}
+void channels::ToggleRadio(int radio_id) {
+	_channels[radio_id]->setChecked(!_channels[radio_id]->isChecked());
 }
 
 void channels::Load() {
+	_settings->sync();
 	load();
 }
 
@@ -566,43 +450,34 @@ void channels::load() {
 	load(false);
 }
 
-void channels::load(bool onStartup) {	
+void channels::load(bool onStartup) {
+	load(onStartup, false);
+}
+
+void channels::load(bool onStartup, bool reload) {	
 	_serverConnectionHandlerID = _ts3.getCurrentServerConnectionHandlerID();
 	if (_serverConnectionHandlerID <= 0) return;
 	
 	resize(get("win_size").toSize());
-	//TODO pointer array zu jeweiligen variablen damit das _Zahl ding nicht ewig weiter geht
-	//Falls jemand weis wie man das easy umsetzen kann bitte mich kontaktieren oder ein PR DANKE
-	
-	_ui->frequence_1->FormatDisplay(get("freq_1").toDouble());
-	_ui->frequence_2->FormatDisplay(get("freq_2").toDouble());
-	_ui->frequence_3->FormatDisplay(get("freq_3").toDouble());
-	_ui->frequence_4->FormatDisplay(get("freq_4").toDouble());
 
-	_ui->frequence_5->FormatDisplay(get("freq_5").toDouble());
-	_ui->frequence_6->FormatDisplay(get("freq_6").toDouble());
-	_ui->frequence_7->FormatDisplay(get("freq_7").toDouble());
-	_ui->frequence_8->FormatDisplay(get("freq_8").toDouble());
+	_ui->set_freq_by_channelname_radio->clear();
 
-	_ui->pan_ch_1->setValue(get("pan_1").toInt());
-	_ui->pan_ch_2->setValue(get("pan_2").toInt());
-	_ui->pan_ch_3->setValue(get("pan_3").toInt());
-	_ui->pan_ch_4->setValue(get("pan_4").toInt());
+	for (int id = 0; id < RADIO_COUNT; id++) {
 
-	_ui->pan_ch_5->setValue(get("pan_5").toInt());
-	_ui->pan_ch_6->setValue(get("pan_6").toInt());
-	_ui->pan_ch_7->setValue(get("pan_7").toInt());
-	_ui->pan_ch_8->setValue(get("pan_8").toInt());
+		QString num = QString::number(id + 1);
 
-	_ui->volume_gain_ch_1->setValue(get("gain_1").toInt());
-	_ui->volume_gain_ch_2->setValue(get("gain_2").toInt());
-	_ui->volume_gain_ch_3->setValue(get("gain_3").toInt());
-	_ui->volume_gain_ch_4->setValue(get("gain_4").toInt());
+		_frequences[id]->FormatDisplay(get("freq_" + num).toDouble());
 
-	_ui->volume_gain_ch_5->setValue(get("gain_5").toInt());
-	_ui->volume_gain_ch_6->setValue(get("gain_6").toInt());
-	_ui->volume_gain_ch_7->setValue(get("gain_7").toInt());
-	_ui->volume_gain_ch_8->setValue(get("gain_8").toInt());
+		_panChannels[id]->setValue(get("pan_" + num).toInt());
+		_volumeGains[id]->setValue(get("gain_" + num).toInt());
+
+		_lineEdits[id]->setText(get("channel_" + num + "_text", "Radio " + QString::number(id + 1)).toString());
+		_lineEdits[id]->resizeToContent();
+
+		_ui->set_freq_by_channelname_radio->addItem(get("channel_" + num + "_text", "Radio " + num).toString());
+	}
+
+	_ui->set_freq_by_channelname_radio->setCurrentIndex(get("set_freq_by_channelname_radio", 2).toInt());
 
 	_ui->advanced->setChecked(get("advanced").toBool());
 	
@@ -637,116 +512,38 @@ void channels::load(bool onStartup) {
 	_ui->set_freq_by_channelname->setChecked(get("set_freq_by_channelname", false).toBool());
 	_ui->elgato_streamdeck->setChecked(get("elgato_streamdeck", false).toBool());
 
-	
 
 	if (onStartup) {
 		bool radio_on = false;
-		radio_on = get("radio_1").toBool();
-		if (_ui->channel_1->isChecked() && radio_on) {
-			onChange1(get("radio_1").toBool() ? 2 : 0);
-		}
-		else {
-			_ui->channel_1->setChecked(radio_on);
-		}
-		
+		for (int id = 0; id < _channels.size(); id++) {
+			radio_on = get("radio_" + QString::number(id+1)).toBool();
 
-		radio_on = get("radio_2").toBool();
-		if (_ui->channel_2->isChecked() && radio_on) {
-			onChange2(2);
+			if (_channels[id]->isChecked() && radio_on) {
+				QMetaObject::invokeMethod(_channels[id], "stateChanged", Q_ARG(int, 2));
+			} else {
+				_channels[id]->setChecked(radio_on);
+			}
 		}
-		else {
-			_ui->channel_2->setChecked(radio_on);
+	} else if (reload) {
+		for (int id = 0; id < _channels.size(); id++) {
+			if (_channels[id]->isChecked()) {
+				QMetaObject::invokeMethod(_channels[id], "stateChanged", Q_ARG(int, 2));
+			}
 		}
-
-		radio_on = get("radio_3").toBool();
-		if (_ui->channel_3->isChecked() && radio_on) {
-			onChange3(2);
+	} else {
+		for (int id = 0; id < RADIO_COUNT; id++) {
+			_channels[id]->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, id));
 		}
-		else {
-			_ui->channel_3->setChecked(radio_on);
-		}
-
-		radio_on = get("radio_4").toBool();
-		if (_ui->channel_4->isChecked() && radio_on) {
-			onChange4(2);
-		}
-		else {
-			_ui->channel_4->setChecked(radio_on);
-		}
-
-		radio_on = get("radio_5").toBool();
-		if (_ui->channel_5->isChecked() && radio_on) {
-			onChange5(2);
-		}
-		else {
-			_ui->channel_5->setChecked(radio_on);
-		}
-
-		radio_on = get("radio_6").toBool();
-		if (_ui->channel_6->isChecked() && radio_on) {
-			onChange6(2);
-		}
-		else {
-			_ui->channel_6->setChecked(radio_on);
-		}
-
-		radio_on = get("radio_7").toBool();
-		if (_ui->channel_7->isChecked() && radio_on) {
-			onChange7(2);
-		}
-		else {
-			_ui->channel_7->setChecked(radio_on);
-		}
-
-		radio_on = get("radio_8").toBool();
-		if (_ui->channel_8->isChecked() && radio_on) {
-			onChange8(2);
-		}
-		else {
-			_ui->channel_8->setChecked(radio_on);
-		}
-		
 	}
-	else {
-		_ui->channel_1->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 0));
-		_ui->channel_2->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 1));
-		_ui->channel_3->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 2));
-		_ui->channel_4->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 3));
-
-		_ui->channel_5->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 4));
-		_ui->channel_6->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 5));
-		_ui->channel_7->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 6));
-		_ui->channel_8->setChecked(KRTComms::getInstance().ActiveInRadio(_serverConnectionHandlerID, 7));
-	}
-
-	_ui->lineedit_1->setText(get("channel_1_text", "Radio 1").toString());
-	_ui->lineedit_2->setText(get("channel_2_text", "Radio 2").toString());
-	_ui->lineedit_3->setText(get("channel_3_text", "Radio 3").toString());
-	_ui->lineedit_4->setText(get("channel_4_text", "Radio 4").toString());
-	_ui->lineedit_5->setText(get("channel_5_text", "Radio 5").toString());
-	_ui->lineedit_6->setText(get("channel_6_text", "Radio 6").toString());
-	_ui->lineedit_7->setText(get("channel_7_text", "Radio 7").toString());
-	_ui->lineedit_8->setText(get("channel_8_text", "Radio 8").toString());
-
-	_ui->lineedit_1->resizeToContent();
-	_ui->lineedit_2->resizeToContent();
-	_ui->lineedit_3->resizeToContent();
-	_ui->lineedit_4->resizeToContent();
-	_ui->lineedit_5->resizeToContent();
-	_ui->lineedit_6->resizeToContent();
-	_ui->lineedit_7->resizeToContent();
-	_ui->lineedit_8->resizeToContent();
-
-	_ui->set_freq_by_channelname_radio->clear();
-
-	for (int i = 0; i < RADIO_COUNT; i++) {
-		_ui->set_freq_by_channelname_radio->addItem(get("channel_" + QString::number(i + 1) + "_text", "Radio " + QString::number(i + 1)).toString());
-	}
-
-	_ui->set_freq_by_channelname_radio->setCurrentIndex(get("set_freq_by_channelname_radio", 2).toInt());
 
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(false);
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+}
+
+void channels::uncheckAll() {
+	for (int id = 0; id < RADIO_COUNT; id++) {
+		_channels[id]->setChecked(false);
+	}
 }
 
 void channels::onChange1(int state) {
@@ -1145,6 +942,10 @@ void channels::onToggleMuteClick(bool checked) {
 	KRTComms::getInstance().RequestHotkeyInputDialog("toggle_mute", this);
 }
 
+void channels::onToggleRadioClick(bool checked) {
+	KRTComms::getInstance().RequestHotkeyInputDialog("toggle_radio", this);
+}
+
 void channels::onBeepSoundChanged(int state) {
 	KRTComms::getInstance().SetSoundsEnabled(state == 2);
 	set("beep_sound", state == 2);
@@ -1177,7 +978,7 @@ void channels::onElgatoStreamDeckChanged(int state) {
 void channels::onProfileChanged(int index) {
 	_profile = _profiles->currentText();
 	if (_profile == "General") _profile = "";
-	load();
+	load(false, true);
 }
 
 void channels::onProfilesListItemActivated(QListWidgetItem *item) {
@@ -1300,7 +1101,7 @@ void channels::writeStatus() {
 		QTextStream stream(&file);
 
 		foreach(int radio_id, _lampStatus.keys()) {
-			stream << "r" << (radio_id+1) << ":" << _lampStatus[radio_id][0] << ":" << _lampStatus[radio_id][1] << "\n";
+			stream << "r" << (radio_id+1) << ":" << _lampStatus[radio_id][0] << ":" << _lampStatus[radio_id][1] << ":" << (_channels[radio_id]->isChecked() ? 1 : 0) << "\n";
 		}
 
 		file.close();

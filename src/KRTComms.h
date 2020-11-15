@@ -73,6 +73,8 @@ public:
 	void ToggleMute(uint64 serverConnectionHandlerID, int radio_id);
 	bool IsFrequenceMuted(uint64 serverConnectionHandlerID, int frequence);
 	QList<int> GetMutedFrequences(uint64 serverConnectionHandlerID);
+	void ToggleRadio(uint64 serverConnectionHandlerID);
+	void ToggleRadio(uint64 serverConnectionHandlerID, int radio_id);
 	int OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage);
 	void OnClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
 
@@ -122,6 +124,7 @@ private:
 	bool _toggleMute = false;
 	bool _toggleMuted[RADIO_COUNT];
 	int _setFreqByChannelname = -1;
+	bool _toggleRadio = false;
 
 	QMetaObject::Connection * _doubleClickConnection[RADIO_COUNT];
 };

@@ -18,8 +18,10 @@ public:
 	void QEditableLCDNumber::FormatDisplay(QString value);
 
 signals:
+	void submitted(bool checked = false);
 
 public slots:
+	void onSubmit(bool);
 
 protected:
 	void mousePressEvent(QMouseEvent * e);

@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.5";
+char* KRTComms::version = "0.1.5rc7";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -475,7 +475,7 @@ void KRTComms::UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence) 
 	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
 	QList<anyID> targetClientIDs;
 
-	for (int i = 0; i < _isWhispering.size(); i++) {
+	for (int i = 0; i < _isWhispering[serverConnectionHandlerID].size(); i++) {
 		if (_isWhispering[serverConnectionHandlerID][i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
 			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
@@ -507,7 +507,7 @@ void KRTComms::WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetC
 
 	if (_debug) {
 		char message[256];
-		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s", targetClientIDArray.size() - 1, _isWhispering[serverConnectionHandlerID].values().contains(true) ? "true" : "false");
+		sprintf_s(message, 256, "Whisper Clients: %d | isWispering: %s | HandlerID: %lld", targetClientIDArray.size() - 1, _isWhispering[serverConnectionHandlerID].values().contains(true) ? "true" : "false", serverConnectionHandlerID);
 		_ts3.printMessageToCurrentTab(message);
 
 		for (int i = 0; i < targetClientIDArray.size() - 1; i++) {
@@ -857,6 +857,16 @@ void KRTComms::OnHotkeyEvent(uint64 serverConnectionHandlerID, int radio_id) {
 		}
 		return;
 	}
+
+	if (_toggleRadio) {
+		if (_doubleClickCount[radio_id] % 2 != 0) {
+			ToggleRadio(serverConnectionHandlerID, radio_id);
+		}
+		else {
+			_doubleClickCount[radio_id] = 0;
+		}
+		return;
+	}
 	
 	_doubleClickConnection[radio_id] = new QMetaObject::Connection;	
 	*_doubleClickConnection[radio_id] = QObject::connect(&_doubleClickTimer[radio_id], &QTimer::timeout, [this, serverConnectionHandlerID, radio_id]() {
@@ -960,6 +970,14 @@ QList<int> KRTComms::GetMutedFrequences(uint64 serverConnectionHandlerID) {
 		}
 	}
 	return list;
+}
+
+void KRTComms::ToggleRadio(uint64 serverConnectionhandlerID) {
+	_toggleRadio = !_toggleRadio;
+}
+
+void KRTComms::ToggleRadio(uint64 serverConnectionHandlerID, int radio_id) {
+	_channels->ToggleRadio(radio_id);
 }
 
 int KRTComms::OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
