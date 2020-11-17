@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.5rc7";
+char* KRTComms::version = "0.1.5";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {

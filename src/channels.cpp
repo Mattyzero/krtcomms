@@ -1027,7 +1027,11 @@ void channels::onProfileDeleteClicked(bool checked) {
 }
 
 void channels::onProfileRenameClicked(bool checked) {
+	if (_ui->profiles_list->count() == 0) return;
+
 	QListWidgetItem *item = _ui->profiles_list->currentItem();
+	if (item == NULL) return;
+
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
 	_oldItemName = item->text();
 	_ui->profiles_list->editItem(item);
