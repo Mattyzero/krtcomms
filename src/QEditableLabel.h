@@ -17,6 +17,7 @@ public:
 		_locked = locked;
 		update();
 	}
+	void setTextColor(QColor color);
 signals:
 	void clicked();
 protected:
@@ -64,5 +65,6 @@ private:
 	QTimer _doubleClickTimer;
 	QImage _lock;
 	bool _locked = false;
+	QString _styleSheet;
 };
 

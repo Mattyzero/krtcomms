@@ -62,6 +62,21 @@
     <ClCompile Include=".vsgen\QEditableLabel_moc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QKSlider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".vsgen\QKSlider_moc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QKDial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include=".vsgen\QKDial_moc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -112,7 +127,7 @@
     <ClInclude Include="SimpleCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QEditableLabel.h">
+    <ClInclude Include="Serial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -127,6 +142,15 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="QTriangle.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QEditableLabel.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QKSlider.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QKDial.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

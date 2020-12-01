@@ -1,16 +1,13 @@
 #include "QEditableLabel.h"
+#include "QtCore/QRegularExpression"
 
 QEditableLabel::QEditableLabel(QWidget* parent, const QString& text)
 	: QLineEdit(text, parent)
 {
 	setReadOnly(true);
-	setStyleSheet("QLineEdit:read-only {"
-		"    border: none;"
-		"    background: transparent; }"
-		"QLineEdit {"
-		"    background: white; "
-		"    padding: 0; "
-		"}");
+	_styleSheet = "QLineEdit:read-only {border: none;background: transparent;color: rgb(0, 0, 0);}"
+		"QLineEdit {padding: 0;background: white;color: rgb(0, 0, 0);}";
+	setStyleSheet(_styleSheet);
 	connect(this, &QLineEdit::editingFinished, [this] {
 		this->unsetCursor();
 		this->setSelection(0, 0);
@@ -53,4 +50,10 @@ void QEditableLabel::paintEvent(QPaintEvent * event) {
 	}
 
 	QLineEdit::paintEvent(event);
+}
+
+void QEditableLabel::setTextColor(QColor color) {
+	QRegularExpression regexRO("transparent;color: rgb\\([\\d]*, [\\d]*, [\\d]*\\)");
+	_styleSheet = _styleSheet.replace(regexRO, "transparent;color: rgb(" + QString::number(color.red()) + ", " + QString::number(color.green()) + ", " + QString::number(color.blue()) + ")");
+	setStyleSheet(_styleSheet);
 }

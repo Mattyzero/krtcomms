@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.5";
+char* KRTComms::version = "0.1.6rc4";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -198,7 +198,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 	if (tokens[1] == "JOINED") {
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
-		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence) && !IsInSameBroadcast(serverConnectionHandlerID, frequence)) {
+		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)/* && !IsInSameBroadcast(serverConnectionHandlerID, frequence)*/) {
 			if (AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, true)) { //AddToFrequence returns false wenn selbst
 				AnswerTheCall(serverConnectionHandlerID, frequence, invokerClientID);
 			}
@@ -218,7 +218,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 	if (tokens[1] == "METOO") {
 		bool ok;
 		int frequence = Encrypter::Decrypt(serverConnectionHandlerID, tokens[2]).toInt(&ok, 10);
-		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
+		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {			
 			AddToFrequence(serverConnectionHandlerID, frequence, invokerClientID, invokerName, false); //Bei METOO braucht er keinen UpdateWhisperTo
 		}
 		return;
@@ -308,13 +308,13 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 
 	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+		//Eigene Frequenz ist eine Broadcast Frequenz deswegen ja Active
 		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
-			//_ts3.printMessageToCurrentTab("Broadcast");
 			return true;
 		}
 
+		//Frequenz die rein kommt ist Broadcast Frequenz deswegen ja Active
 		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
-			//_ts3.printMessageToCurrentTab("Broadcast2");
 			return true;
 		}
 	}
@@ -326,21 +326,37 @@ bool KRTComms::ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence
 
 bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname, bool shouldUpdate) {
 
-	//Falls Broadcast auch Empfangen soll dann das hier löschen
-	bool broadcast = false;
+	bool contains = _activeRadios[serverConnectionHandlerID].values().contains(frequence);
+	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+
+		//shouldUpdate ist false bei METOO deswegen verwenden wir diese Variable
+		//IsInSameBroadcast
+		if (shouldUpdate && IsBroadcastFrequence(frequence)) continue;
+
+		//Eigenes Radio hat Broadcast Frequenz
 		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
-			frequence = freq;
-			broadcast = true;
-			//_ts3.printMessageToCurrentTab("Broadcast3");
-			break;
+			//if (!_targetClientIDs[serverConnectionHandlerID][freq].contains(clientID)) { damit falls jemand in 002.00 und 003.00 ist und er aus 002.00 raus geht immer noch angewhispert wird !Nur bei Broadcast
+				_targetClientIDs[serverConnectionHandlerID][freq].push_back(clientID);
+				if (_debug) {
+					_ts3.printMessageToCurrentTab("Added to broadcast");
+				}
+			//}
 		}
-		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
-			//_ts3.printMessageToCurrentTab("Broadcast4");
+	}
+
+	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+		//Wenn die Frequenz des JOINED Befehls eine Broadcast Frequenz ist, METOO senden aber nicht zur eigenen Whisperliste hinzufügen
+		if (!IsBroadcastFrequence(freq) && (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100)) { //999.99, X99.99, XYZ.99
 			return true;
 		}
 	}
-	//---
+	//Broadcast-END
+	
+	if (!contains || IsBroadcastFrequence(frequence)) {
+		if (shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID);
+		return false;
+	}
 
 	if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID)) {
 		if (_debug) {
@@ -358,9 +374,7 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 		_nicknames[serverConnectionHandlerID][clientID] = nickname;
 	}
 
-	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID, frequence);
-
-	if (broadcast) return false;
+	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID);
 
 	return true;
 }
@@ -368,27 +382,35 @@ bool KRTComms::AddToFrequence(uint64 serverConnectionHandlerID, int frequence, a
 bool KRTComms::RemoveFromFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID) {
 	//_ts3.printMessageToCurrentTab("REMOVED");
 
+	bool shouldUpdate = false;
 	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
-		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
-			frequence = freq;
-			//_ts3.printMessageToCurrentTab("Broadcast5");
-			break;
-		}
+
+		//Einzige Stelle wo Überprüfungsreinfolge umgekehrt sein sein
+
+		//Übergebene Frequenz ist eine Broadcast Frequenz ich muss nix removen weil ich ihn nie hinzugefügt habe
 		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast6");
 			return true;
 		}
+
+		//Eigene Frequenz ist eine Broadcast Frequenz für die übergebene Frequenz 
+		if (!IsBroadcastFrequence(frequence) && (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100)) { //999.99, X99.99, XYZ.99
+			shouldUpdate = _targetClientIDs[serverConnectionHandlerID][freq].removeOne(clientID) || shouldUpdate;
+		}
+
+		
 	}
 	//Broadcast-END
 
-	bool shouldUpdate = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID);
+	//Dadurch das removeOne eh abgesichert ist lass ich die Zeile einfach drinnen ohne überprüfung ob frequence in _activeRadios beinhaltet ist
+	shouldUpdate = _targetClientIDs[serverConnectionHandlerID][frequence].removeOne(clientID) || shouldUpdate;
 
 	//QString logmessage = QString::number(serverConnectionHandlerID)  + "   |   " + QString::number(frequence) + "   |   " + QString::number(clientID) + "   |   _targetClientIDs Count: " + QString::number(_targetClientIDs[serverConnectionHandlerID][frequence].size());
 	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	
 	//UpdateWhisperTo nur wenn wirklich jemand von der Liste entfernt wurde
-	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID, frequence);
+	if(shouldUpdate) UpdateWhisperTo(serverConnectionHandlerID);
 
 	return shouldUpdate;
 }
@@ -404,17 +426,18 @@ bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, an
 	tmp.append(clientID);
 	tmp.append(0);
 
-	int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
-
-	QString command = "METOO\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
-	SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
-//	if (_debug) {
-//		_ts3.printMessageToCurrentTab(("AnswerTheCall: " + QString::number(clientID)).toStdString().c_str());
-//	}
-
-	if (_isWhispering[serverConnectionHandlerID][radio_id]) {
-		command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
+	QList<int> radio_ids = GetRadioIds(serverConnectionHandlerID, frequence);
+	foreach(int radio_id, radio_ids) {
+		QString command = "METOO\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 		SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
+		//	if (_debug) {
+		//		_ts3.printMessageToCurrentTab(("AnswerTheCall: " + QString::number(clientID)).toStdString().c_str());
+		//	}
+
+		if (_isWhispering[serverConnectionHandlerID][radio_id]) {
+			command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
+			SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
+		}
 	}
 
 	return true;
@@ -427,7 +450,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 
 	int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 
-	QList<anyID> tmp = QList(_targetClientIDs[serverConnectionHandlerID][frequence]);
+	QList<anyID> tmp = RemoveDuplicates(_targetClientIDs[serverConnectionHandlerID][frequence]);
 	tmp.append(0);
 
 	if (_isWhispering[serverConnectionHandlerID][radio_id]) {
@@ -456,7 +479,7 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
 	}
 
-	UpdateWhisperTo(serverConnectionHandlerID, frequence);
+	UpdateWhisperTo(serverConnectionHandlerID);
 	/*
 	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
 	QList<anyID> targetClientIDs;
@@ -471,14 +494,19 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	WhisperTo(serverConnectionHandlerID, targetChannelIDs, targetClientIDs);*/
 }
 
-void KRTComms::UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence) {
-	QList<uint64> targetChannelIDs = _targetChannelIDs[serverConnectionHandlerID][frequence];
+void KRTComms::UpdateWhisperTo(uint64 serverConnectionHandlerID) {
+	QList<uint64> targetChannelIDs;
 	QList<anyID> targetClientIDs;
 
 	for (int i = 0; i < _isWhispering[serverConnectionHandlerID].size(); i++) {
 		if (_isWhispering[serverConnectionHandlerID][i]) {
 			int freq = GetFrequence(serverConnectionHandlerID, i);
-			targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
+			if (IsBroadcastFrequence(freq)) {
+				targetClientIDs.append(RemoveDuplicates(_targetClientIDs[serverConnectionHandlerID][freq]));
+			}
+			else {
+				targetClientIDs.append(_targetClientIDs[serverConnectionHandlerID][freq]);
+			}
 		}
 	}
 
@@ -626,10 +654,6 @@ int KRTComms::GetFrequence(uint64 serverConnectionHandlerID, int radio_id) {
 int KRTComms::GetRadioId(uint64 serverConnectionHandlerID, int frequence) {
 	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 		int freq = _activeRadios[serverConnectionHandlerID][radio_id];
-		if (freq == frequence) {
-			return radio_id;
-		}
-
 		//Broadcast		
 		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
 			return radio_id;
@@ -639,8 +663,37 @@ int KRTComms::GetRadioId(uint64 serverConnectionHandlerID, int frequence) {
 			return radio_id;
 		}		
 		//Broadcast-END
+
+		if (freq == frequence) {
+			return radio_id;
+		}
 	}
 	return -1;
+}
+
+QList<int> KRTComms::GetRadioIds(uint64 serverConnectionHandlerID, int frequence) {
+	QList<int> list;
+	foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
+		int freq = _activeRadios[serverConnectionHandlerID][radio_id];
+		//Broadcast		
+		if (freq == 99999 || freq % 10000 == 9999 && freq / 10000 == frequence / 10000 || freq % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
+			//Eigene Frequenz und übergebene Frequenz ist Broadcast also kein METOO senden
+			//list.push_back(radio_id);
+			continue;
+		}
+
+		if (frequence == 99999 || frequence % 10000 == 9999 && freq / 10000 == frequence / 10000 || frequence % 100 == 99 && freq / 100 == frequence / 100) { //999.99, X99.99, XYZ.99
+			list.push_back(radio_id);
+			continue;
+		}
+		//Broadcast-END
+
+		if (freq == frequence) {
+			list.push_back(radio_id);
+			continue;
+		}
+	}
+	return list;
 }
 
 void KRTComms::Disconnect() {
@@ -1016,10 +1069,10 @@ void KRTComms::SetFreqByChannelname(int radio_id) {
 bool KRTComms::IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence) {
 	//Broadcast
 	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
-		if ((freq == 99999 || freq % 10000 == 9999 || freq % 100 == 99) && freq == frequence) { //999.99, X99.99, XYZ.99
+		if (IsBroadcastFrequence(freq) && freq == frequence) { //999.99, X99.99, XYZ.99
 			return true;
 		}
-		if ((frequence == 99999 || frequence % 10000 == 9999 || frequence % 100 == 99) && freq == frequence) { //999.99, X99.99, XYZ.99
+		if (IsBroadcastFrequence(frequence) && freq == frequence) { //999.99, X99.99, XYZ.99
 			//_ts3.printMessageToCurrentTab("Broadcast6");
 			return true;
 		}
@@ -1027,6 +1080,10 @@ bool KRTComms::IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence
 	//Broadcast-END
 
 	return false;
+}
+
+bool KRTComms::IsBroadcastFrequence(int frequence) {
+	return frequence == 99999 || frequence % 10000 == 9999 || frequence % 100 == 99;
 }
 
 void KRTComms::OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
@@ -1068,4 +1125,12 @@ void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clie
 
 void KRTComms::ReloadConfig(uint64 serverConnectionHandlerID) {
 	_channels->Load();
+}
+
+QList<anyID> KRTComms::RemoveDuplicates(QList<anyID> list) {
+	return list.toSet().toList();
+}
+
+QList<uint64> KRTComms::RemoveDuplicates(QList<uint64> list) {
+	return list.toSet().toList();
 }

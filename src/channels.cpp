@@ -11,10 +11,12 @@
 
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
+#include <QtGui/QColor>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QListWidget>
 #include <QtCore/QTextStream>
+#include <QtWidgets/QToolTip>
 
 channels::channels(const QString& configLocation, char* pluginID, TS3Functions ts3Functions, QWidget* parent /* = nullptr */) : QDialog(parent),
 	_ui(std::make_unique<Ui::channelsui>()),
@@ -33,7 +35,7 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	setWindowTitle((QString("KRT Comms Radios v") + KRTComms::version));
 
 	//this->adjustSize();
-		
+			
 	connect(_ui->buttonBox, &QDialogButtonBox::accepted, this, &channels::save);
 	connect(_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
@@ -187,12 +189,15 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	_frequences.append(_ui->frequence_7);
 	_frequences.append(_ui->frequence_8);
 
-
+	QString textColor = get("text_color", "").toString();
 
 	for (int id = 0; id < RADIO_COUNT; id++) {
 		connect(_channels[id], &QCheckBox::stateChanged, this, _channelEvents[id]);
-
 		
+		if (!textColor.isEmpty()) {
+			_lineEdits[id]->setTextColor(QColor(textColor));
+		}
+
 		connect(_lineEdits[id], &QEditableLabel::clicked, _channels[id], &QCheckBox::toggle);
 		connect(_lineEdits[id], &QEditableLabel::editingFinished, this, _editingFinisheds[id]);
 
@@ -226,15 +231,31 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 
 	connect(_ui->radio_1_password, &QLineEdit::textChanged, this, &channels::onRadio1PasswordChanged);
 	connect(_ui->set_radio_1_password, &QPushButton::clicked, this, &channels::onSetRadio1Password);
+	connect(_ui->radio_1_password, &QLineEdit::returnPressed, this, [this]() {
+		_ui->radio_1_password->clearFocus();
+		onSetRadio1Password(true);
+	});
 
 	connect(_ui->radio_2_password, &QLineEdit::textChanged, this, &channels::onRadio2PasswordChanged);
 	connect(_ui->set_radio_2_password, &QPushButton::clicked, this, &channels::onSetRadio2Password);
+	connect(_ui->radio_2_password, &QLineEdit::returnPressed, this, [this]() {
+		_ui->radio_2_password->clearFocus();
+		onSetRadio2Password(true);
+	});
 
 	connect(_ui->radio_3_password, &QLineEdit::textChanged, this, &channels::onRadio3PasswordChanged);
 	connect(_ui->set_radio_3_password, &QPushButton::clicked, this, &channels::onSetRadio3Password);
+	connect(_ui->radio_3_password, &QLineEdit::returnPressed, this, [this]() {
+		_ui->radio_3_password->clearFocus();
+		onSetRadio3Password(true);
+	});
 
 	connect(_ui->radio_4_password, &QLineEdit::textChanged, this, &channels::onRadio4PasswordChanged);
 	connect(_ui->set_radio_4_password, &QPushButton::clicked, this, &channels::onSetRadio4Password);
+	connect(_ui->radio_4_password, &QLineEdit::returnPressed, this, [this]() {
+		_ui->radio_4_password->clearFocus();
+		onSetRadio4Password(true);
+	});
 
 	_ui->radio_5_8->hide();
 
@@ -250,6 +271,7 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	connect(_ui->set_freq_by_channelname, &QCheckBox::stateChanged, this, &channels::onSetFreqByChannelnameChanged);
 	connect(_ui->set_freq_by_channelname_radio, QOverload<int>::of(&QComboBox::activated), this, &channels::onSetFreqByChannelnameRadioChanged);
 	connect(_ui->elgato_streamdeck, &QCheckBox::stateChanged, this, &channels::onElgatoStreamDeckChanged);
+	connect(_ui->text_color, QOverload<int>::of(&QComboBox::activated), this, &channels::onTextColorChanged);
 
 
 	//connect(_ui->profiles_list, &QListWidget::itemActivated, this, &channels::onProfilesListItemActivated);
@@ -367,6 +389,8 @@ void channels::EnableSendLamp(int radio_id) {
 		_lampStatus[radio_id][0] = 1;
 		writeStatus();
 	}
+
+	if (_serialPort != NULL) SendToSerial("send:r" + QString::number(radio_id) + ":1");
 }
 
 void channels::DisableSendLamp(int radio_id) {
@@ -377,6 +401,8 @@ void channels::DisableSendLamp(int radio_id) {
 		_lampStatus[radio_id][0] = 0;
 		writeStatus();
 	}
+
+	if (_serialPort != NULL) SendToSerial("send:r" + QString::number(radio_id) + ":0");
 }
 
 void channels::EnableReceiveLamp(int radio_id) {
@@ -387,6 +413,8 @@ void channels::EnableReceiveLamp(int radio_id) {
 		_lampStatus[radio_id][1] = 1;
 		writeStatus();
 	}
+
+	if (_serialPort != NULL) SendToSerial("recv:r" + QString::number(radio_id) + ":1");
 }
 
 void channels::DisableReceiveLamp(int radio_id) {
@@ -397,6 +425,8 @@ void channels::DisableReceiveLamp(int radio_id) {
 		_lampStatus[radio_id][1] = 0;
 		writeStatus();
 	}
+
+	if (_serialPort != NULL) SendToSerial("recv:r" + QString::number(radio_id) + ":0");
 }
 
 void channels::MuteReceiveLamp(int radio_id) {
@@ -423,6 +453,13 @@ void channels::SetFrequence(int radio_id, double frequence) {
 
 void channels::ToggleRadio(int radio_id) {
 	_channels[radio_id]->setChecked(!_channels[radio_id]->isChecked());
+}
+
+void channels::SendToSerial(QString command) {
+	if (_serialPort == NULL) return; //Ich denke wenn man den QString nicht erstellt wenn _serialPort NULL ist spart das Performance
+	KRTComms::Log(command);
+
+	_serialPort->WriteData(command);
 }
 
 void channels::Load() {
@@ -462,14 +499,20 @@ void channels::load(bool onStartup, bool reload) {
 
 	_ui->set_freq_by_channelname_radio->clear();
 
+	QString textColor = get("text_color", "").toString();
+
 	for (int id = 0; id < RADIO_COUNT; id++) {
 
 		QString num = QString::number(id + 1);
 
-		_frequences[id]->FormatDisplay(get("freq_" + num).toDouble());
+		if (!textColor.isEmpty()) {
+			_lineEdits[id]->setTextColor(QColor(textColor));
+		}
 
-		_panChannels[id]->setValue(get("pan_" + num).toInt());
-		_volumeGains[id]->setValue(get("gain_" + num).toInt());
+		_frequences[id]->FormatDisplay(get("freq_" + num, (id+1)).toDouble());
+
+		_panChannels[id]->setValue(get("pan_" + num, 0).toInt());
+		_volumeGains[id]->setValue(get("gain_" + num, 10).toInt());
 
 		_lineEdits[id]->setText(get("channel_" + num + "_text", "Radio " + QString::number(id + 1)).toString());
 		_lineEdits[id]->resizeToContent();
@@ -479,12 +522,12 @@ void channels::load(bool onStartup, bool reload) {
 
 	_ui->set_freq_by_channelname_radio->setCurrentIndex(get("set_freq_by_channelname_radio", 2).toInt());
 
-	_ui->advanced->setChecked(get("advanced").toBool());
+	_ui->advanced->setChecked(get("advanced", false).toBool());
 	
-	_ui->channel_ducking->setChecked(get("duck_channel").toBool());
-	_ui->freq_ducking_1yz_ab->setChecked(get("duck_freq_1yz_ab").toBool());
-	_ui->freq_ducking_xy1_ab->setChecked(get("duck_freq_xy1_ab").toBool());
-	_ui->freq_ducking_xyz_1b->setChecked(get("duck_freq_xyz_1b").toBool());
+	_ui->channel_ducking->setChecked(get("duck_channel", false).toBool());
+	_ui->freq_ducking_1yz_ab->setChecked(get("duck_freq_1yz_ab", false).toBool());
+	_ui->freq_ducking_xy1_ab->setChecked(get("duck_freq_xy1_ab", false).toBool());
+	_ui->freq_ducking_xyz_1b->setChecked(get("duck_freq_xyz_1b", false).toBool());
 
 	_ui->channel_ducking_slider->setValue(get("channel_ducking").toInt());
 	_ui->freq_ducking_slider_1yz_ab->setValue(get("freq_1yz_ab_ducking").toInt());
@@ -538,6 +581,12 @@ void channels::load(bool onStartup, bool reload) {
 
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(false);
 	_ui->buttonBox->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+
+
+	QString serialPort = get("serial_port", "").toString();
+	if (!serialPort.isEmpty()) {
+		initSerialPort(serialPort);
+	}
 }
 
 void channels::uncheckAll() {
@@ -547,59 +596,75 @@ void channels::uncheckAll() {
 }
 
 void channels::onChange1(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, state == 2, toInt(_ui->frequence_1->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, on, toInt(_ui->frequence_1->value()));
 	DisableSendLamp(0);
 	DisableReceiveLamp(0);
-	set("radio_1", state == 2);
+	set("radio_1", on);
+	if (_serialPort != NULL) SendToSerial("status:r1:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange2(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, state == 2, toInt(_ui->frequence_2->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, on, toInt(_ui->frequence_2->value()));
 	DisableSendLamp(1);
 	DisableReceiveLamp(1);
-	set("radio_2", state == 2);
+	set("radio_2", on);
+	if (_serialPort != NULL) SendToSerial("status:r2:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange3(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, state == 2, toInt(_ui->frequence_3->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, on, toInt(_ui->frequence_3->value()));
 	DisableSendLamp(2);
 	DisableReceiveLamp(2);
-	set("radio_3", state == 2);
+	set("radio_3", on);
+	if (_serialPort != NULL) SendToSerial("status:r3:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange4(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, state == 2, toInt(_ui->frequence_4->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, on, toInt(_ui->frequence_4->value()));
 	DisableSendLamp(3);
 	DisableReceiveLamp(3);
-	set("radio_4", state == 2);
+	set("radio_4", on);
+	if (_serialPort != NULL) SendToSerial("status:r4:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange5(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 4, state == 2, toInt(_ui->frequence_5->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 4, on, toInt(_ui->frequence_5->value()));
 	DisableSendLamp(4);
 	DisableReceiveLamp(4);
-	set("radio_5", state == 2);
+	set("radio_5", on);
+	if (_serialPort != NULL) SendToSerial("status:r5:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange6(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 5, state == 2, toInt(_ui->frequence_6->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 5, on, toInt(_ui->frequence_6->value()));
 	DisableSendLamp(5);
 	DisableReceiveLamp(5);
-	set("radio_6", state == 2);
+	set("radio_6", on);
+	if (_serialPort != NULL) SendToSerial("status:r6:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange7(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 6, state == 2, toInt(_ui->frequence_7->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 6, on, toInt(_ui->frequence_7->value()));
 	DisableSendLamp(6);
 	DisableReceiveLamp(6);
-	set("radio_7", state == 2);
+	set("radio_7", on);
+	if (_serialPort != NULL) SendToSerial("status:r7:" + QString(on ? "1" : "0"));
 }
 
 void channels::onChange8(int state) {
-	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 7, state == 2, toInt(_ui->frequence_8->value()));
+	bool on = state == 2;
+	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 7, on, toInt(_ui->frequence_8->value()));
 	DisableSendLamp(7);
 	DisableReceiveLamp(7);
-	set("radio_8", state == 2);
+	set("radio_8", on);
+	if (_serialPort != NULL) SendToSerial("status:r8:" + QString(on ? "1" : "0"));
 }
 
 void channels::onClick1(bool checked) {
@@ -643,6 +708,7 @@ void channels::onSetFrequence1(bool checked) {
 	}
 	_ui->frequence_1->Deselect();
 	set("freq_1", _ui->frequence_1->value());
+	if (_serialPort != NULL) SendToSerial("freq:r1:" + QString::number(_ui->frequence_1->value()));
 }
 
 void channels::onSetFrequence2(bool checked) {
@@ -654,6 +720,7 @@ void channels::onSetFrequence2(bool checked) {
 	}
 	_ui->frequence_2->Deselect();
 	set("freq_2", _ui->frequence_2->value());
+	if (_serialPort != NULL) SendToSerial("freq:r2:" + QString::number(_ui->frequence_2->value()));
 }
 
 void channels::onSetFrequence3(bool checked) {	
@@ -665,6 +732,7 @@ void channels::onSetFrequence3(bool checked) {
 	}
 	_ui->frequence_3->Deselect();
 	set("freq_3", _ui->frequence_3->value());
+	if (_serialPort != NULL) SendToSerial("freq:r3:" + QString::number(_ui->frequence_3->value()));
 }
 
 void channels::onSetFrequence4(bool checked) {	
@@ -676,6 +744,7 @@ void channels::onSetFrequence4(bool checked) {
 	}
 	_ui->frequence_4->Deselect();
 	set("freq_4", _ui->frequence_4->value());
+	if (_serialPort != NULL) SendToSerial("freq:r4:" + QString::number(_ui->frequence_4->value()));
 }
 
 void channels::onSetFrequence5(bool checked) {
@@ -687,6 +756,7 @@ void channels::onSetFrequence5(bool checked) {
 	}
 	_ui->frequence_5->Deselect();
 	set("freq_5", _ui->frequence_5->value());
+	if (_serialPort != NULL) SendToSerial("freq:r5:" + QString::number(_ui->frequence_5->value()));
 }
 
 void channels::onSetFrequence6(bool checked) {	
@@ -698,6 +768,7 @@ void channels::onSetFrequence6(bool checked) {
 	}
 	_ui->frequence_6->Deselect();
 	set("freq_6", _ui->frequence_6->value());
+	if (_serialPort != NULL) SendToSerial("freq:r6:" + QString::number(_ui->frequence_6->value()));
 }
 
 void channels::onSetFrequence7(bool checked) {	
@@ -709,6 +780,7 @@ void channels::onSetFrequence7(bool checked) {
 	}
 	_ui->frequence_7->Deselect();
 	set("freq_7", _ui->frequence_7->value());
+	if (_serialPort != NULL) SendToSerial("freq:r7:" + QString::number(_ui->frequence_7->value()));
 }
 
 void channels::onSetFrequence8(bool checked) {	
@@ -720,86 +792,119 @@ void channels::onSetFrequence8(bool checked) {
 	}
 	_ui->frequence_8->Deselect();
 	set("freq_8", _ui->frequence_8->value());
+	if (_serialPort != NULL) SendToSerial("freq:r8:" + QString::number(_ui->frequence_8->value()));
 }
 
 void channels::onPanChanged1(int value) {
 	KRTComms::getInstance().SetPan(0, value / 10.0f);
 	set("pan_1", value);
+	if (_serialPort != NULL) SendToSerial("pan:r1:" + QString::number(value));
 }
 
 void channels::onPanChanged2(int value) {
 	KRTComms::getInstance().SetPan(1, value / 10.0f);
 	set("pan_2", value);
+	if (_serialPort != NULL) SendToSerial("pan:r2:" + QString::number(value));
 }
 
 void channels::onPanChanged3(int value) {
 	KRTComms::getInstance().SetPan(2, value / 10.0f);
 	set("pan_3", value);
+	if (_serialPort != NULL) SendToSerial("pan:r3:" + QString::number(value));
 }
 
 void channels::onPanChanged4(int value) {
 	KRTComms::getInstance().SetPan(3, value / 10.0f);
 	set("pan_4", value);
+	if (_serialPort != NULL) SendToSerial("pan:r4:" + QString::number(value));
 }
 
 void channels::onPanChanged5(int value) {
 	KRTComms::getInstance().SetPan(4, value / 10.0f);
 	set("pan_5", value);
+	if (_serialPort != NULL) SendToSerial("pan:r5:" + QString::number(value));
 }
 
 void channels::onPanChanged6(int value) {
 	KRTComms::getInstance().SetPan(5, value / 10.0f);
 	set("pan_6", value);
+	if (_serialPort != NULL) SendToSerial("pan:r6:" + QString::number(value));
 }
 
 void channels::onPanChanged7(int value) {
 	KRTComms::getInstance().SetPan(6, value / 10.0f);
 	set("pan_7", value);
+	if (_serialPort != NULL) SendToSerial("pan:r7:" + QString::number(value));
 }
 
 void channels::onPanChanged8(int value) {
 	KRTComms::getInstance().SetPan(7, value / 10.0f);
 	set("pan_8", value);
+	if (_serialPort != NULL) SendToSerial("pan:r8:" + QString::number(value));
 }
 
 void channels::onVolumeGainChanged1(int value) {
 	KRTComms::getInstance().SetVolumeGain(0, value / 10.0f);
 	set("gain_1", value);
+	if (_serialPort != NULL) SendToSerial("gain:r1:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_1->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged2(int value) {
 	KRTComms::getInstance().SetVolumeGain(1, value / 10.0f);
 	set("gain_2", value);
+	if (_serialPort != NULL) SendToSerial("gain:r2:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_2->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged3(int value) {
 	KRTComms::getInstance().SetVolumeGain(2, value / 10.0f);
 	set("gain_3", value);
+	if (_serialPort != NULL) SendToSerial("gain:r3:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_3->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged4(int value) {
 	KRTComms::getInstance().SetVolumeGain(3, value / 10.0f);
 	set("gain_4", value);
+	if (_serialPort != NULL) SendToSerial("gain:r4:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_4->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged5(int value) {
 	KRTComms::getInstance().SetVolumeGain(4, value / 10.0f);
 	set("gain_5", value);
+	if (_serialPort != NULL) SendToSerial("gain:r5:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_5->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged6(int value) {
 	KRTComms::getInstance().SetVolumeGain(5, value / 10.0f);
 	set("gain_6", value);
+	if (_serialPort != NULL) SendToSerial("gain:r6:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_6->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged7(int value) {
 	KRTComms::getInstance().SetVolumeGain(6, value / 10.0f);
 	set("gain_7", value);
+	if (_serialPort != NULL) SendToSerial("gain:r7:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_7->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onVolumeGainChanged8(int value) {
 	KRTComms::getInstance().SetVolumeGain(7, value / 10.0f);
 	set("gain_8", value);
+	if (_serialPort != NULL) SendToSerial("gain:r8:" + QString::number(value));
+
+	QToolTip::showText(_ui->volume_gain_ch_8->mapToGlobal(QPoint(-2, -35)), QString::number(value / 10.0f));
 }
 
 void channels::onReset(bool checked) {
@@ -847,21 +952,29 @@ void channels::onFreqxyz_1bDuckingChanged(int state) {
 void channels::onChannelDuckingSliderChanged(int value) {
 	Ducker::getInstance().SetGain(Ducker::Type::CHANNEL, value / 100.0f);
 	set("channel_ducking", value);
+
+	QToolTip::showText(_ui->channel_ducking_slider->mapToGlobal(QPoint(-2, -35)), QString::number(value));
 }
 
 void channels::onFreq1yz_abDuckingSliderChanged(int value) {
 	Ducker::getInstance().SetGain(Ducker::Type::FREQ_1YZ_AB, value / 100.0f);
 	set("freq_1yz_ab_ducking", value);
+
+	QToolTip::showText(_ui->freq_ducking_slider_1yz_ab->mapToGlobal(QPoint(-2, -35)), QString::number(value));
 }
 
 void channels::onFreqxy1_abDuckingSliderChanged(int value) {
 	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XY1_AB, value / 100.0f);
 	set("freq_xy1_ab_ducking", value);
+
+	QToolTip::showText(_ui->freq_ducking_slider_xy1_ab->mapToGlobal(QPoint(-2, -35)), QString::number(value));
 }
 
 void channels::onFreqxyz_1bDuckingSliderChanged(int value) {
 	Ducker::getInstance().SetGain(Ducker::Type::FREQ_XYZ_1B, value / 100.0f);
 	set("freq_xyz_1b_ducking", value);
+
+	QToolTip::showText(_ui->freq_ducking_slider_xyz_1b->mapToGlobal(QPoint(-2, -35)), QString::number(value));
 }
 
 void channels::onRadio1PasswordChanged(QString value) {
@@ -975,8 +1088,23 @@ void channels::onElgatoStreamDeckChanged(int state) {
 	}
 }
 
+void channels::onTextColorChanged(int index) {
+	QString textColor = _ui->text_color->currentText();
+	set("text_color", textColor);
+	for (int id = 0; id < RADIO_COUNT; id++) {
+		if (!textColor.isEmpty()) {
+			_lineEdits[id]->setTextColor(QColor(textColor));
+		}
+	}
+}
+
 void channels::onProfileChanged(int index) {
 	_profile = _profiles->currentText();
+
+	_settings->beginGroup("");
+	_settings->setValue("profile", _profile);
+	_settings->endGroup();
+
 	if (_profile == "General") _profile = "";
 	load(false, true);
 }
@@ -1039,36 +1167,43 @@ void channels::onProfileRenameClicked(bool checked) {
 
 void channels::onLineEdit1EditingFinished() {
 	set("channel_1_text", _ui->lineedit_1->text());
+	if (_serialPort != NULL) SendToSerial("name:r1:" + _ui->lineedit_1->text());
 }
 
 void channels::onLineEdit2EditingFinished() {
 	set("channel_2_text", _ui->lineedit_2->text());
+	if (_serialPort != NULL) SendToSerial("name:r2:" + _ui->lineedit_2->text());
 }
 
 void channels::onLineEdit3EditingFinished() {
 	set("channel_3_text", _ui->lineedit_3->text());
+	if (_serialPort != NULL) SendToSerial("name:r3:" + _ui->lineedit_3->text());
 }
 
 void channels::onLineEdit4EditingFinished() {
 	set("channel_4_text", _ui->lineedit_4->text());
+	if (_serialPort != NULL) SendToSerial("name:r4:" + _ui->lineedit_4->text());
 }
 
 void channels::onLineEdit5EditingFinished() {
 	set("channel_5_text", _ui->lineedit_5->text());
+	if (_serialPort != NULL) SendToSerial("name:r5:" + _ui->lineedit_5->text());
 }
 
 void channels::onLineEdit6EditingFinished() {
 	set("channel_6_text", _ui->lineedit_6->text());
+	if (_serialPort != NULL) SendToSerial("name:r6:" + _ui->lineedit_6->text());
 }
 
 void channels::onLineEdit7EditingFinished() {
 	set("channel_7_text", _ui->lineedit_7->text());
+	if (_serialPort != NULL) SendToSerial("name:r7:" + _ui->lineedit_7->text());
 }
 
 void channels::onLineEdit8EditingFinished() {
 	set("channel_8_text", _ui->lineedit_8->text());
+	if (_serialPort != NULL) SendToSerial("name:r8:" + _ui->lineedit_8->text());
 }
-
 
 int channels::toInt(double frequence) {
 	return frequence * 100.0 + 0.1; //floating-point fix
@@ -1107,6 +1242,26 @@ void channels::writeStatus() {
 		}
 
 		file.close();
+	}
+}
+
+double channels::brightness(QColor color) {
+	return sqrt(color.red() * color.red() * .241 + color.green() * color.green() * .691 + color.blue() * color.blue() * .068);
+}
+
+void channels::initSerialPort(QString port) {
+	if (_serialPort != NULL) {
+		delete _serialPort; //Schließt Verbindung automatisch
+	}
+	_serialPort = new Serial(port.toStdString().c_str());
+
+	if (_serialPort->IsConnected()) {
+		if (_ui->debug->isChecked()) {
+			_ts3.printMessageToCurrentTab("SerialPort connected");
+		}
+	} else {
+		delete _serialPort;
+		_serialPort = NULL;
 	}
 }
 

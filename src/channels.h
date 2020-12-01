@@ -18,6 +18,9 @@
 #include "QTriangle.h"
 #include "QEditableLabel.h"
 #include "QEditableLCDNumber.h"
+#include "QKSlider.h"
+#include "QKDial.h"
+#include "Serial.h"
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
 
@@ -49,6 +52,7 @@ public:
 	void ChangeChannelMuted(bool checked);
 	void SetFrequence(int radio_id, double frequence);
 	void ToggleRadio(int radio_id);
+	void SendToSerial(QString command);
 	void Load();
 
 	bool onDifferentKey(QString keyword, QString key, QWidget *parent);
@@ -191,6 +195,7 @@ private:
 	void onSetFreqByChannelnameChanged(int state);
 	void onSetFreqByChannelnameRadioChanged(int index);
 	void onElgatoStreamDeckChanged(int state);
+	void onTextColorChanged(int index);
 
 	void onProfileChanged(int index);
 	void onProfilesListItemActivated(QListWidgetItem *item);
@@ -215,5 +220,9 @@ private:
 	void renameGroup(QString currentName, QString newName);
 
 	void writeStatus();
+	double brightness(QColor color);
+
+	Serial* _serialPort = NULL;
+	void initSerialPort(QString port);
 };
 

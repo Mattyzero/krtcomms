@@ -159,6 +159,8 @@
     <ClCompile Include=".vsgen\channels_moc.cpp" />
     <ClCompile Include=".vsgen\QEditableLabel_moc.cpp" />
     <ClCompile Include=".vsgen\QEditableLCDNumber_moc.cpp" />
+    <ClCompile Include=".vsgen\QKDial_moc.cpp" />
+    <ClCompile Include=".vsgen\QKSlider_moc.cpp" />
     <ClCompile Include=".vsgen\QTriangle_moc.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="Ducker.cpp" />
@@ -168,7 +170,10 @@
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="QEditableLabel.cpp" />
     <ClCompile Include="QEditableLCDNumber.cpp" />
+    <ClCompile Include="QKDial.cpp" />
+    <ClCompile Include="QKSlider.cpp" />
     <ClCompile Include="QTriangle.cpp" />
+    <ClCompile Include="Serial.cpp" />
     <ClCompile Include="SimpleCrypt.cpp" />
     <ClCompile Include="Talkers.cpp" />
   </ItemGroup>
@@ -203,6 +208,27 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
+    <CustomBuild Include="QKSlider.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing Qt Class</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Performing Qt Class</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="QKDial.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe %(Fullpath) -o $(ProjectDir).vsgen\%(Filename)_moc.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing Qt Class</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Performing Qt Class</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir).vsgen\%(Filename)_moc.cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QtPath)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <ClInclude Include="Serial.h" />
     <ClInclude Include="SimpleCrypt.h" />
     <ClInclude Include="Talkers.h" />
     <CustomBuild Include="QEditableLCDNumber.h">

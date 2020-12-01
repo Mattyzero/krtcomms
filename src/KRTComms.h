@@ -40,7 +40,7 @@ public:
 	bool AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, anyID clientID);
 
 	void WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id);
-	void UpdateWhisperTo(uint64 serverConnectionHandlerID, int frequence);
+	void UpdateWhisperTo(uint64 serverConnectionHandlerID);
 	void WhisperTo(uint64 serverConnectionHandlerID, QList<uint64> targetChannelIDArray, QList<anyID> targetClientIDArray);
 
 	void SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk);
@@ -51,6 +51,7 @@ public:
 
 	int GetFrequence(uint64 serverConnectionHandlerID, int radio_id);
 	int GetRadioId(uint64 serverConnectionHandlerID, int frequence);
+	QList<int> GetRadioIds(uint64 serverConnectionHandlerID, int frequence);
 
 	void Disconnect();
 	void Disconnect(uint64 serverConnectionHandlerID);
@@ -81,13 +82,15 @@ public:
 	void SetSoundsEnabled(bool enabled);
 	void SetFreqByChannelname(int radio_id);
 	bool IsInSameBroadcast(uint64 serverConnectionHandlerID, int frequence);
+	bool IsBroadcastFrequence(int frequence);
 	void OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
 	void OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage);
 	void OnClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage);
 	void SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID);
 
 	void ReloadConfig(uint64 serverConnectionHandlerID);
-	
+	QList<anyID> RemoveDuplicates(QList<anyID> list);
+	QList<uint64> RemoveDuplicates(QList<uint64> list);
 private:
 
 	QMap<uint64, QMap<int, int>> _activeRadios;
