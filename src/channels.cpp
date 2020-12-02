@@ -292,6 +292,12 @@ channels::channels(const QString& configLocation, char* pluginID, TS3Functions t
 	_ui->tabWidget->setCornerWidget(_profiles, Qt::TopRightCorner);
 
 	connect(_profiles, QOverload<int>::of(&QComboBox::activated), this, &channels::onProfileChanged);
+
+	int index = _profiles->findText(get("profile", "").toString());
+	if (index != -1) {
+		_profiles->setCurrentIndex(index);
+		onProfileChanged(index);
+	}
 }
 
 channels::~channels() {
