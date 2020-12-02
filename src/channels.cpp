@@ -337,8 +337,8 @@ void channels::OnStartup() {
 
 void channels::GetHotkeysFromKeywords() {
 	const size_t arrayLen = 12;
-	const size_t hotkeyBufSize = 64;
-	const char* keywords[hotkeyBufSize] = {
+	const size_t hotkeyBufSize = 256;
+	const char* keywords[arrayLen] = {
 		"send_ch_0",
 		"send_ch_1",
 		"send_ch_2",
@@ -603,6 +603,7 @@ void channels::uncheckAll() {
 
 void channels::onChange1(int state) {
 	bool on = state == 2;
+	_ui->ch_1_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, on, toInt(_ui->frequence_1->value()));
 	DisableSendLamp(0);
 	DisableReceiveLamp(0);
@@ -612,6 +613,7 @@ void channels::onChange1(int state) {
 
 void channels::onChange2(int state) {
 	bool on = state == 2;
+	_ui->ch_2_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, on, toInt(_ui->frequence_2->value()));
 	DisableSendLamp(1);
 	DisableReceiveLamp(1);
@@ -621,6 +623,7 @@ void channels::onChange2(int state) {
 
 void channels::onChange3(int state) {
 	bool on = state == 2;
+	_ui->ch_3_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, on, toInt(_ui->frequence_3->value()));
 	DisableSendLamp(2);
 	DisableReceiveLamp(2);
@@ -630,6 +633,7 @@ void channels::onChange3(int state) {
 
 void channels::onChange4(int state) {
 	bool on = state == 2;
+	_ui->ch_4_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, on, toInt(_ui->frequence_4->value()));
 	DisableSendLamp(3);
 	DisableReceiveLamp(3);
@@ -639,6 +643,7 @@ void channels::onChange4(int state) {
 
 void channels::onChange5(int state) {
 	bool on = state == 2;
+	_ui->ch_5_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 4, on, toInt(_ui->frequence_5->value()));
 	DisableSendLamp(4);
 	DisableReceiveLamp(4);
@@ -648,6 +653,7 @@ void channels::onChange5(int state) {
 
 void channels::onChange6(int state) {
 	bool on = state == 2;
+	_ui->ch_6_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 5, on, toInt(_ui->frequence_6->value()));
 	DisableSendLamp(5);
 	DisableReceiveLamp(5);
@@ -657,6 +663,7 @@ void channels::onChange6(int state) {
 
 void channels::onChange7(int state) {
 	bool on = state == 2;
+	_ui->ch_7_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 6, on, toInt(_ui->frequence_7->value()));
 	DisableSendLamp(6);
 	DisableReceiveLamp(6);
@@ -666,6 +673,7 @@ void channels::onChange7(int state) {
 
 void channels::onChange8(int state) {
 	bool on = state == 2;
+	_ui->ch_8_hotkey->setEnabled(!on);
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 7, on, toInt(_ui->frequence_8->value()));
 	DisableSendLamp(7);
 	DisableReceiveLamp(7);

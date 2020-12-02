@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.6";
+char* KRTComms::version = "0.1.7rc1";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -739,7 +739,7 @@ void KRTComms::OnHotkeyRecordedEvent(QString keyword, QString key) {
 		if(_key.isEmpty())
 			_key = key;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		_ts3.requestHotkeyInputDialog(_pluginID, (_keyword + "_").toStdString().c_str(), 0, _parent);
 		_keyword = "";
 	}
