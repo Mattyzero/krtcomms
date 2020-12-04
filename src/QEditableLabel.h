@@ -22,7 +22,13 @@ signals:
 	void clicked();
 protected:
 	void paintEvent(QPaintEvent * event);
-	void mousePressEvent(QMouseEvent *) { 
+	void mousePressEvent(QMouseEvent * event) {
+
+		if (!this->isReadOnly()) {
+			QLineEdit::mousePressEvent(event);
+			return;
+		}
+
 		if (_doubleClickConnection != NULL) {
 			QObject::disconnect(*_doubleClickConnection);
 			delete _doubleClickConnection;
