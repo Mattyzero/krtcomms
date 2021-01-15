@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.7rc1";
+char* KRTComms::version = "0.1.7rc2";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -1037,6 +1037,11 @@ int KRTComms::OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* e
 	if (_debug) {
 		_ts3.printMessageToCurrentTab(("PLUGIN: onServerErrorEvent " + QString::number(serverConnectionHandlerID) + " " + QString(errorMessage) + " " + QString::number(error) + " " + (returnCode ? QString(returnCode) : "") + " " + QString(extraMessage)).toStdString().c_str());
 	}
+
+	if (error == 512) { //invalid client
+		RemoveInvalidClients(serverConnectionHandlerID);
+	}
+
 	if (returnCode) {
 		/* A plugin could now check the returnCode with previously (when calling a function) remembered returnCodes and react accordingly */
 		/* In case of using a a plugin return code, the plugin can return:
@@ -1133,4 +1138,16 @@ QList<anyID> KRTComms::RemoveDuplicates(QList<anyID> list) {
 
 QList<uint64> KRTComms::RemoveDuplicates(QList<uint64> list) {
 	return list.toSet().toList();
+}
+
+void KRTComms::RemoveInvalidClients(uint64 serverConnectionHandlerID) {
+	foreach(int freq, _activeRadios[serverConnectionHandlerID].values()) {
+		foreach(anyID clientID, _targetClientIDs[serverConnectionHandlerID][freq]) {
+			uint64_t res = -1;
+			_ts3.getChannelOfClient(serverConnectionHandlerID, clientID, &res);
+			if (res == 0) {
+				RemoveFromFrequence(serverConnectionHandlerID, freq, clientID);
+			}
+		}
+	}
 }
