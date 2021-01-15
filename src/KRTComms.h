@@ -91,6 +91,7 @@ public:
 	void ReloadConfig(uint64 serverConnectionHandlerID);
 	QList<anyID> RemoveDuplicates(QList<anyID> list);
 	QList<uint64> RemoveDuplicates(QList<uint64> list);
+	void RemoveInvalidClients(uint64 serverConnectionHandlerID);
 private:
 
 	QMap<uint64, QMap<int, int>> _activeRadios;
