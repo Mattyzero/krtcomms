@@ -92,6 +92,10 @@ public:
 	QList<anyID> RemoveDuplicates(QList<anyID> list);
 	QList<uint64> RemoveDuplicates(QList<uint64> list);
 	void RemoveInvalidClients(uint64 serverConnectionHandlerID);
+	void RequestServerGroupsByClientID(uint64 serverConnectionHandlerID);
+	void RequestServerGroupsByClientID(uint64 serverConnectionHandlerID, anyID clientID);
+	void RequestServerGroupsByClientID(uint64 serverConnectionHandlerID, uint64 clientDatabaseID);
+	void OnServerGroupByClientIDEvent(uint64 serverConnectionHandlerID, const char* name, uint64 serverGroupList, uint64 clientDatabaseID);
 private:
 
 	QMap<uint64, QMap<int, int>> _activeRadios;

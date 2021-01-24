@@ -721,6 +721,7 @@ void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 
 	foreach(int frequence, _activeRadios[serverConnectionHandlerID].values()) {
 		RemoveFromFrequence(serverConnectionHandlerID, frequence, clientID);
+		Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, false, frequence);
 	}
 }
 
@@ -1150,4 +1151,28 @@ void KRTComms::RemoveInvalidClients(uint64 serverConnectionHandlerID) {
 			}
 		}
 	}
+}
+
+void KRTComms::RequestServerGroupsByClientID(uint64 serverConnectionHandlerID) {
+	anyID me;
+	_ts3.getClientID(serverConnectionHandlerID, &me);
+
+	RequestServerGroupsByClientID(serverConnectionHandlerID, me);
+}
+
+void KRTComms::RequestServerGroupsByClientID(uint64 serverConnectionHandlerID, anyID clientID) {
+	uint64 clientDatabaseID;
+	_ts3.getClientVariableAsUInt64(serverConnectionHandlerID, clientID, CLIENT_DATABASE_ID, &clientDatabaseID);
+
+	RequestServerGroupsByClientID(serverConnectionHandlerID, clientDatabaseID);	
+}
+
+void KRTComms::RequestServerGroupsByClientID(uint64 serverConnectionHandlerID, uint64 clientDatabaseID) {
+	const char* returnCode = new char[512];
+	_ts3.requestServerGroupsByClientID(serverConnectionHandlerID, clientDatabaseID, returnCode);
+}
+
+void KRTComms::OnServerGroupByClientIDEvent(uint64 serverConnectionHandlerID, const char* name, uint64 serverGroupList, uint64 clientDatabaseID) {
+	//Diese Funktion wird je Server Gruppe aufgerufen (in meinen Fall 4 Server Gruppen also 4 mal)
+	//_ts3.printMessageToCurrentTab(name);
 }

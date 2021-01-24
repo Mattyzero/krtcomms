@@ -700,6 +700,8 @@ void ts3plugin_onServerGroupListFinishedEvent(uint64 serverConnectionHandlerID) 
 }
 
 void ts3plugin_onServerGroupByClientIDEvent(uint64 serverConnectionHandlerID, const char* name, uint64 serverGroupList, uint64 clientDatabaseID) {
+	
+	KRTComms::getInstance().OnServerGroupByClientIDEvent(serverConnectionHandlerID, name, serverGroupList, clientDatabaseID);
 }
 
 void ts3plugin_onServerGroupPermListEvent(uint64 serverConnectionHandlerID, uint64 serverGroupID, unsigned int permissionID, int permissionValue, int permissionNegated, int permissionSkip) {
