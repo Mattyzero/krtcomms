@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.7rc2";
+char* KRTComms::version = "0.1.7rc3";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -253,6 +253,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 				RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
 				_isWhispering[serverConnectionHandlerID][radio_id] = false;
 				Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
+				_channels->DisableReceiveLamp(radio_id);
 			}
 
 			if (!isActive || old_frequence != frequence) {
@@ -273,6 +274,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 					RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
 					_isWhispering[serverConnectionHandlerID][radio_id] = false;
 					Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
+					_channels->DisableReceiveLamp(radio_id);
 				}
 
 				_activeRadios[serverConnectionHandlerID].remove(radio_id);
