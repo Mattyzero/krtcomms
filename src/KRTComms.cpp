@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.7rc3";
+char* KRTComms::version = "0.1.7";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -436,7 +436,7 @@ bool KRTComms::AnswerTheCall(uint64 serverConnectionHandlerID, int frequence, an
 		//		_ts3.printMessageToCurrentTab(("AnswerTheCall: " + QString::number(clientID)).toStdString().c_str());
 		//	}
 
-		if (_isWhispering[serverConnectionHandlerID][radio_id]) {
+		if (_isWhispering[serverConnectionHandlerID][radio_id] && !IsBroadcastFrequence(frequence)) {
 			command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 			SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
 		}
@@ -724,6 +724,13 @@ void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 	foreach(int frequence, _activeRadios[serverConnectionHandlerID].values()) {
 		RemoveFromFrequence(serverConnectionHandlerID, frequence, clientID);
 		Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, false, frequence);
+		if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {
+			int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
+			_channels->DisableReceiveLamp(radio_id);
+
+			if (_soundsEnabled)
+				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][1].toStdString().c_str());
+		}
 	}
 }
 
