@@ -11,8 +11,10 @@ Talkers::Talkers() {
 Talkers::~Talkers() {
 	foreach(uint64 serverConnectionHandlerID, _talkers.keys()) {
 		foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
-			delete _talkers[serverConnectionHandlerID][key];
-			_talkers[serverConnectionHandlerID][key] = NULL;
+			if (_talkers[serverConnectionHandlerID][key] != NULL) {
+				delete _talkers[serverConnectionHandlerID][key];
+				_talkers[serverConnectionHandlerID][key] = NULL;
+			}
 		}
 	}
 }
@@ -38,8 +40,10 @@ void Talkers::Add(uint64 serverConnectionHandlerID, anyID clientID, int isReceiv
 void Talkers::Remove(uint64 serverConnectionHandlerID, anyID clientID, int isReceivedWhisper, int frequence) {
 	QString key = QString::number(frequence) + "_" + QString::number(clientID);
 	if (_talkers[serverConnectionHandlerID].contains(key)) {
-		delete _talkers[serverConnectionHandlerID][key];
-		_talkers[serverConnectionHandlerID][key] = NULL;
+		if (_talkers[serverConnectionHandlerID][key] != NULL) {
+			delete _talkers[serverConnectionHandlerID][key];
+			_talkers[serverConnectionHandlerID][key] = NULL;
+		}
 		_talkers[serverConnectionHandlerID].remove(key);
 	}
 }
@@ -47,8 +51,10 @@ void Talkers::Remove(uint64 serverConnectionHandlerID, anyID clientID, int isRec
 void Talkers::Clear(uint64 serverConnectionHandlerID, int frequence) {
 	foreach(QString key, _talkers[serverConnectionHandlerID].keys()) {
 		if (key.startsWith(QString::number(frequence))) {
-			delete _talkers[serverConnectionHandlerID][key];
-			_talkers[serverConnectionHandlerID][key] = NULL;
+			if (_talkers[serverConnectionHandlerID][key] != NULL) {
+				delete _talkers[serverConnectionHandlerID][key];
+				_talkers[serverConnectionHandlerID][key] = NULL;
+			}
 			_talkers[serverConnectionHandlerID].remove(key);
 		}
 	}
