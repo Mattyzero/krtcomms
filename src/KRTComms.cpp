@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.7";
+char* KRTComms::version = "0.1.8";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -727,9 +727,6 @@ void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 		if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {
 			int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
 			_channels->DisableReceiveLamp(radio_id);
-
-			if (_soundsEnabled)
-				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][1].toStdString().c_str());
 		}
 	}
 }
