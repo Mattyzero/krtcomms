@@ -24,7 +24,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.8";
+char* KRTComms::version = "0.1.9";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -250,10 +250,9 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL); //TODO Überlegung ob LEFT nur an die Clients in Frequenz gesendet werden soll?
 				logmessage += " LEFT";
 
-				RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
-				_isWhispering[serverConnectionHandlerID][radio_id] = false;
-				Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
-				_channels->DisableReceiveLamp(radio_id);
+				QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+					Left(serverConnectionHandlerID, radio_id, old_frequence);
+				});				
 			}
 
 			if (!isActive || old_frequence != frequence) {
@@ -271,13 +270,14 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 					SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
 					logmessage += " LEFT";
 
-					RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
-					_isWhispering[serverConnectionHandlerID][radio_id] = false;
-					Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
-					_channels->DisableReceiveLamp(radio_id);
+					QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+						Left(serverConnectionHandlerID, radio_id, old_frequence);
+					});
 				}
 
-				_activeRadios[serverConnectionHandlerID].remove(radio_id);
+				QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id]() {
+					_activeRadios[serverConnectionHandlerID].remove(radio_id);
+				});				
 			}
 		}
 
@@ -292,6 +292,13 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 	catch (...) {		
 		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC SetActiveRadio", serverConnectionHandlerID);
 	}
+}
+
+void KRTComms::Left(uint64 serverConnectionHandlerID, int radio_id, int old_frequence) {
+	RemoveAllFromFrequence(serverConnectionHandlerID, old_frequence);
+	_isWhispering[serverConnectionHandlerID][radio_id] = false;
+	Talkers::getInstance().Clear(serverConnectionHandlerID, old_frequence);
+	_channels->DisableReceiveLamp(radio_id);
 }
 
 bool KRTComms::ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id) {

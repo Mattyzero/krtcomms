@@ -31,6 +31,7 @@ public:
 	void ProcessPluginCommand(uint64 serverConnectionHandlerID, const char* pluginCommand, anyID invokerClientID, const char* invokerName);
 
 	void SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bool state, int frequence);
+	void Left(uint64 serverConnectionHandlerID, int radio_id, int old_frequence);
 	bool ActiveInRadio(uint64 serverConnectionHandlerID, int radio_id);
 	bool ActiveInFrequence(uint64 serverConnectionHandlerID, int frequence);
 	bool AddToFrequence(uint64 serverConnectionHandlerID, int frequence, anyID clientID, const char* nickname, bool shouldUpdate);
