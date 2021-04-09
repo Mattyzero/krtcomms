@@ -54,7 +54,7 @@ public:
 	int GetRadioId(uint64 serverConnectionHandlerID, int frequence);
 	QList<int> GetRadioIds(uint64 serverConnectionHandlerID, int frequence);
 
-	void Disconnect();
+	void Disconnect(bool shutdown);
 	void Disconnect(uint64 serverConnectionHandlerID);
 	void Disconnected(uint64 serverConnectionHandlerID, anyID clientID);
 
@@ -77,6 +77,7 @@ public:
 	QList<int> GetMutedFrequences(uint64 serverConnectionHandlerID);
 	void ToggleRadio(uint64 serverConnectionHandlerID);
 	void ToggleRadio(uint64 serverConnectionHandlerID, int radio_id);
+	void FreqUpDown(uint64 serverConnectionHandlerID, QString direction);
 	int OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage);
 	void OnClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
 
@@ -105,6 +106,7 @@ private:
 	QString _key;
 	QWidget* _parent;
 
+	bool _shutdown = false;
 	bool _debug = false;
 	QMap<uint64, QMap<int, bool>> _isWhispering;
 	QMap<uint64, bool> _pttActive;

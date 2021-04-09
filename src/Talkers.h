@@ -4,6 +4,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include "Ducker.h"
+#include <cmath>
 
 class Talkers
 {
@@ -29,9 +30,11 @@ public:
 	bool IsAnyWhispering(uint64 serverConnectionHandlerID);
 	bool IsAnyWhisperingInFrequence(uint64 serverConnectionHandlerID, int frequence);
 	bool IsAnyWhisperingAndNotMuted(uint64 serverConnectionHandlerID);
+	bool IsBroadcasting(uint64 serverConnectionHandlerID, anyID clientID, int frequence);
 	QList<int> GetFrequences(uint64 serverConnectionHandlerID, anyID clientID);
 	Ducker::Type PrioritizedFrequence(uint64 serverConnectionHandlerID, anyID clientID);
 
+	int toInt(double frequence);
 private:
 	QMap<uint64, QMap<QString, ClientInfo*>> _talkers;
 };

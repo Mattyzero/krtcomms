@@ -15,6 +15,7 @@ Talkers::~Talkers() {
 				delete _talkers[serverConnectionHandlerID][key];
 				_talkers[serverConnectionHandlerID][key] = NULL;
 			}
+			_talkers[serverConnectionHandlerID].remove(key);
 		}
 	}
 }
@@ -107,6 +108,20 @@ bool Talkers::IsAnyWhisperingAndNotMuted(uint64 serverConnectionHandlerID) {
 	}
 	return false;
 	
+}
+
+bool Talkers::IsBroadcasting(uint64 serverConnectionHandlerID, anyID clientID, int frequence) {
+	int frequences[3] = { 99999, ((int)floor(frequence / 10000.0)) * 10000 + 9999, ((int)floor(frequence / 100.0)) * 100 + 99 };
+
+	for(int i = 0; i < 3; i++) {
+		int freq = frequences[i];
+		QString key = QString::number(freq) + "_" + QString::number(clientID);
+		//KRTComms::getInstance().Log(key);
+		if (_talkers[serverConnectionHandlerID].contains(key)) {
+			return _talkers[serverConnectionHandlerID][key]->isWhispering;
+		}
+	}
+	return false;
 }
 
 QList<int> Talkers::GetFrequences(uint64 serverConnectionHandlerID, anyID clientID) {

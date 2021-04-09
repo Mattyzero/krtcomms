@@ -169,7 +169,7 @@ void ts3plugin_shutdown() {
     //printf("PLUGIN: shutdown\n");
 	
 	//ts3Functions.printMessageToCurrentTab("SHUTDOWN");
-	KRTComms::getInstance().Disconnect();
+	KRTComms::getInstance().Disconnect(true);
 
 	if (channels_) {
 		channels_->close();
@@ -404,7 +404,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(25);  /* Create x hotkeys. Size must be correct for allocating memory. */
+	BEGIN_CREATE_HOTKEYS(27);  /* Create x hotkeys. Size must be correct for allocating memory. */
 	CREATE_HOTKEY("send_ch_0", "Radio 1");
 	CREATE_HOTKEY("send_ch_0_", "Radio 1 END");
 	CREATE_HOTKEY("send_ch_1", "Radio 2");
@@ -435,6 +435,9 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("toggle_radio_", "Toggle Mute END"); //24
 
 	CREATE_HOTKEY("reload_config", "Reload Config"); //25
+
+	CREATE_HOTKEY("freq_up", "Freq. Up");
+	CREATE_HOTKEY("freq_down", "Freq. Down"); //27
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -952,6 +955,11 @@ void ts3plugin_onHotkeyEvent(const char* keyword) {
 
 	if (keyword_.startsWith("reload_config")) {
 		channels_->Load();
+		return;
+	}
+
+	if (keyword_.startsWith("freq_")) {
+		KRTComms::getInstance().FreqUpDown(serverConnectionHandlerID, keyword_.replace("freq_", ""));
 		return;
 	}
 }

@@ -241,18 +241,24 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 		
 		int old_frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 		bool isActive = _activeRadios[serverConnectionHandlerID].contains(radio_id);
+		int delay = 400;
 
 		QString logmessage = "SetActiveRadio : Radio " + QString::number(radio_id+1) + " : " + (state ? "true" : "false") + " : Old F.:" + QString::number(old_frequence) + " : New F.:" + QString::number(frequence);
-
+		
 		if (state) {
 			if (isActive && old_frequence != frequence && _activeRadios[serverConnectionHandlerID].values().count(old_frequence) <= 1) {
 				QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));
 				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL); //TODO Überlegung ob LEFT nur an die Clients in Frequenz gesendet werden soll?
 				logmessage += " LEFT";
 
-				QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+				if (_shutdown) {
 					Left(serverConnectionHandlerID, radio_id, old_frequence);
-				});				
+				}
+				else {
+					QTimer::singleShot(delay, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+						Left(serverConnectionHandlerID, radio_id, old_frequence);
+					});
+				}
 			}
 
 			if (!isActive || old_frequence != frequence) {
@@ -270,14 +276,23 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 					SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL);
 					logmessage += " LEFT";
 
-					QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+					if (_shutdown) {
 						Left(serverConnectionHandlerID, radio_id, old_frequence);
+					}
+					else {
+						QTimer::singleShot(delay, [this, serverConnectionHandlerID, radio_id, old_frequence]() {
+							Left(serverConnectionHandlerID, radio_id, old_frequence);
+						});
+					}
+				}
+				
+				if (_shutdown) {
+					_activeRadios[serverConnectionHandlerID].remove(radio_id);
+				} else {
+					QTimer::singleShot(delay, [this, serverConnectionHandlerID, radio_id]() {
+						_activeRadios[serverConnectionHandlerID].remove(radio_id);
 					});
 				}
-
-				QTimer::singleShot(400, [this, serverConnectionHandlerID, radio_id]() {
-					_activeRadios[serverConnectionHandlerID].remove(radio_id);
-				});				
 			}
 		}
 
@@ -705,7 +720,8 @@ QList<int> KRTComms::GetRadioIds(uint64 serverConnectionHandlerID, int frequence
 	return list;
 }
 
-void KRTComms::Disconnect() {
+void KRTComms::Disconnect(bool shutdown) {
+	_shutdown = shutdown;
 	foreach(uint64 serverConnectionHandlerID, _activeRadios.keys()) {
 		Disconnect(serverConnectionHandlerID);
 	}
@@ -730,8 +746,8 @@ void KRTComms::Disconnected(uint64 serverConnectionHandlerID, anyID clientID) {
 
 	foreach(int frequence, _activeRadios[serverConnectionHandlerID].values()) {
 		RemoveFromFrequence(serverConnectionHandlerID, frequence, clientID);
-		Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, false, frequence);
-		if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) {
+		Talkers::getInstance().Remove(serverConnectionHandlerID, clientID, false, frequence); //GetRealFrequenceIfBroadcastFrequence(frequence)
+		if (!Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence)) { //GetRealFrequenceIfBroadcastFrequence(frequence)
 			int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
 			_channels->DisableReceiveLamp(radio_id);
 		}
@@ -825,7 +841,9 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 		foreach(int radio_id, _activeRadios[serverConnectionHandlerID].keys()) {
 			
 			int frequence = GetFrequence(serverConnectionHandlerID, radio_id);
-			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) && Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID, frequence)) {
+			if (_targetClientIDs[serverConnectionHandlerID][frequence].contains(clientID) 
+				&& Talkers::getInstance().IsWhispering(serverConnectionHandlerID, clientID, frequence) 
+				|| Talkers::getInstance().IsBroadcasting(serverConnectionHandlerID, clientID, frequence)) {
 				
 				static thread_local size_t allocatedFloatsSample = 0;
 				static thread_local std::array<std::vector<float>, MAX_CHANNELS> floatsSample;
@@ -1047,6 +1065,21 @@ void KRTComms::ToggleRadio(uint64 serverConnectionHandlerID, int radio_id) {
 	_channels->ToggleRadio(radio_id);
 }
 
+void KRTComms::FreqUpDown(uint64 serverConnectionHandlerID, QString direction) {
+	if (!ActiveInRadio(serverConnectionHandlerID, 0)) return;
+
+	int frequence = GetFrequence(serverConnectionHandlerID, 0);
+	if (direction == "up") {
+		frequence += 10;
+	}
+	else {
+		frequence -= 10;
+	}
+	if (frequence < 0 || frequence > 99999) return;
+
+	_channels->SetFrequence(0, frequence / 100.0);
+}
+
 int KRTComms::OnServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
 	if (_debug) {
 		_ts3.printMessageToCurrentTab(("PLUGIN: onServerErrorEvent " + QString::number(serverConnectionHandlerID) + " " + QString(errorMessage) + " " + QString::number(error) + " " + (returnCode ? QString(returnCode) : "") + " " + QString(extraMessage)).toStdString().c_str());
@@ -1108,7 +1141,12 @@ bool KRTComms::IsBroadcastFrequence(int frequence) {
 void KRTComms::OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 	anyID me;
 	_ts3.getClientID(serverConnectionHandlerID, &me);
-	SetFreqByChannelname(serverConnectionHandlerID, me, channelID);
+	uint64 myChannel;
+	_ts3.getChannelOfClient(serverConnectionHandlerID, me, &myChannel);
+	
+	if (myChannel == channelID) {
+		SetFreqByChannelname(serverConnectionHandlerID, me, channelID);
+	}
 }
 
 void KRTComms::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
