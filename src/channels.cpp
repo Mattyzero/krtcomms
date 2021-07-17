@@ -1000,7 +1000,10 @@ void channels::onSetRadio1Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 0, false, -1);
 	Encrypter::SetPassword(0, get("radio_1_password").toString());
 	_ui->lineedit_1->setLocked(!get("radio_1_password").toString().isEmpty());
-	onSetFrequence1(true);
+	//Wenn 500 geändert wird KRTComms::SetActiveRadio delay checken
+	QTimer::singleShot(500, [this]() {
+		onSetFrequence1(true);
+	});
 }
 
 void channels::onRadio2PasswordChanged(QString value) {
@@ -1012,7 +1015,10 @@ void channels::onSetRadio2Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 1, false, -1);
 	Encrypter::SetPassword(1, get("radio_2_password").toString());
 	_ui->lineedit_2->setLocked(!get("radio_2_password").toString().isEmpty());
-	onSetFrequence2(true);
+	//Wenn 500 geändert wird KRTComms::SetActiveRadio delay checken
+	QTimer::singleShot(500, [this]() {
+		onSetFrequence2(true);
+	});
 }
 
 void channels::onRadio3PasswordChanged(QString value) {
@@ -1024,7 +1030,11 @@ void channels::onSetRadio3Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 2, false, -1);
 	Encrypter::SetPassword(2, get("radio_3_password").toString());
 	_ui->lineedit_3->setLocked(!get("radio_3_password").toString().isEmpty());
-	onSetFrequence3(true);
+	//Wenn 500 geändert wird KRTComms::SetActiveRadio delay checken
+	QTimer::singleShot(500, [this]() {
+		onSetFrequence3(true);
+	});
+	
 }
 
 void channels::onRadio4PasswordChanged(QString value) {
@@ -1036,7 +1046,10 @@ void channels::onSetRadio4Password(bool checked) {
 	KRTComms::getInstance().SetActiveRadio(_serverConnectionHandlerID, 3, false, -1);
 	Encrypter::SetPassword(3, get("radio_4_password").toString());
 	_ui->lineedit_4->setLocked(!get("radio_4_password").toString().isEmpty());
-	onSetFrequence4(true);
+	//Wenn 500 geändert wird KRTComms::SetActiveRadio delay checken
+	QTimer::singleShot(500, [this]() {
+		onSetFrequence4(true);
+	});
 }
 
 bool channels::onDifferentKey(QString keyword, QString key, QWidget *parent) {

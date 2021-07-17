@@ -1,7 +1,7 @@
 /*
  * TeamSpeak 3 KRT Comms
  *
- * Copyright (c) Matthias Horn
+ * Copyright (c) Matthias Horn (matthewhunt)
  */
 
 #if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
@@ -327,6 +327,8 @@ static struct PluginMenuItem* createMenuItem(enum PluginMenuType type, int id, c
  */
 enum {
 	MENU_ID_CLIENT_CID = 1,
+	MENU_ID_MUTE_IN_STREAM,
+	MENU_ID_UNMUTE_IN_STREAM,
 	MENU_ID_GLOBAL_SETTINGS
 };
 
@@ -356,10 +358,13 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 * e.g. for "test_plugin.dll", icon "1.png" is loaded from <TeamSpeak 3 Client install dir>\plugins\test_plugin\1.png
 	 */
 
-	BEGIN_CREATE_MENUS(2);  /* IMPORTANT: Number of menu items must be correct!*/
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Radios", "1.png");
+	BEGIN_CREATE_MENUS(4);  /* IMPORTANT: Number of menu items must be correct!*/
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Radios", "icon.png");
 
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_CLIENT_CID,  "Citizen ID",  "1.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_MUTE_IN_STREAM, "Mute in Stream", "disable.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT, MENU_ID_UNMUTE_IN_STREAM, "Unmute in Stream", "enable.png");
+
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
 	/*
@@ -367,7 +372,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 * If unused, set menuIcon to NULL
 	 */
 	*menuIcon = (char*)malloc(PLUGIN_MENU_BUFSZ * sizeof(char));
-	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "t.png");
+	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "icon.png");
 
 	/*
 	 * Menus can be enabled or disabled with: ts3Functions.setPluginMenuEnabled(pluginID, menuID, 0|1);
@@ -717,9 +722,11 @@ void ts3plugin_onServerGroupClientListEvent(uint64 serverConnectionHandlerID, ui
 }
 
 void ts3plugin_onChannelGroupListEvent(uint64 serverConnectionHandlerID, uint64 channelGroupID, const char* name, int type, int iconID, int saveDB) {
+	//KRTComms::getInstance().OnChannelGroupListEvent(serverConnectionHandlerID, channelGroupID, name, type, iconID, saveDB);
 }
 
 void ts3plugin_onChannelGroupListFinishedEvent(uint64 serverConnectionHandlerID) {
+	//KRTComms::getInstance().OnChannelGroupListFinishedEvent(serverConnectionHandlerID);
 }
 
 void ts3plugin_onChannelGroupPermListEvent(uint64 serverConnectionHandlerID, uint64 channelGroupID, unsigned int permissionID, int permissionValue, int permissionNegated, int permissionSkip) {
@@ -747,6 +754,8 @@ void ts3plugin_onChannelClientPermListFinishedEvent(uint64 serverConnectionHandl
 }
 
 void ts3plugin_onClientChannelGroupChangedEvent(uint64 serverConnectionHandlerID, uint64 channelGroupID, uint64 channelID, anyID clientID, anyID invokerClientID, const char* invokerName, const char* invokerUniqueIdentity) {
+
+	//KRTComms::getInstance().OnClientChannelGroupChangedEvent(serverConnectionHandlerID, channelGroupID, channelID, clientID, invokerClientID, invokerName, invokerUniqueIdentity);
 }
 
 int ts3plugin_onServerPermissionErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, unsigned int failedPermissionID) {
@@ -904,6 +913,13 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 						ts3Functions.printMessageToCurrentTab(url);
 					}
 					
+					break;
+
+				case MENU_ID_MUTE_IN_STREAM:
+					KRTComms::getInstance().MuteInStream(serverConnectionHandlerID, (anyID)selectedItemID, true);
+					break;
+				case MENU_ID_UNMUTE_IN_STREAM:
+					KRTComms::getInstance().MuteInStream(serverConnectionHandlerID, (anyID)selectedItemID, false);
 					break;
 				default:
 					break;

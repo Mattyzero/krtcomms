@@ -1,3 +1,9 @@
+/*
+ * TeamSpeak 3 KRT Comms
+ *
+ * Copyright (c) Matthias Horn (matthewhunt)
+ */
+
 #include "KRTComms.h"
 #include "teamspeak/public_rare_definitions.h"
 #include "teamspeak/public_errors.h"
@@ -24,7 +30,7 @@
 #define MAX_CHANNELS 8
 
 
-char* KRTComms::version = "0.1.9";
+char* KRTComms::version = "0.2.0";
 
 KRTComms::KRTComms() {
 	for (int i = 0; i < RADIO_COUNT; i++) {
@@ -61,20 +67,36 @@ void KRTComms::Init(const struct TS3Functions funcs, char* pluginID, channels* c
 	_ts3.getPluginPath(soundsPath, 512, pluginID);
 
 	for (int radio_id = 0; radio_id < RADIO_COUNT; radio_id++) {
-		QString startPath = QString(soundsPath) + "\\krt_comms\\start" + QString::number(radio_id+1) + ".wav";
+		QString startPath = QString(soundsPath) + "\\krt_comms\\local_start" + QString::number(radio_id+1) + ".wav";
 		if (QFileInfo(startPath).exists()) {
-			_soundsPath[radio_id][0] = startPath;
+			_soundsPath[radio_id][LOCAL_START] = startPath;
 		}
 		else {
-			_soundsPath[radio_id][0] = QString(soundsPath) + "\\krt_comms\\start.wav";
+			_soundsPath[radio_id][LOCAL_START] = QString(soundsPath) + "\\krt_comms\\local_start.wav";
 		}
 
-		QString endPath = QString(soundsPath) + "\\krt_comms\\end" + QString::number(radio_id+1) + ".wav";
+		QString endPath = QString(soundsPath) + "\\krt_comms\\local_end" + QString::number(radio_id+1) + ".wav";
 		if (QFileInfo(endPath).exists()) {
-			_soundsPath[radio_id][1] = endPath;
+			_soundsPath[radio_id][LOCAL_END] = endPath;
 		}
 		else {
-			_soundsPath[radio_id][1] = QString(soundsPath) + "\\krt_comms\\end.wav";
+			_soundsPath[radio_id][LOCAL_END] = QString(soundsPath) + "\\krt_comms\\local_end.wav";
+		}
+
+		startPath = QString(soundsPath) + "\\krt_comms\\remote_start" + QString::number(radio_id + 1) + ".wav";
+		if (QFileInfo(startPath).exists()) {
+			_soundsPath[radio_id][REMOTE_START] = startPath;
+		}
+		else {
+			_soundsPath[radio_id][REMOTE_START] = QString(soundsPath) + "\\krt_comms\\remote_start.wav";
+		}
+
+		endPath = QString(soundsPath) + "\\krt_comms\\remote_end" + QString::number(radio_id + 1) + ".wav";
+		if (QFileInfo(endPath).exists()) {
+			_soundsPath[radio_id][REMOTE_END] = endPath;
+		}
+		else {
+			_soundsPath[radio_id][REMOTE_END] = QString(soundsPath) + "\\krt_comms\\remote_end.wav";
 		}
 	}
 
@@ -88,7 +110,6 @@ void KRTComms::Init(const struct TS3Functions funcs, char* pluginID, channels* c
 
 		_ts3.freeMemory(serverConnectionHandlerIDs);
 	}
-
 }
 
 void KRTComms::Connected(uint64 serverConnectionHandlerID) {
@@ -104,6 +125,8 @@ void KRTComms::InitVars(uint64 serverConnectionHandlerID) {
 	for (int i = 0; i < RADIO_COUNT; i++) {
 		_isWhispering[serverConnectionHandlerID][i] = false;
 	}
+
+	//_ts3.requestChannelGroupList(serverConnectionHandlerID, NULL);
 
 	if (_debug) {
 		_ts3.printMessageToCurrentTab("InitVars");
@@ -171,10 +194,11 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 		if (ok && ActiveInFrequence(serverConnectionHandlerID, frequence)) {
 			int radio_id = GetRadioId(serverConnectionHandlerID, frequence);
 			_channels->EnableReceiveLamp(radio_id);
-			Talkers::getInstance().Add(serverConnectionHandlerID, invokerClientID, true, frequence);
-
+			
 			if(_soundsEnabled && !Talkers::getInstance().IsAnyWhisperingInFrequence(serverConnectionHandlerID, frequence))
-				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][0].toStdString().c_str());
+				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][REMOTE_START].toStdString().c_str());
+
+			Talkers::getInstance().Add(serverConnectionHandlerID, invokerClientID, true, frequence);
 		}
 		return;
 	}
@@ -189,7 +213,7 @@ void KRTComms::ProcessPluginCommand(uint64 serverConnectionHandlerID, const char
 				_channels->DisableReceiveLamp(radio_id);
 
 				if(_soundsEnabled && tokens[1] == "SENDOFF")
-					_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][1].toStdString().c_str());
+					_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][REMOTE_END].toStdString().c_str());
 			}
 		}
 		if(tokens[1] != "LEFT") return;
@@ -241,7 +265,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 		
 		int old_frequence = GetFrequence(serverConnectionHandlerID, radio_id);
 		bool isActive = _activeRadios[serverConnectionHandlerID].contains(radio_id);
-		int delay = 400;
+		int delay = 400; //channels.cpp 500 delay checken
 
 		QString logmessage = "SetActiveRadio : Radio " + QString::number(radio_id+1) + " : " + (state ? "true" : "false") + " : Old F.:" + QString::number(old_frequence) + " : New F.:" + QString::number(frequence);
 		
@@ -250,7 +274,7 @@ void KRTComms::SetActiveRadio(uint64 serverConnectionHandlerID, int radio_id, bo
 				QString command = "LEFT\t" + Encrypter::Encrypt(radio_id, QString::number(old_frequence));
 				SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_SERVER, NULL, NULL); //TODO Überlegung ob LEFT nur an die Clients in Frequenz gesendet werden soll?
 				logmessage += " LEFT";
-
+				
 				if (_shutdown) {
 					Left(serverConnectionHandlerID, radio_id, old_frequence);
 				}
@@ -482,6 +506,9 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		if (tmp.size() > 1) {
 			QString command = "SENDOFF\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 			SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
+
+			if (_soundsEnabled)
+				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][LOCAL_END].toStdString().c_str());
 		}
 	}
 	else {
@@ -489,6 +516,9 @@ void KRTComms::WhisperToRadio(uint64 serverConnectionHandlerID, int radio_id) {
 		if (tmp.size() > 1) {
 			QString command = "SENDON\t" + Encrypter::Encrypt(radio_id, QString::number(frequence));
 			SendPluginCommand(serverConnectionHandlerID, _pluginID, command, PluginCommandTarget_CLIENT, tmp.toVector().constData(), NULL);
+
+			if (_soundsEnabled)
+				_ts3.playWaveFile(serverConnectionHandlerID, _soundsPath[radio_id][LOCAL_START].toStdString().c_str());
 		}
 	}
 
@@ -640,6 +670,42 @@ void KRTComms::SetPushToTalk(uint64 serverConnectionHandlerID, bool shouldTalk) 
 
 void KRTComms::Reset(uint64 serverConnectionHandlerID) {
 	//_ts3.printMessageToCurrentTab("RESET");
+
+	/*
+	char** resultModeList;
+
+	unsigned int res = _ts3.getPlaybackModeList(&resultModeList);
+	if (res == ERROR_ok) {
+
+
+		for (int i = 0; resultModeList[i] != NULL; ++i) {
+			_ts3.printMessageToCurrentTab(resultModeList[i]);
+			_ts3.freeMemory(resultModeList[i]);
+		}
+		_ts3.freeMemory(resultModeList);
+	}
+	*/
+	/*
+	const char* modeId = "Direct Sound";
+	
+	char*** result;
+	unsigned int res = _ts3.getPlaybackDeviceList(modeId, &result);
+	if (res == ERROR_ok) {
+		for (int i = 0; result[i] != NULL; ++i) {
+			_ts3.printMessageToCurrentTab(result[i][0]);
+			_ts3.printMessageToCurrentTab(result[i][1]);
+
+			_ts3.freeMemory(result[i][0]);
+			_ts3.freeMemory(result[i][1]);
+			_ts3.freeMemory(result[i]);
+		}
+		_ts3.freeMemory(result);
+	}
+	
+
+	return;
+	*/
+	
 	_ts3.requestClientSetWhisperList(serverConnectionHandlerID, NULL, NULL, NULL, NULL);
 	SetPushToTalk(serverConnectionHandlerID, false);
 	for (int radio_id = 0; radio_id < _isWhispering[serverConnectionHandlerID].size(); radio_id++) {
@@ -903,6 +969,10 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 					}
 				}
 
+				if (_pans[radio_id] != 0.0f) {
+					*channelFillMask = SPEAKER_HEADPHONES_LEFT | SPEAKER_FRONT_LEFT | SPEAKER_HEADPHONES_RIGHT | SPEAKER_FRONT_RIGHT;
+				}
+
 				break;
 			}
 		}
@@ -912,6 +982,10 @@ void KRTComms::OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	}
 	catch (...) {
 		_ts3.logMessage("Unkown exception", LogLevel_ERROR, "KRTC OnEditPostProcessVoiceDataEvent", serverConnectionHandlerID);
+	}
+
+	if (_muteInStream[serverConnectionHandlerID].contains(clientID)) {
+		*channelFillMask = SPEAKER_FRONT_CENTER;
 	}
 }
 
@@ -1151,10 +1225,12 @@ void KRTComms::OnUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint
 
 void KRTComms::OnClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	SetFreqByChannelname(serverConnectionHandlerID, clientID, newChannelID);
+	//EnsureStreamerGroup(serverConnectionHandlerID, clientID, newChannelID);
 }
 
 void KRTComms::OnClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
 	SetFreqByChannelname(serverConnectionHandlerID, clientID, newChannelID);
+	//EnsureStreamerGroup(serverConnectionHandlerID, clientID, newChannelID);
 }
 
 void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID) {
@@ -1178,6 +1254,48 @@ void KRTComms::SetFreqByChannelname(uint64 serverConnectionHandlerID, anyID clie
 
 		_ts3.freeMemory(name);
 	}
+}
+
+void KRTComms::EnsureStreamerGroup(uint64 serverConnectionHandlerID, anyID clientID, uint64 newChannelID) {
+	if (!_markAsStreamer) return;
+
+
+}
+
+void KRTComms::OnClientChannelGroupChangedEvent(uint64 serverConnectionHandlerID, uint64 channelGroupID, uint64 channelID, anyID clientID, anyID invokerClientID, const char* invokerName, const char* invokerUniqueIdentity) {
+
+	//QString logmessage = QString::number(channelGroupID) + " " + QString::number(channelID);
+	//_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+
+	anyID me;
+	_ts3.getClientID(serverConnectionHandlerID, &me);
+	if (me == clientID) {
+
+		if (_streamerChannelGroupID[serverConnectionHandlerID] == channelGroupID) {
+
+			_markAsStreamer = true;
+			//const uint64* channelGroupIDArray;
+			//const uint64* channelIDArray;
+			//const uint64* clientDatabaseIDArray, int arraySize, const char* returnCode;
+			//_ts3.requestSetClientChannelGroup(serverConnectionHandlerID, )
+		}
+	}
+
+}
+
+void KRTComms::OnChannelGroupListEvent(uint64 serverConnectionHandlerID, uint64 channelGroupID, const char* name, int type, int iconID, int saveDB) {
+	if (QString(name).contains("Tonaufnahme")) {
+		_streamerChannelGroupID[serverConnectionHandlerID] = channelGroupID;
+	}
+
+	//if (_debug) {
+	//	QString logmessage = QString::number(channelGroupID) + " " + QString(name);
+	//	_ts3.printMessageToCurrentTab(logmessage.toStdString().c_str());
+	//}
+}
+
+void KRTComms::OnChannelGroupListFinishedEvent(uint64 serverConnectionHandlerID) {
+
 }
 
 void KRTComms::ReloadConfig(uint64 serverConnectionHandlerID) {
@@ -1226,4 +1344,15 @@ void KRTComms::RequestServerGroupsByClientID(uint64 serverConnectionHandlerID, u
 void KRTComms::OnServerGroupByClientIDEvent(uint64 serverConnectionHandlerID, const char* name, uint64 serverGroupList, uint64 clientDatabaseID) {
 	//Diese Funktion wird je Server Gruppe aufgerufen (in meinen Fall 4 Server Gruppen also 4 mal)
 	//_ts3.printMessageToCurrentTab(name);
+}
+
+void KRTComms::MuteInStream(uint64 serverConnectionhandlerID, anyID clientID, bool mute) {
+	if (mute) {
+		if (!_muteInStream[serverConnectionhandlerID].contains(clientID)) {
+			_muteInStream[serverConnectionhandlerID].append(clientID);
+		}
+	}
+	else {
+		_muteInStream[serverConnectionhandlerID].removeAll(clientID);
+	}
 }
